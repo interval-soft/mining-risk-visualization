@@ -416,3 +416,52 @@ body {
         right: 10px;
     }
 }
+
+/* Client Logo (top-left) */
+#client-logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 150;
+}
+
+#client-logo img {
+    height: 40px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Branding (bottom-right) */
+#branding {
+    position: absolute;
+    bottom: 90px;
+    right: 20px;
+    z-index: 100;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: right;
+    line-height: 1.5;
+}
+
+#branding span {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    #client-logo {
+        top: 10px;
+        right: 10px;
+    }
+
+    #client-logo img {
+        height: 30px;
+    }
+
+    #branding {
+        font-size: 9px;
+        bottom: 85px;
+        right: 10px;
+    }
+}
