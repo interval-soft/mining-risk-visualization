@@ -22,11 +22,13 @@
     background: var(--btn-bg);
     border: 1px solid var(--btn-border);
     color: var(--text-primary);
-    padding: 8px 12px;
+    padding: 0 12px;
+    height: 36px;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     font-size: 12px;
     font-weight: 600;
@@ -74,7 +76,8 @@
     background: var(--btn-bg);
     border: 1px solid var(--btn-border);
     color: var(--text-primary);
-    padding: 8px 12px;
+    padding: 0 12px;
+    height: 36px;
     border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
@@ -92,8 +95,12 @@
     font-size: 14px;
     color: var(--text-primary);
     min-width: 50px;
+    height: 36px;
     text-align: center;
     padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: color 0.3s;
 }
 
