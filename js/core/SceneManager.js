@@ -6,7 +6,10 @@ export class SceneManager {
     constructor(container) {
         this.container = container;
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(CONFIG.COLORS.BACKGROUND);
+
+        // Set initial background based on current theme
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        this.scene.background = new THREE.Color(isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT);
 
         this.camera = this.createCamera();
         this.renderer = this.createRenderer();
@@ -15,6 +18,15 @@ export class SceneManager {
         this.handleResize();
 
         window.addEventListener('resize', () => this.handleResize());
+
+        // Listen for theme changes
+        window.addEventListener('themechange', (e) => this.onThemeChange(e.detail.theme));
+    }
+
+    onThemeChange(theme) {
+        const isDark = theme === 'dark';
+        const targetColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
+        this.scene.background = new THREE.Color(targetColor);
     }
 
     createCamera() {
