@@ -523,17 +523,17 @@ body {
     right: 20px;
     z-index: 100;
     font-family: 'Roboto Mono', monospace;
-    font-size: 11px;
+    font-size: 14px;
     color: var(--text-muted);
     text-align: right;
-    line-height: 1.5;
-    opacity: 0.6;
+    line-height: 1.6;
+    opacity: 0.7;
     transition: color 0.3s;
 }
 
 #branding span {
-    font-size: 10px;
-    opacity: 0.8;
+    font-size: 12px;
+    opacity: 0.9;
 }
 
 @media (max-width: 768px) {
@@ -547,7 +547,7 @@ body {
     }
 
     #branding {
-        font-size: 9px;
+        font-size: 11px;
         bottom: 85px;
         right: 10px;
     }
