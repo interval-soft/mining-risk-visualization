@@ -1,0 +1,166 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #1a1a2e;
+    overflow: hidden;
+}
+
+#app {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+}
+
+.control-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.control-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: absolute;
+    display: none;
+    background: rgba(20, 20, 30, 0.95);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: white;
+    font-size: 14px;
+    max-width: 320px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.tooltip-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.risk-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.risk-indicator.high { background: #F44336; }
+.risk-indicator.medium { background: #FFC107; }
+.risk-indicator.low { background: #4CAF50; }
+
+.tooltip-activities {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.activity-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 13px;
+}
+
+.status-badge {
+    font-size: 11px;
+    color: #888;
+    margin-left: auto;
+}
+
+/* Level labels (CSS2D) */
+.level-label {
+    background: rgba(0, 0, 0, 0.75);
+    border-left: 3px solid #fff;
+    padding: 8px 12px;
+    font-family: 'Roboto Mono', monospace;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.level-number {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.level-name {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.level-depth {
+    font-size: 10px;
+    color: #666;
+}
+
+/* Filter panel */
+#filter-panel {
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.filter-section h3 {
+    color: #888;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.filter-btn.active {
+    opacity: 1;
+}
+
+.filter-btn .indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--filter-color);
+}
