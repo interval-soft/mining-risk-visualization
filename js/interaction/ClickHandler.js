@@ -8,6 +8,15 @@ export class ClickHandler {
         this.camera = cameraController;
         this.labels = labelRenderer;
         this.isolatedLevel = null;
+        this.onLevelSelect = null; // Callback for level selection
+    }
+
+    /**
+     * Set callback for when a level is selected.
+     * @param {Function} callback - Function that receives level number
+     */
+    setLevelSelectHandler(callback) {
+        this.onLevelSelect = callback;
     }
 
     onClick(event, canvas) {
@@ -43,6 +52,11 @@ export class ClickHandler {
         });
 
         this.camera.focusOnLevel(levelMesh.position.y);
+
+        // Trigger level select callback
+        if (this.onLevelSelect) {
+            this.onLevelSelect(levelMesh.userData.levelNumber);
+        }
     }
 
     exitIsolation() {

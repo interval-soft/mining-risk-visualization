@@ -1,0 +1,369 @@
+/* Detail Panel Styles */
+
+#detail-container {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    width: 320px;
+    max-height: calc(100vh - 160px);
+    z-index: 100;
+    display: none;
+}
+
+.detail-panel {
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.detail-panel.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Header */
+.detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.detail-close {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.detail-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Content */
+.detail-content {
+    padding: 16px;
+    max-height: calc(100vh - 230px);
+    overflow-y: auto;
+}
+
+.detail-empty {
+    color: #666;
+    text-align: center;
+    padding: 40px 0;
+}
+
+/* Level Info */
+.detail-level-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.detail-level-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.detail-level-name {
+    font-size: 14px;
+    color: #888;
+}
+
+/* Risk Section */
+.detail-risk-section {
+    margin-bottom: 20px;
+}
+
+.detail-risk-bar-container {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.detail-risk-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.detail-risk-bar.low {
+    background: linear-gradient(90deg, #4CAF50, #66BB6A);
+}
+
+.detail-risk-bar.medium {
+    background: linear-gradient(90deg, #FFC107, #FFCA28);
+}
+
+.detail-risk-bar.high {
+    background: linear-gradient(90deg, #F44336, #EF5350);
+}
+
+.detail-risk-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-risk-score {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.detail-risk-band {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-risk-band.low {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.detail-risk-band.medium {
+    background: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+
+.detail-risk-band.high {
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+}
+
+/* Explanation */
+.detail-explanation {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.detail-explanation h4 {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.detail-explanation p {
+    margin: 0;
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.5;
+}
+
+/* Rules */
+.detail-rules {
+    margin-bottom: 16px;
+}
+
+.detail-rules h4 {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.rule-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.rule-item.force {
+    background: rgba(244, 67, 54, 0.1);
+    border-left: 2px solid #F44336;
+}
+
+.rule-name {
+    color: #ddd;
+}
+
+.rule-impact {
+    color: #F44336;
+    font-weight: 600;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Activities */
+.detail-activities {
+    margin-bottom: 16px;
+}
+
+.detail-activities h4 {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.activity-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-risk {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.activity-risk.low { background: #4CAF50; }
+.activity-risk.medium { background: #FFC107; }
+.activity-risk.high { background: #F44336; }
+
+.activity-name {
+    flex: 1;
+    color: #ddd;
+}
+
+.activity-status {
+    color: #666;
+    font-size: 11px;
+}
+
+/* Alerts Section */
+.detail-alerts-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.detail-alerts-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.detail-alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 10px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: 4px;
+    margin-bottom: 4px;
+    border-left: 3px solid transparent;
+}
+
+.detail-alert.severity-critical {
+    border-left-color: #F44336;
+}
+
+.detail-alert.severity-high {
+    border-left-color: #FF9800;
+}
+
+.detail-alert.severity-medium {
+    border-left-color: #FFC107;
+}
+
+.detail-alert.severity-low {
+    border-left-color: #4CAF50;
+}
+
+.detail-alert-cause {
+    font-size: 12px;
+    color: #ddd;
+    flex: 1;
+}
+
+.detail-alert-time {
+    font-size: 10px;
+    color: #888;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.no-alerts {
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+    padding: 12px;
+}
+
+/* Scrollbar */
+.detail-content::-webkit-scrollbar,
+.detail-alerts-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.detail-content::-webkit-scrollbar-track,
+.detail-alerts-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.detail-content::-webkit-scrollbar-thumb,
+.detail-alerts-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #detail-container {
+        top: auto;
+        bottom: 100px;
+        left: 20px;
+        right: 20px;
+        width: auto;
+        max-height: 50vh;
+    }
+}

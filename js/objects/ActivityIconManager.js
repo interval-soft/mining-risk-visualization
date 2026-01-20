@@ -83,4 +83,42 @@ export class ActivityIconManager {
     getAllSprites() {
         return this.sprites;
     }
+
+    /**
+     * Update activity icons for a level based on new data.
+     * @param {Object} levelData - Level data with activities array
+     * @param {THREE.Mesh} levelMesh - The level mesh (for positioning)
+     */
+    updateActivityIcons(levelData, levelMesh) {
+        const levelNumber = levelData.level;
+
+        // Get existing sprites for this level
+        const existingSprites = this.sprites.filter(
+            s => s.userData.levelNumber === levelNumber
+        );
+
+        // Update colors based on new risk values
+        levelData.activities.forEach((activity, index) => {
+            const sprite = existingSprites[index];
+            if (sprite) {
+                // Update color based on risk
+                const risk = activity.risk || this.scoreToRisk(activity.riskScore);
+                const color = RiskResolver.getRiskColor(risk);
+                sprite.material.color.setHex(color);
+
+                // Update userData
+                sprite.userData.activity = activity;
+            }
+        });
+    }
+
+    /**
+     * Convert numeric score to risk band.
+     */
+    scoreToRisk(score) {
+        if (score == null) return 'low';
+        if (score <= 30) return 'low';
+        if (score <= 70) return 'medium';
+        return 'high';
+    }
 }

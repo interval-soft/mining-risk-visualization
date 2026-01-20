@@ -164,3 +164,255 @@ body {
     border-radius: 50%;
     background: var(--filter-color);
 }
+
+/* Layout: Sidebar */
+.sidebar {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    width: 280px;
+    max-height: calc(100vh - 160px);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#alerts-container {
+    flex: 1;
+    min-height: 200px;
+    max-height: 400px;
+}
+
+/* Top bar */
+#top-bar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 100;
+}
+
+/* Mode indicator */
+.mode-indicator {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.mode-indicator.live {
+    color: #4CAF50;
+    border: 1px solid #4CAF50;
+}
+
+.mode-indicator.live::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4CAF50;
+    margin-right: 8px;
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.mode-indicator.historical {
+    color: #FFC107;
+    border: 1px solid #FFC107;
+}
+
+.mode-indicator.historical::before {
+    content: '◷';
+    margin-right: 8px;
+}
+
+/* Timeline container */
+#timeline-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+/* Risk score display in labels */
+.level-risk-score {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.level-risk-score.risk-low {
+    background: rgba(76, 175, 80, 0.3);
+    color: #4CAF50;
+}
+
+.level-risk-score.risk-medium {
+    background: rgba(255, 193, 7, 0.3);
+    color: #FFC107;
+}
+
+.level-risk-score.risk-high {
+    background: rgba(244, 67, 54, 0.3);
+    color: #F44336;
+}
+
+/* Hide old ui-overlay (replaced by new layout) */
+#ui-overlay {
+    display: none;
+}
+
+/* Canvas should account for sidebars and timeline */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* Loading state */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26, 26, 46, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #2196F3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Connection status indicator */
+.connection-status {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 101;
+    display: none;
+}
+
+.connection-status.disconnected {
+    display: block;
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.connection-status.reconnecting {
+    display: block;
+    background: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+/* Keyboard shortcuts hint (can be toggled) */
+.shortcuts-hint {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #888;
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.shortcuts-hint.visible {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 240px;
+    }
+
+    #detail-container {
+        width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: calc(100vw - 40px);
+        max-height: 250px;
+        top: auto;
+        bottom: 80px;
+    }
+
+    #alerts-container {
+        max-height: 150px;
+    }
+
+    #detail-container {
+        position: fixed;
+        top: auto;
+        bottom: 80px;
+        left: 20px;
+        right: 20px;
+        width: auto;
+        max-height: 40vh;
+    }
+
+    #top-bar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .mode-indicator {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        left: 10px;
+        right: 10px;
+        width: auto;
+    }
+
+    #top-bar {
+        left: 10px;
+        right: 10px;
+    }
+}

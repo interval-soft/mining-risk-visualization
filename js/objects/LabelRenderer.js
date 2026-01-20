@@ -41,6 +41,36 @@ export class LabelRenderer {
         }
     }
 
+    /**
+     * Update a level's label with new data.
+     * @param {Object} levelData - Level data with name, riskScore, etc.
+     */
+    updateLevelLabel(levelData) {
+        const label = this.labels.get(levelData.level);
+        if (!label) return;
+
+        const div = label.element;
+
+        // Update name
+        const nameEl = div.querySelector('.level-name');
+        if (nameEl) {
+            nameEl.textContent = levelData.name;
+        }
+
+        // Update or add risk score display
+        let scoreEl = div.querySelector('.level-risk-score');
+        if (levelData.riskScore !== undefined) {
+            if (!scoreEl) {
+                scoreEl = document.createElement('div');
+                scoreEl.className = 'level-risk-score';
+                div.appendChild(scoreEl);
+            }
+            const riskBand = levelData.riskBand || 'low';
+            scoreEl.textContent = `Risk: ${levelData.riskScore}`;
+            scoreEl.className = `level-risk-score risk-${riskBand}`;
+        }
+    }
+
     render(scene, camera) {
         this.renderer.render(scene, camera);
     }

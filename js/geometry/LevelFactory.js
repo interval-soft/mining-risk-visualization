@@ -49,4 +49,22 @@ export class LevelFactory {
     getAllLevels() {
         return Array.from(this.levels.values());
     }
+
+    /**
+     * Update a level's risk display (material color).
+     * @param {number} levelNumber - The level to update
+     * @param {string} riskBand - New risk band: 'low', 'medium', or 'high'
+     */
+    updateLevelRisk(levelNumber, riskBand) {
+        const mesh = this.levels.get(levelNumber);
+        if (!mesh) return;
+
+        // Update material color
+        const newMaterial = this.materialSystem.createLevelMaterial(riskBand);
+        mesh.material.dispose();
+        mesh.material = newMaterial;
+
+        // Update userData
+        mesh.userData.risk = riskBand;
+    }
 }

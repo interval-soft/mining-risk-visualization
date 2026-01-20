@@ -1,0 +1,236 @@
+/* Timeline Panel Styles */
+
+.timeline-panel {
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Controls Section */
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.timeline-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.timeline-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.timeline-btn:active {
+    transform: scale(0.95);
+}
+
+/* Live Button */
+.live-btn {
+    position: relative;
+}
+
+.live-btn .live-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #666;
+    transition: background 0.2s;
+}
+
+.live-btn.active {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: #4CAF50;
+}
+
+.live-btn.active .live-indicator {
+    background: #4CAF50;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Speed Select */
+.speed-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.speed-select option {
+    background: #1a1a2e;
+    color: white;
+}
+
+/* Time Display */
+.time-display {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    color: #fff;
+    min-width: 50px;
+    text-align: center;
+    padding: 0 8px;
+}
+
+/* Track Container */
+.timeline-track-container {
+    flex: 1;
+    min-width: 0;
+}
+
+.timeline-track {
+    position: relative;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Progress Bar */
+.timeline-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(33, 150, 243, 0.3), rgba(33, 150, 243, 0.5));
+    border-radius: 4px;
+    pointer-events: none;
+    transition: width 0.1s linear;
+}
+
+/* Scrubber (Range Input) */
+.timeline-scrubber {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.timeline-scrubber::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 4px;
+    height: 24px;
+    background: #2196F3;
+    border: none;
+    cursor: grab;
+}
+
+.timeline-scrubber::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    background: #64B5F6;
+}
+
+.timeline-scrubber::-moz-range-thumb {
+    width: 4px;
+    height: 24px;
+    background: #2196F3;
+    border: none;
+    cursor: grab;
+}
+
+.timeline-scrubber::-moz-range-thumb:active {
+    cursor: grabbing;
+    background: #64B5F6;
+}
+
+/* Event Markers */
+.timeline-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.timeline-marker {
+    position: absolute;
+    top: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.timeline-marker:hover {
+    transform: translateX(-50%) scale(1.5);
+}
+
+.timeline-marker.severity-low {
+    background: #4CAF50;
+}
+
+.timeline-marker.severity-medium {
+    background: #FFC107;
+}
+
+.timeline-marker.severity-high {
+    background: #F44336;
+}
+
+.timeline-marker.severity-critical {
+    background: #F44336;
+    box-shadow: 0 0 4px #F44336;
+}
+
+/* Labels */
+.timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+
+.timeline-label {
+    font-size: 10px;
+    color: #888;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .timeline-panel {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .timeline-controls {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .timeline-track-container {
+        width: 100%;
+    }
+}

@@ -5,17 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mine Risk Visualization</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/timeline.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="css/detail.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
         <div id="canvas-container"></div>
-        <div id="ui-overlay">
+
+        <!-- Left sidebar: Filters + Alerts -->
+        <div id="left-sidebar" class="sidebar">
             <div id="filter-panel"></div>
+            <div id="alerts-container"></div>
+        </div>
+
+        <!-- Top bar with mode indicator and controls -->
+        <div id="top-bar">
+            <div id="mode-indicator" class="mode-indicator live">LIVE</div>
             <button id="reset-camera" class="control-btn">Reset View</button>
         </div>
+
+        <!-- Right sidebar: Detail Panel -->
+        <div id="detail-container"></div>
+
+        <!-- Timeline at bottom -->
+        <div id="timeline-container"></div>
+
+        <!-- Tooltip -->
         <div id="tooltip" class="tooltip"></div>
     </div>
 
+    <script src="js/env.js"></script>
     <script type="importmap">
     {
         "imports": {
