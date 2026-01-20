@@ -4,9 +4,10 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--bg-secondary);
     border-radius: 8px;
     overflow: hidden;
+    transition: background-color 0.3s;
 }
 
 /* Header */
@@ -15,15 +16,17 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--btn-bg);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .alerts-header h3 {
     margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
+    transition: color 0.3s;
 }
 
 .alerts-count {
@@ -34,10 +37,11 @@
     height: 24px;
     padding: 0 8px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--btn-bg);
     font-size: 12px;
     font-weight: 600;
-    color: #888;
+    color: var(--text-muted);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .alerts-count.has-active {
@@ -56,18 +60,20 @@
     display: flex;
     gap: 8px;
     padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--btn-bg);
+    transition: background-color 0.3s;
 }
 
 .alerts-filters select {
     flex: 1;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
     border-radius: 4px;
     padding: 8px 12px;
     font-size: 12px;
-    color: #fff;
+    color: var(--text-primary);
     cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .alerts-filters select:focus {
@@ -76,8 +82,8 @@
 }
 
 .alerts-filters select option {
-    background: #1a1a2e;
-    color: #fff;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 /* Alert List */
@@ -180,11 +186,12 @@
 
 .alert-cause {
     font-size: 13px;
-    color: #ddd;
+    color: var(--text-primary);
     line-height: 1.4;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transition: color 0.3s;
 }
 
 .alert-ack-info {

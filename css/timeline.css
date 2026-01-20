@@ -1,12 +1,13 @@
 /* Timeline Panel Styles */
 
 .timeline-panel {
-    background: rgba(0, 0, 0, 0.8);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
     padding: 12px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 /* Controls Section */
@@ -18,9 +19,9 @@
 }
 
 .timeline-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
@@ -33,7 +34,7 @@
 }
 
 .timeline-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--btn-bg-hover);
 }
 
 .timeline-btn:active {
@@ -70,28 +71,30 @@
 
 /* Speed Select */
 .speed-select {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .speed-select option {
-    background: #1a1a2e;
-    color: white;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 /* Time Display */
 .time-display {
     font-family: 'Roboto Mono', monospace;
     font-size: 14px;
-    color: #fff;
+    color: var(--text-primary);
     min-width: 50px;
     text-align: center;
     padding: 0 8px;
+    transition: color 0.3s;
 }
 
 /* Track Container */
@@ -103,9 +106,10 @@
 .timeline-track {
     position: relative;
     height: 24px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--btn-bg);
     border-radius: 4px;
     overflow: hidden;
+    transition: background-color 0.3s;
 }
 
 /* Progress Bar */
@@ -214,8 +218,9 @@
 
 .timeline-label {
     font-size: 10px;
-    color: #888;
+    color: var(--text-muted);
     font-family: 'Roboto Mono', monospace;
+    transition: color 0.3s;
 }
 
 /* Responsive */

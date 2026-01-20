@@ -37,6 +37,9 @@
         <div id="top-bar">
             <div id="mode-indicator" class="mode-indicator live">LIVE</div>
             <button id="reset-camera" class="control-btn">Reset View</button>
+            <button id="theme-toggle" class="control-btn theme-btn" title="Toggle light/dark mode">
+                <span class="theme-icon">☀️</span>
+            </button>
         </div>
 
         <!-- Right sidebar: Detail Panel -->
@@ -50,6 +53,36 @@
     </div>
 
     <script src="js/env.js"></script>
+    <script>
+        // Theme toggle functionality
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggle = document.getElementById('theme-toggle');
+                const icon = toggle.querySelector('.theme-icon');
+
+                function updateIcon() {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    icon.textContent = isDark ? '☀️' : '🌙';
+                }
+
+                updateIcon();
+
+                toggle.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('theme', next);
+                    updateIcon();
+
+                    // Dispatch event for Three.js scene to update
+                    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }));
+                });
+            });
+        })();
+    </script>
     <script type="importmap">
     {
         "imports": {

@@ -11,12 +11,12 @@
 }
 
 .detail-panel {
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--bg-panel);
     border-radius: 8px;
     overflow: hidden;
     opacity: 0;
     transform: translateX(20px);
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s, transform 0.2s, background-color 0.3s;
 }
 
 .detail-panel.visible {
@@ -30,21 +30,23 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--btn-bg);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .detail-header h3 {
     margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
+    transition: color 0.3s;
 }
 
 .detail-close {
     background: none;
     border: none;
-    color: #888;
+    color: var(--text-muted);
     font-size: 20px;
     cursor: pointer;
     padding: 0;
@@ -58,8 +60,8 @@
 }
 
 .detail-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: var(--btn-bg-hover);
+    color: var(--text-primary);
 }
 
 /* Content */
@@ -70,7 +72,7 @@
 }
 
 .detail-empty {
-    color: #666;
+    color: var(--text-muted);
     text-align: center;
     padding: 40px 0;
 }
@@ -86,12 +88,14 @@
 .detail-level-number {
     font-size: 24px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
+    transition: color 0.3s;
 }
 
 .detail-level-name {
     font-size: 14px;
-    color: #888;
+    color: var(--text-muted);
+    transition: color 0.3s;
 }
 
 /* Risk Section */
@@ -101,10 +105,11 @@
 
 .detail-risk-bar-container {
     height: 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--btn-bg);
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 8px;
+    transition: background-color 0.3s;
 }
 
 .detail-risk-bar {
@@ -134,7 +139,8 @@
 .detail-risk-score {
     font-size: 28px;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
+    transition: color 0.3s;
 }
 
 .detail-risk-band {
@@ -163,24 +169,27 @@
 
 /* Explanation */
 .detail-explanation {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--btn-bg);
     border-radius: 6px;
     padding: 12px;
     margin-bottom: 16px;
+    transition: background-color 0.3s;
 }
 
 .detail-explanation h4 {
     margin: 0 0 8px 0;
     font-size: 11px;
-    color: #888;
+    color: var(--text-muted);
     text-transform: uppercase;
+    transition: color 0.3s;
 }
 
 .detail-explanation p {
     margin: 0;
     font-size: 13px;
-    color: #ccc;
+    color: var(--text-secondary);
     line-height: 1.5;
+    transition: color 0.3s;
 }
 
 /* Rules */
@@ -191,8 +200,9 @@
 .detail-rules h4 {
     margin: 0 0 8px 0;
     font-size: 11px;
-    color: #888;
+    color: var(--text-muted);
     text-transform: uppercase;
+    transition: color 0.3s;
 }
 
 .rule-list {
@@ -206,10 +216,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 10px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--btn-bg);
     border-radius: 4px;
     margin-bottom: 4px;
     font-size: 12px;
+    transition: background-color 0.3s;
 }
 
 .rule-item.force {
@@ -218,7 +229,8 @@
 }
 
 .rule-name {
-    color: #ddd;
+    color: var(--text-secondary);
+    transition: color 0.3s;
 }
 
 .rule-impact {
@@ -235,8 +247,9 @@
 .detail-activities h4 {
     margin: 0 0 8px 0;
     font-size: 11px;
-    color: #888;
+    color: var(--text-muted);
     text-transform: uppercase;
+    transition: color 0.3s;
 }
 
 .activity-list {
@@ -250,8 +263,9 @@
     align-items: center;
     gap: 8px;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
     font-size: 12px;
+    transition: border-color 0.3s;
 }
 
 .activity-item:last-child {
@@ -271,20 +285,23 @@
 
 .activity-name {
     flex: 1;
-    color: #ddd;
+    color: var(--text-secondary);
+    transition: color 0.3s;
 }
 
 .activity-status {
-    color: #666;
+    color: var(--text-muted);
     font-size: 11px;
+    transition: color 0.3s;
 }
 
 /* Alerts Section */
 .detail-alerts-section h4 {
     margin: 0 0 8px 0;
     font-size: 11px;
-    color: #888;
+    color: var(--text-muted);
     text-transform: uppercase;
+    transition: color 0.3s;
 }
 
 .detail-alerts-list {
@@ -321,19 +338,21 @@
 
 .detail-alert-cause {
     font-size: 12px;
-    color: #ddd;
+    color: var(--text-secondary);
     flex: 1;
+    transition: color 0.3s;
 }
 
 .detail-alert-time {
     font-size: 10px;
-    color: #888;
+    color: var(--text-muted);
     white-space: nowrap;
     margin-left: 8px;
+    transition: color 0.3s;
 }
 
 .no-alerts {
-    color: #666;
+    color: var(--text-muted);
     font-size: 12px;
     text-align: center;
     padding: 12px;
@@ -347,12 +366,12 @@
 
 .detail-content::-webkit-scrollbar-track,
 .detail-alerts-list::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--btn-bg);
 }
 
 .detail-content::-webkit-scrollbar-thumb,
 .detail-alerts-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--btn-border);
     border-radius: 3px;
 }
 
