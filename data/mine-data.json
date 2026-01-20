@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-01-20T09:00:00Z",
+  "levels": [
+    {
+      "level": 1,
+      "name": "Processing & Logistics",
+      "activities": [
+        { "name": "Control Room Operations", "risk": "low", "status": "active" },
+        { "name": "Diesel Equipment Movement", "risk": "medium", "status": "active" }
+      ]
+    },
+    {
+      "level": 2,
+      "name": "Haulage & Crushing",
+      "activities": [
+        { "name": "Ore Crushing", "risk": "medium", "status": "active" },
+        { "name": "Conveyor Maintenance", "risk": "low", "status": "planned" }
+      ]
+    },
+    {
+      "level": 3,
+      "name": "Active Stoping",
+      "activities": [
+        { "name": "Blasting Operations", "risk": "high", "status": "planned" },
+        { "name": "Explosive Magazine Handling", "risk": "high", "status": "active" }
+      ]
+    },
+    {
+      "level": 4,
+      "name": "Development & Ground Support",
+      "activities": [
+        { "name": "Ground Support Installation", "risk": "medium", "status": "active" },
+        { "name": "Confined Space Work", "risk": "high", "status": "active" }
+      ]
+    },
+    {
+      "level": 5,
+      "name": "Ventilation & Pumping",
+      "activities": [
+        { "name": "Ventilation Fan Maintenance", "risk": "low", "status": "completed" },
+        { "name": "Dewatering Pump Check", "risk": "low", "status": "active" }
+      ]
+    }
+  ]
+}
