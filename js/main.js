@@ -19,6 +19,8 @@ import { FilterPanel } from './ui/FilterPanel.js';
 import { TimelinePanel } from './ui/TimelinePanel.js';
 import { AlertsPanel } from './ui/AlertsPanel.js';
 import { DetailPanel } from './ui/DetailPanel.js';
+import { AIInsightsPanel } from './ui/AIInsightsPanel.js';
+import { QueryInterface } from './ui/QueryInterface.js';
 
 class MineVisualizationApp {
     constructor() {
@@ -122,6 +124,33 @@ class MineVisualizationApp {
                     this.stateManager
                 );
             }
+
+            // Setup AI Insights panel (if container exists)
+            const aiInsightsContainer = document.getElementById('ai-insights-container');
+            if (aiInsightsContainer) {
+                this.aiInsightsPanel = new AIInsightsPanel(
+                    aiInsightsContainer,
+                    this.apiClient,
+                    this.stateManager
+                );
+
+                // Handle insight clicks to highlight level in 3D view
+                this.aiInsightsPanel.setInsightClickHandler((insight) => {
+                    this.highlightLevel(insight.levelNumber);
+                });
+            }
+
+            // Setup Query Interface (if container exists)
+            const queryContainer = document.getElementById('query-container');
+            if (queryContainer) {
+                this.queryInterface = new QueryInterface(
+                    queryContainer,
+                    this.apiClient
+                );
+            }
+
+            // Check AI status and update indicator
+            this.checkAIStatus();
 
             // Listen to state changes
             this.stateManager.addEventListener('stateChanged', (e) => {
@@ -332,6 +361,38 @@ class MineVisualizationApp {
         `;
         errorDiv.textContent = `Error: ${message}`;
         document.body.appendChild(errorDiv);
+    }
+
+    /**
+     * Check AI status and update the indicator in the top bar.
+     */
+    async checkAIStatus() {
+        const indicator = document.getElementById('ai-status');
+        if (!indicator) return;
+
+        const statusText = indicator.querySelector('.ai-status-text');
+
+        try {
+            const status = await this.apiClient.getAIStatus();
+
+            if (status.available && status.enabled) {
+                statusText.textContent = 'Active';
+                indicator.className = 'ai-status-indicator active';
+            } else if (status.enabled && !status.available) {
+                statusText.textContent = 'Unavailable';
+                indicator.className = 'ai-status-indicator offline';
+            } else {
+                statusText.textContent = 'Disabled';
+                indicator.className = 'ai-status-indicator offline';
+            }
+        } catch (error) {
+            console.warn('AI status check failed:', error);
+            statusText.textContent = 'Offline';
+            indicator.className = 'ai-status-indicator offline';
+        }
+
+        // Re-check every 5 minutes
+        setTimeout(() => this.checkAIStatus(), 5 * 60 * 1000);
     }
 }
 

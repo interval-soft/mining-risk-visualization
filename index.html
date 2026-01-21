@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/timeline.css">
     <link rel="stylesheet" href="css/alerts.css">
     <link rel="stylesheet" href="css/detail.css">
+    <link rel="stylesheet" href="css/ai.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -27,15 +28,20 @@
             <span>prepared by RevDev Asia</span>
         </div>
 
-        <!-- Left sidebar: Filters + Alerts -->
+        <!-- Left sidebar: Filters + Alerts + AI Insights -->
         <div id="left-sidebar" class="sidebar">
             <div id="filter-panel"></div>
             <div id="alerts-container"></div>
+            <div id="ai-insights-container"></div>
         </div>
 
         <!-- Top bar with mode indicator and controls -->
         <div id="top-bar">
             <div id="mode-indicator" class="mode-indicator live">LIVE</div>
+            <div id="ai-status" class="ai-status-indicator">
+                <span class="ai-badge">AI</span>
+                <span class="ai-status-text">Checking...</span>
+            </div>
             <button id="reset-camera" class="control-btn">Reset View</button>
             <button id="theme-toggle" class="control-btn theme-btn" title="Toggle light/dark mode">
                 <svg class="theme-icon sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -60,6 +66,9 @@
 
         <!-- Timeline at bottom -->
         <div id="timeline-container"></div>
+
+        <!-- AI Query Interface -->
+        <div id="query-container" class="query-panel"></div>
 
         <!-- Tooltip -->
         <div id="tooltip" class="tooltip"></div>

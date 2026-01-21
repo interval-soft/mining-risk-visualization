@@ -93,6 +93,128 @@ export class ApiClient {
         return response;
     }
 
+    // ========================================
+    // AI Features API Methods
+    // ========================================
+
+    /**
+     * Get AI system status.
+     * @returns {Promise<Object>} AI availability and configuration
+     */
+    async getAIStatus() {
+        return this.fetch('/ai/status');
+    }
+
+    /**
+     * Get AI insights with optional filtering.
+     * @param {Object} options - Filter options
+     * @param {number} [options.level] - Filter by level number
+     * @param {string} [options.status] - Filter by status: 'active', 'dismissed'
+     * @param {string} [options.severity] - Filter by severity
+     * @param {number} [options.limit] - Max results
+     * @returns {Promise<Object>} Object with insights array
+     */
+    async getAIInsights(options = {}) {
+        const params = new URLSearchParams();
+        if (options.level !== undefined) params.set('level', options.level.toString());
+        if (options.status) params.set('status', options.status);
+        if (options.severity) params.set('severity', options.severity);
+        if (options.limit) params.set('limit', options.limit.toString());
+
+        return this.fetch(`/ai/insights?${params}`);
+    }
+
+    /**
+     * Trigger anomaly detection for a level.
+     * @param {number} level - Level number to analyze
+     * @returns {Promise<Object>} Generated insights
+     */
+    async triggerAnomalyDetection(level) {
+        return this.fetch('/ai/insights', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level }),
+        });
+    }
+
+    /**
+     * Submit feedback on an AI insight.
+     * @param {string} insightId - Insight ID
+     * @param {string} feedbackType - 'agree', 'dismiss', 'helpful', 'not_helpful', 'incorrect'
+     * @param {string} [comment] - Optional comment
+     * @returns {Promise<Object>} Feedback confirmation
+     */
+    async submitInsightFeedback(insightId, feedbackType, comment) {
+        return this.fetch(`/ai/insights/${insightId}/feedback`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: feedbackType, comment }),
+        });
+    }
+
+    /**
+     * Get AI predictions with optional filtering.
+     * @param {Object} options - Filter options
+     * @param {number} [options.level] - Filter by level number
+     * @param {string} [options.window] - Filter by prediction window
+     * @param {boolean} [options.valid] - Only return valid (not expired) predictions
+     * @returns {Promise<Object>} Object with predictions array
+     */
+    async getPredictions(options = {}) {
+        const params = new URLSearchParams();
+        if (options.level !== undefined) params.set('level', options.level.toString());
+        if (options.window) params.set('window', options.window);
+        if (options.valid !== undefined) params.set('valid', options.valid.toString());
+
+        return this.fetch(`/ai/predictions?${params}`);
+    }
+
+    /**
+     * Generate a new prediction for a level.
+     * @param {number} level - Level number
+     * @param {string} [window='1_hour'] - Prediction window: '15_minutes', '1_hour', '1_shift'
+     * @returns {Promise<Object>} Generated prediction
+     */
+    async generatePrediction(level, window = '1_hour') {
+        return this.fetch('/ai/predictions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level, window }),
+        });
+    }
+
+    /**
+     * Ask a natural language question about the mine state.
+     * @param {string} query - Question in natural language
+     * @returns {Promise<Object>} Answer with citations and follow-ups
+     */
+    async queryAI(query) {
+        return this.fetch('/ai/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query }),
+        });
+    }
+
+    /**
+     * Get baselines for anomaly detection.
+     * @param {Object} options - Filter options
+     * @param {string} [options.type] - Baseline type
+     * @param {string} [options.status] - Status filter
+     * @returns {Promise<Object>} Object with baselines array
+     */
+    async getBaselines(options = {}) {
+        const params = new URLSearchParams();
+        if (options.type) params.set('type', options.type);
+        if (options.status) params.set('status', options.status);
+
+        return this.fetch(`/baselines?${params}`);
+    }
+
+    // ========================================
+    // End AI Features
+    // ========================================
+
     /**
      * Check if the API is available.
      * @returns {Promise<boolean>} True if API is reachable
