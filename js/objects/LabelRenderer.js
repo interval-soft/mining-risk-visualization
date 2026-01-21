@@ -75,30 +75,53 @@ export class LabelRenderer {
     }
 
     /**
-     * Update structure label focus state.
+     * Update structure label focus state and show/hide level labels.
      * @param {string|null} focusedCode - The focused structure code, or null for site view
      */
     setStructureFocus(focusedCode) {
+        // Update structure labels
         this.structureLabels.forEach((label, code) => {
             const div = label.element;
             if (focusedCode === null) {
-                // Site view - all labels normal
+                // Site view - all labels normal and visible
                 div.classList.remove('focused', 'unfocused');
             } else if (code === focusedCode) {
                 // This structure is focused
                 div.classList.add('focused');
                 div.classList.remove('unfocused');
             } else {
-                // Other structures are unfocused
+                // Other structures are unfocused (hidden)
                 div.classList.remove('focused');
                 div.classList.add('unfocused');
             }
         });
+
+        // Update level labels visibility
+        this.labels.forEach((label, key) => {
+            const structureCode = label.element.dataset.structureCode;
+            if (focusedCode === null) {
+                // Site view - all level labels visible
+                label.element.style.display = 'block';
+            } else if (structureCode === focusedCode) {
+                // This structure's labels visible
+                label.element.style.display = 'block';
+            } else {
+                // Other structures' labels hidden
+                label.element.style.display = 'none';
+            }
+        });
     }
 
-    createLevelLabel(levelData, levelMesh) {
+    /**
+     * Create a level label with structure context.
+     * @param {Object} levelData - Level data
+     * @param {THREE.Mesh} levelMesh - The level mesh to attach label to
+     * @param {string} structureCode - Optional structure code for multi-structure sites
+     */
+    createLevelLabel(levelData, levelMesh, structureCode = null) {
         const div = document.createElement('div');
         div.className = 'level-label';
+        div.dataset.structureCode = structureCode || '';
         div.innerHTML = `
             <div class="level-number">L${levelData.level}</div>
             <div class="level-name">${levelData.name}</div>
@@ -113,7 +136,10 @@ export class LabelRenderer {
         );
 
         levelMesh.add(label);
-        this.labels.set(levelData.level, label);
+
+        // Use composite key for multi-structure support
+        const key = structureCode ? `${structureCode}:${levelData.level}` : levelData.level;
+        this.labels.set(key, label);
     }
 
     setLabelVisibility(levelNumber, visible) {

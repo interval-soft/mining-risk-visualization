@@ -332,7 +332,7 @@ class MineVisualizationApp {
                 structure.levels.forEach(levelData => {
                     const mesh = this.structureManager.getLevelMesh(structure.code, levelData.level);
                     if (mesh) {
-                        this.labelRenderer.createLevelLabel(levelData, mesh);
+                        this.labelRenderer.createLevelLabel(levelData, mesh, structure.code);
                     }
                 });
             });
