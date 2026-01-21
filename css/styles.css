@@ -373,8 +373,8 @@ body {
 
 #ai-insights-container {
     flex: 0 0 auto;
-    min-height: 100px;
-    max-height: 180px;
+    min-height: 200px;
+    max-height: 360px;
     display: flex;
     flex-direction: column;
 }
