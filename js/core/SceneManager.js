@@ -8,47 +8,83 @@ export class SceneManager {
         this.container = container;
         this.scene = new THREE.Scene();
 
-        // Set initial background based on current theme
+        // Track custom background color
+        this.customBgColor = localStorage.getItem('bgColor');
+
+        // Set initial background based on saved color or theme
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-        this.scene.background = new THREE.Color(isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT);
+        if (this.customBgColor) {
+            this.scene.background = new THREE.Color(this.customBgColor);
+        } else {
+            this.scene.background = new THREE.Color(isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT);
+        }
 
         this.camera = this.createCamera();
         this.renderer = this.createRenderer();
 
         this.setupLighting();
         this.setupEnvironment();
-        
+
         // Initialize post-processing pipeline with theme
         this.postProcessing = new PostProcessing(this.renderer, this.scene, this.camera);
         this.postProcessing.setTheme(isDark);
-        
+
         this.handleResize();
 
         window.addEventListener('resize', () => this.handleResize());
 
         // Listen for theme changes
         window.addEventListener('themechange', (e) => this.onThemeChange(e.detail.theme));
+
+        // Listen for background color changes
+        window.addEventListener('bgcolorchange', (e) => this.onBgColorChange(e.detail.color));
     }
 
     onThemeChange(theme) {
         const isDark = theme === 'dark';
-        const targetColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
-        this.scene.background = new THREE.Color(targetColor);
-        
-        // Update fog color and density (reduced for deeper mine)
+
+        // Only use theme colors if no custom background is set
+        if (!this.customBgColor) {
+            const targetColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
+            this.scene.background = new THREE.Color(targetColor);
+
+            // Update fog color
+            if (this.scene.fog) {
+                this.scene.fog.color = new THREE.Color(targetColor);
+            }
+        }
+
+        // Update fog density (reduced for deeper mine)
         if (this.scene.fog) {
-            this.scene.fog.color = new THREE.Color(targetColor);
             this.scene.fog.density = isDark ? 0.0006 : 0.00025;
         }
-        
+
         // Update ground plane - subtle in light mode
         if (this.groundPlane) {
             this.groundPlane.material.color.setHex(isDark ? 0x0d0d1a : 0xd8dce0);
         }
-        
+
         // Update post-processing for theme
         if (this.postProcessing) {
             this.postProcessing.setTheme(isDark);
+        }
+
+        // Update color picker to match theme default if no custom color
+        if (!this.customBgColor) {
+            const picker = document.getElementById('bg-color-picker');
+            if (picker) {
+                picker.value = isDark ? '#0d1117' : '#e8eaed';
+            }
+        }
+    }
+
+    onBgColorChange(color) {
+        this.customBgColor = color;
+        this.scene.background = new THREE.Color(color);
+
+        // Update fog to match background for seamless depth fade
+        if (this.scene.fog) {
+            this.scene.fog.color = new THREE.Color(color);
         }
     }
 
@@ -124,7 +160,8 @@ export class SceneManager {
     setupEnvironment() {
         // Exponential fog for depth atmosphere
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-        const fogColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
+        // Use custom background color for fog if set, otherwise use theme color
+        const fogColor = this.customBgColor || (isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT);
         // Reduced fog density for deeper 7-level mine
         this.scene.fog = new THREE.FogExp2(fogColor, isDark ? 0.0006 : 0.00025);
 

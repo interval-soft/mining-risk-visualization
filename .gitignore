@@ -25,3 +25,4 @@ backend/dist/
 
 # Serena cache
 .serena/
+.vercel

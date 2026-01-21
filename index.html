@@ -44,6 +44,10 @@
                 <span class="ai-status-text">Checking...</span>
             </div>
             <button id="reset-camera" class="control-btn">Reset View</button>
+            <div class="bg-color-picker-wrapper" title="Change background color">
+                <input type="color" id="bg-color-picker" class="bg-color-picker" value="#0d1117">
+                <span class="bg-color-label">BG</span>
+            </div>
             <button id="theme-toggle" class="control-btn theme-btn" title="Toggle light/dark mode">
                 <svg class="theme-icon sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
@@ -109,6 +113,25 @@
 
                     // Dispatch event for Three.js scene to update
                     window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }));
+                });
+
+                // Background color picker
+                const bgColorPicker = document.getElementById('bg-color-picker');
+
+                // Load saved background color or use default based on theme
+                const savedBgColor = localStorage.getItem('bgColor');
+                if (savedBgColor) {
+                    bgColorPicker.value = savedBgColor;
+                } else {
+                    // Set default based on current theme
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    bgColorPicker.value = isDark ? '#0d1117' : '#e8eaed';
+                }
+
+                bgColorPicker.addEventListener('input', function(e) {
+                    const color = e.target.value;
+                    localStorage.setItem('bgColor', color);
+                    window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: color } }));
                 });
             });
         })();

@@ -121,6 +121,58 @@ body {
     color: #7C8CFF;
 }
 
+/* Background color picker */
+.bg-color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: 8px;
+    padding: 4px 10px 4px 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.bg-color-picker-wrapper:hover {
+    background: var(--btn-bg-hover);
+}
+
+.bg-color-picker {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+    background: transparent;
+}
+
+.bg-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.bg-color-picker::-webkit-color-swatch {
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.bg-color-picker::-moz-color-swatch {
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.bg-color-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Tooltip styles */
 .tooltip {
     position: absolute;
