@@ -98,11 +98,11 @@ export class LabelRenderer {
 
         // Update level labels visibility
         this.labels.forEach((label, key) => {
-            const structureCode = label.element.dataset.structureCode;
+            const labelStructureCode = label.structureCode || '';
             if (focusedCode === null) {
                 // Site view - all level labels visible
                 label.element.style.display = 'block';
-            } else if (structureCode === focusedCode) {
+            } else if (labelStructureCode === focusedCode) {
                 // This structure's labels visible
                 label.element.style.display = 'block';
             } else {
@@ -121,7 +121,6 @@ export class LabelRenderer {
     createLevelLabel(levelData, levelMesh, structureCode = null) {
         const div = document.createElement('div');
         div.className = 'level-label';
-        div.dataset.structureCode = structureCode || '';
         div.innerHTML = `
             <div class="level-number">L${levelData.level}</div>
             <div class="level-name">${levelData.name}</div>
@@ -129,6 +128,8 @@ export class LabelRenderer {
         `;
 
         const label = new CSS2DObject(div);
+        // Store structure code directly on the label object
+        label.structureCode = structureCode || '';
         label.position.set(
             CONFIG.LABEL_OFFSET_X,
             0,
