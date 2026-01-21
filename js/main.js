@@ -448,6 +448,11 @@ class MineVisualizationApp {
                 this.cameraController.focusOnStructure(worldPos);
             }
         }
+
+        // Update label visibility
+        if (this.labelRenderer) {
+            this.labelRenderer.setStructureFocus(structureCode);
+        }
     }
 
     /**
@@ -459,6 +464,11 @@ class MineVisualizationApp {
         // Update 3D view
         if (this.structureManager) {
             this.structureManager.setFocusMode(null);
+        }
+
+        // Update label visibility
+        if (this.labelRenderer) {
+            this.labelRenderer.setStructureFocus(null);
         }
 
         // Animate camera to site view
