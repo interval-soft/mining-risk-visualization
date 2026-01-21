@@ -37,6 +37,7 @@ export class DemoTriggerPanel {
      */
     getTemplate() {
         return `
+            <div class="demo-panel-container">
             <div class="demo-panel-header">
                 <h3>Demo Control Panel</h3>
                 <span class="demo-panel-shortcut">Ctrl+Shift+D</span>
@@ -121,6 +122,7 @@ export class DemoTriggerPanel {
                         </div>
                     </div>
                 </section>
+            </div>
             </div>
         `;
     }

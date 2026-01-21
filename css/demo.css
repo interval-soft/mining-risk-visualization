@@ -84,21 +84,20 @@
 }
 
 /* Panel Container */
-.demo-panel-header,
-.demo-panel-content {
+.demo-panel-container {
     background: #1e1e2e;
     border: 1px solid #3a3a5a;
+    border-radius: 12px;
     max-width: 480px;
     width: 90%;
-    margin: 0 auto;
+    overflow: hidden;
 }
 
 .demo-panel-header {
     display: flex;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: none;
-    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid #3a3a5a;
     background: linear-gradient(135deg, #2a2a4a, #1e1e2e);
 }
 
@@ -140,7 +139,6 @@
 
 .demo-panel-content {
     padding: 20px;
-    border-radius: 0 0 12px 12px;
     max-height: 70vh;
     overflow-y: auto;
 }
