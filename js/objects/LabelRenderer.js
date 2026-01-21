@@ -105,15 +105,12 @@ export class LabelRenderer {
                 labelStructureCode = key.split(':')[0];
             }
 
-            if (focusedCode === null) {
-                // Site view - all level labels visible
-                label.element.style.display = 'block';
-            } else if (labelStructureCode === focusedCode) {
-                // This structure's labels visible
-                label.element.style.display = 'block';
-            } else {
-                // Other structures' labels hidden
-                label.element.style.display = 'none';
+            const shouldShow = focusedCode === null || labelStructureCode === focusedCode;
+
+            // Use Three.js visible property AND DOM display
+            label.visible = shouldShow;
+            if (label.element) {
+                label.element.style.display = shouldShow ? 'block' : 'none';
             }
         });
     }
