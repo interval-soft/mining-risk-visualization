@@ -277,6 +277,24 @@ class MineVisualizationApp {
             this.demoMode = new DemoMode(this.stateManager, this.apiClient);
             await this.demoMode.initialize();
 
+            // Demo mode toggle button
+            const demoToggleBtn = document.getElementById('demo-mode-toggle');
+            if (demoToggleBtn) {
+                demoToggleBtn.addEventListener('click', () => {
+                    if (this.demoMode.isActive) {
+                        this.demoMode.deactivate();
+                        demoToggleBtn.classList.remove('active');
+                    } else {
+                        this.demoMode.activate();
+                        demoToggleBtn.classList.add('active');
+                    }
+                });
+                // Set initial state if demo is already active
+                if (this.demoMode.isActive) {
+                    demoToggleBtn.classList.add('active');
+                }
+            }
+
             console.log('Mine Visualization initialized successfully');
             console.log(`Data source: ${this.dataLoader.isUsingApi() ? 'API' : 'Static JSON'}`);
             console.log(`Mode: ${hasMultipleStructures ? 'Multi-Structure' : 'Single-Structure'}`);

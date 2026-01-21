@@ -236,6 +236,12 @@ export class DemoMode {
      * Show "DEMO MODE" indicator in the header
      */
     showIndicator() {
+        // Update toggle button state
+        const toggleBtn = document.getElementById('demo-mode-toggle');
+        if (toggleBtn) {
+            toggleBtn.classList.add('active');
+        }
+
         let indicator = document.getElementById('demo-mode-indicator');
         
         if (!indicator) {
@@ -264,6 +270,12 @@ export class DemoMode {
      * Hide "DEMO MODE" indicator
      */
     hideIndicator() {
+        // Update toggle button state
+        const toggleBtn = document.getElementById('demo-mode-toggle');
+        if (toggleBtn) {
+            toggleBtn.classList.remove('active');
+        }
+
         const indicator = document.getElementById('demo-mode-indicator');
         if (indicator) {
             indicator.style.display = 'none';

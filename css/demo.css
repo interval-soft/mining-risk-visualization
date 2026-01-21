@@ -9,7 +9,48 @@
  */
 
 /* ============================================
-   DEMO MODE INDICATOR
+   DEMO MODE TOGGLE BUTTON
+   ============================================ */
+
+.demo-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #2a2a4a;
+    border: 1px solid #3a3a5a;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 12px;
+}
+
+.demo-mode-toggle:hover {
+    background: #3a3a5a;
+    border-color: #9C27B0;
+    color: #fff;
+}
+
+.demo-mode-toggle.active {
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+    border-color: #9C27B0;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.4);
+}
+
+.demo-toggle-icon {
+    font-size: 14px;
+}
+
+.demo-toggle-label {
+    font-family: inherit;
+}
+
+/* ============================================
+   DEMO MODE INDICATOR (when active)
    ============================================ */
 
 .demo-mode-indicator {
