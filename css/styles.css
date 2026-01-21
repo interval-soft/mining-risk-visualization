@@ -254,6 +254,54 @@ body {
     color: var(--text-muted);
 }
 
+/* Structure labels */
+.structure-label {
+    background: var(--bg-panel);
+    border: 2px solid var(--accent-color, #4a9eff);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Roboto Mono', monospace;
+    color: var(--text-primary);
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.structure-label:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent-hover, #6bb3ff);
+    transform: scale(1.05);
+}
+
+.structure-label.focused {
+    background: var(--accent-color, #4a9eff);
+    color: white;
+    border-color: var(--accent-color, #4a9eff);
+}
+
+.structure-label.focused:hover {
+    background: var(--accent-hover, #6bb3ff);
+}
+
+.structure-label.unfocused {
+    opacity: 0.4;
+}
+
+.structure-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.structure-type {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.structure-label.focused .structure-type {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 /* Filter panel */
 #filter-panel {
     background: var(--bg-secondary);

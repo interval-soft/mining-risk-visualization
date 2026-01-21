@@ -336,6 +336,9 @@ class MineVisualizationApp {
                     }
                 });
             });
+
+            // Create structure labels
+            this.createStructureLabels(mineData.structures);
         } else {
             // Single structure
             mineData.levels.forEach(levelData => {
@@ -347,6 +350,36 @@ class MineVisualizationApp {
                 }
             });
         }
+    }
+
+    /**
+     * Create clickable structure labels above each structure.
+     */
+    createStructureLabels(structures) {
+        // Set up click handler for structure labels
+        this.labelRenderer.setStructureClickHandler((code, isFocused) => {
+            if (isFocused) {
+                // Already focused - return to site view
+                this.showSiteOverview();
+            } else {
+                // Focus on this structure
+                this.focusOnStructure(code);
+            }
+        });
+
+        // Create a label for each structure
+        structures.forEach(structureData => {
+            const structureInfo = this.structureManager.getStructure(structureData.code);
+            if (!structureInfo) return;
+
+            const { group, levelFactory } = structureInfo;
+
+            // Get the Y position of the topmost level (level 1, index 0)
+            const topLevel = levelFactory.getLevelMesh(1);
+            const topY = topLevel ? topLevel.position.y : 0;
+
+            this.labelRenderer.createStructureLabel(structureData, group, topY);
+        });
     }
 
     setupInteractions() {
@@ -441,6 +474,11 @@ class MineVisualizationApp {
         // Update 3D visualization
         if (this.structureManager) {
             this.structureManager.setFocusMode(focusedStructure);
+        }
+
+        // Update structure label states
+        if (this.labelRenderer) {
+            this.labelRenderer.setStructureFocus(focusedStructure);
         }
     }
 

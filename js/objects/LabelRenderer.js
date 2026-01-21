@@ -12,6 +12,88 @@ export class LabelRenderer {
         container.appendChild(this.renderer.domElement);
 
         this.labels = new Map();
+        this.structureLabels = new Map();
+        this.onStructureClick = null; // Callback for structure label clicks
+    }
+
+    /**
+     * Set click handler for structure labels.
+     * @param {Function} handler - Callback receiving (structureCode, isFocused)
+     */
+    setStructureClickHandler(handler) {
+        this.onStructureClick = handler;
+    }
+
+    /**
+     * Create a clickable label for a structure.
+     * @param {Object} structureData - Structure data with code, name, type
+     * @param {THREE.Group} structureGroup - The structure's 3D group
+     * @param {number} topY - Y position of the topmost level (for label placement)
+     */
+    createStructureLabel(structureData, structureGroup, topY = 0) {
+        const div = document.createElement('div');
+        div.className = 'structure-label';
+        div.dataset.structureCode = structureData.code;
+        div.innerHTML = `
+            <div class="structure-name">${structureData.name}</div>
+            <div class="structure-type">${this.formatStructureType(structureData.type)}</div>
+        `;
+
+        // Enable pointer events for clicking
+        div.style.pointerEvents = 'auto';
+        div.style.cursor = 'pointer';
+
+        // Handle click to toggle focus
+        div.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (this.onStructureClick) {
+                const isFocused = div.classList.contains('focused');
+                this.onStructureClick(structureData.code, isFocused);
+            }
+        });
+
+        const label = new CSS2DObject(div);
+        // Position above the structure (top level + offset)
+        label.position.set(0, topY + 80, 0);
+
+        structureGroup.add(label);
+        this.structureLabels.set(structureData.code, label);
+    }
+
+    /**
+     * Format structure type for display.
+     */
+    formatStructureType(type) {
+        const typeMap = {
+            'open_pit': 'Open Pit',
+            'underground': 'Underground',
+            'processing': 'Processing',
+            'stockpile': 'Stockpile',
+            'mixed': 'Mixed Operations'
+        };
+        return typeMap[type] || type;
+    }
+
+    /**
+     * Update structure label focus state.
+     * @param {string|null} focusedCode - The focused structure code, or null for site view
+     */
+    setStructureFocus(focusedCode) {
+        this.structureLabels.forEach((label, code) => {
+            const div = label.element;
+            if (focusedCode === null) {
+                // Site view - all labels normal
+                div.classList.remove('focused', 'unfocused');
+            } else if (code === focusedCode) {
+                // This structure is focused
+                div.classList.add('focused');
+                div.classList.remove('unfocused');
+            } else {
+                // Other structures are unfocused
+                div.classList.remove('focused');
+                div.classList.add('unfocused');
+            }
+        });
     }
 
     createLevelLabel(levelData, levelMesh) {
