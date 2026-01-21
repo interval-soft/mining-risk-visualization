@@ -95,35 +95,36 @@ export class MineGeometry {
         const spacingZ = (levelDepth - 2 * marginZ) / (pillarCount - 1);
         
         // Create pillars on front and back edges
+        // Pillars extend UPWARD to connect current level to the level above
         for (let i = 0; i < pillarCount; i++) {
             const x = -levelWidth / 2 + marginX + i * spacingX;
-            
+
             // Front edge pillar
             const frontPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-            frontPillar.position.set(x, -pillarHeight / 2, levelDepth / 2 - marginZ / 2);
+            frontPillar.position.set(x, pillarHeight / 2, levelDepth / 2 - marginZ / 2);
             frontPillar.castShadow = true;
             frontPillar.receiveShadow = true;
             group.add(frontPillar);
-            
+
             // Back edge pillar (skip corners, they're covered by front)
             if (i > 0 && i < pillarCount - 1) {
                 const backPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-                backPillar.position.set(x, -pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
+                backPillar.position.set(x, pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
                 backPillar.castShadow = true;
                 backPillar.receiveShadow = true;
                 group.add(backPillar);
             }
         }
-        
+
         // Add corner pillars on back edge
         const cornerPillarLeft = new THREE.Mesh(pillarGeometry, pillarMaterial);
-        cornerPillarLeft.position.set(-levelWidth / 2 + marginX, -pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
+        cornerPillarLeft.position.set(-levelWidth / 2 + marginX, pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
         cornerPillarLeft.castShadow = true;
         cornerPillarLeft.receiveShadow = true;
         group.add(cornerPillarLeft);
-        
+
         const cornerPillarRight = new THREE.Mesh(pillarGeometry, pillarMaterial);
-        cornerPillarRight.position.set(levelWidth / 2 - marginX, -pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
+        cornerPillarRight.position.set(levelWidth / 2 - marginX, pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
         cornerPillarRight.castShadow = true;
         cornerPillarRight.receiveShadow = true;
         group.add(cornerPillarRight);
