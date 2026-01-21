@@ -265,8 +265,8 @@ body {
 
 #alerts-container {
     flex: 1;
-    min-height: 150px;
-    max-height: 280px;
+    min-height: 300px;
+    max-height: 500px;
     display: flex;
     flex-direction: column;
 }
