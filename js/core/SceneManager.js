@@ -18,8 +18,9 @@ export class SceneManager {
         this.setupLighting();
         this.setupEnvironment();
         
-        // Initialize post-processing pipeline
+        // Initialize post-processing pipeline with theme
         this.postProcessing = new PostProcessing(this.renderer, this.scene, this.camera);
+        this.postProcessing.setTheme(isDark);
         
         this.handleResize();
 
@@ -34,14 +35,20 @@ export class SceneManager {
         const targetColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
         this.scene.background = new THREE.Color(targetColor);
         
-        // Update fog color
+        // Update fog color and density
         if (this.scene.fog) {
             this.scene.fog.color = new THREE.Color(targetColor);
+            this.scene.fog.density = isDark ? 0.0008 : 0.0003;
         }
         
-        // Update ground plane color
+        // Update ground plane - subtle in light mode
         if (this.groundPlane) {
-            this.groundPlane.material.color.setHex(isDark ? 0x0d0d1a : 0xc0c0c0);
+            this.groundPlane.material.color.setHex(isDark ? 0x0d0d1a : 0xd8dce0);
+        }
+        
+        // Update post-processing for theme
+        if (this.postProcessing) {
+            this.postProcessing.setTheme(isDark);
         }
     }
 
@@ -118,14 +125,15 @@ export class SceneManager {
         // Exponential fog for depth atmosphere
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
         const fogColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
-        this.scene.fog = new THREE.FogExp2(fogColor, 0.0008);
+        // Lighter fog in light mode to avoid washing out colors
+        this.scene.fog = new THREE.FogExp2(fogColor, isDark ? 0.0008 : 0.0003);
 
-        // Ground plane to receive shadows and provide visual grounding
+        // Ground plane to receive shadows - subtle in light mode
         const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
         const groundMaterial = new THREE.MeshStandardMaterial({
-            color: isDark ? 0x0d0d1a : 0xc0c0c0,
-            roughness: 0.9,
-            metalness: 0.1
+            color: isDark ? 0x0d0d1a : 0xd8dce0,
+            roughness: 0.95,
+            metalness: 0.0
         });
         
         this.groundPlane = new THREE.Mesh(groundGeometry, groundMaterial);

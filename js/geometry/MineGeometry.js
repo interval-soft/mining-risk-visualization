@@ -83,9 +83,9 @@ export class MineGeometry {
         );
         
         const pillarMaterial = new THREE.MeshStandardMaterial({
-            color: 0x555555,
-            roughness: 0.8,
-            metalness: 0.2
+            color: 0x3a3a3a,
+            roughness: 0.85,
+            metalness: 0.15
         });
         
         // Calculate pillar positions

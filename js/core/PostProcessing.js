@@ -73,6 +73,21 @@ export class PostProcessing {
     }
 
     /**
+     * Update bloom settings for theme.
+     * @param {boolean} isDark - Whether dark mode is active
+     */
+    setTheme(isDark) {
+        if (isDark) {
+            this.bloomPass.strength = 0.6;
+            this.bloomPass.threshold = 0.4;
+        } else {
+            // Reduce bloom in light mode to prevent washed-out appearance
+            this.bloomPass.strength = 0.3;
+            this.bloomPass.threshold = 0.6;
+        }
+    }
+
+    /**
      * Get current bloom settings for debugging.
      */
     getBloomSettings() {
