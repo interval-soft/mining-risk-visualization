@@ -35,7 +35,8 @@ export class LevelFactory {
             this.levels.set(level.level, mesh);
             this.parent.add(mesh);
 
-            // Add support pillars between levels (not above first level)
+            // Add support pillars connecting this level to the one above
+            // Skip for first level (index 0) as there's nothing above it
             if (index > 0) {
                 const pillars = MineGeometry.createPillars(
                     CONFIG.LEVEL_WIDTH,
@@ -44,8 +45,9 @@ export class LevelFactory {
                     CONFIG.LEVEL_SPACING - CONFIG.LEVEL_HEIGHT
                 );
 
-                // Position pillars below the current level
-                pillars.position.y = mesh.position.y + CONFIG.LEVEL_HEIGHT / 2;
+                // Position pillar group at the top surface of current level
+                // Pillars extend upward to connect to the level above
+                pillars.position.set(0, mesh.position.y + CONFIG.LEVEL_HEIGHT / 2, 0);
                 pillars.userData = {
                     type: 'pillars',
                     structureCode: structureCode
