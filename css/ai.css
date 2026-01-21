@@ -120,18 +120,18 @@
 /* Insight Card */
 .ai-insight-card {
     display: flex;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--btn-bg);
     border-radius: 6px;
     margin-bottom: 8px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.2s;
-    border: 1px solid transparent;
+    border: 1px solid var(--border-color);
 }
 
 .ai-insight-card:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(102, 126, 234, 0.3);
+    background: var(--btn-bg-hover);
+    border-color: #667eea;
 }
 
 .ai-insight-card:last-child {
