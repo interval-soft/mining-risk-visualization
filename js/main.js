@@ -25,6 +25,7 @@ import { SiteOverviewPanel } from './ui/SiteOverviewPanel.js';
 import { AIInsightsPanel } from './ui/AIInsightsPanel.js';
 import { QueryInterface } from './ui/QueryInterface.js';
 import { CameraControlsPanel } from './ui/CameraControlsPanel.js';
+import { DemoMode } from './demo/index.js';
 
 class MineVisualizationApp {
     constructor() {
@@ -271,6 +272,10 @@ class MineVisualizationApp {
 
             // Update mode indicator
             this.updateModeIndicator(true);
+
+            // Initialize Demo Mode (activates if ?demo=true in URL)
+            this.demoMode = new DemoMode(this.stateManager, this.apiClient);
+            await this.demoMode.initialize();
 
             console.log('Mine Visualization initialized successfully');
             console.log(`Data source: ${this.dataLoader.isUsingApi() ? 'API' : 'Static JSON'}`);

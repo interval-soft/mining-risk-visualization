@@ -122,6 +122,14 @@ export class AlertsPanel {
                 this.applyFilters();
             }
         });
+
+        // Listen to demo mode alert injections
+        this.stateManager.addEventListener('alertsChanged', (e) => {
+            if (e.detail?.alerts) {
+                this.alerts = e.detail.alerts;
+                this.applyFilters();
+            }
+        });
     }
 
     async loadAlerts() {

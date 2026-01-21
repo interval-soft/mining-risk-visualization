@@ -76,6 +76,14 @@ export class AIInsightsPanel {
         this.stateManager?.addEventListener('stateChanged', () => {
             // Could refresh insights on state change if needed
         });
+
+        // Listen to demo mode insight injections
+        this.stateManager?.addEventListener('insightsChanged', (e) => {
+            if (e.detail?.insights) {
+                this.insights = e.detail.insights;
+                this.applyFilters();
+            }
+        });
     }
 
     async loadInsights() {

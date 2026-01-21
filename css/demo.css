@@ -1,0 +1,398 @@
+/**
+ * Demo Mode Styles
+ * 
+ * Styles for:
+ * - Demo mode indicator badge
+ * - Trigger panel modal
+ * - Scenario buttons with severity colors
+ * - Animations and effects
+ */
+
+/* ============================================
+   DEMO MODE INDICATOR
+   ============================================ */
+
+.demo-mode-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+    animation: demo-indicator-pulse 2s ease-in-out infinite;
+}
+
+.demo-badge {
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.4);
+}
+
+.demo-shortcut {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 10px;
+    font-family: 'Roboto Mono', monospace;
+}
+
+@keyframes demo-indicator-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* ============================================
+   TRIGGER PANEL MODAL
+   ============================================ */
+
+.demo-trigger-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.demo-trigger-panel.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.demo-trigger-panel.visible > * {
+    animation: demo-panel-slide-in 0.25s ease-out;
+}
+
+@keyframes demo-panel-slide-in {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Panel Container */
+.demo-panel-header,
+.demo-panel-content {
+    background: #1e1e2e;
+    border: 1px solid #3a3a5a;
+    max-width: 480px;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.demo-panel-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(135deg, #2a2a4a, #1e1e2e);
+}
+
+.demo-panel-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+}
+
+.demo-panel-shortcut {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-family: 'Roboto Mono', monospace;
+    margin-right: 16px;
+}
+
+.demo-panel-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.demo-panel-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.demo-panel-content {
+    padding: 20px;
+    border-radius: 0 0 12px 12px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+
+.demo-section {
+    margin-bottom: 24px;
+}
+
+.demo-section:last-child {
+    margin-bottom: 0;
+}
+
+.demo-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   SCENARIO BUTTONS
+   ============================================ */
+
+.demo-scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.demo-scenario-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 12px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #2a2a4a;
+    min-height: 80px;
+}
+
+.demo-scenario-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.demo-scenario-btn:active {
+    transform: translateY(0);
+}
+
+/* Severity-based colors */
+.demo-scenario-btn.critical {
+    border-color: rgba(244, 67, 54, 0.5);
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.15), rgba(244, 67, 54, 0.05));
+}
+
+.demo-scenario-btn.critical:hover {
+    border-color: #F44336;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.25), rgba(244, 67, 54, 0.1));
+}
+
+.demo-scenario-btn.high {
+    border-color: rgba(255, 152, 0, 0.5);
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.05));
+}
+
+.demo-scenario-btn.high:hover {
+    border-color: #FF9800;
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.25), rgba(255, 152, 0, 0.1));
+}
+
+.demo-scenario-btn.medium {
+    border-color: rgba(255, 193, 7, 0.5);
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.05));
+}
+
+.demo-scenario-btn.medium:hover {
+    border-color: #FFC107;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.25), rgba(255, 193, 7, 0.1));
+}
+
+.demo-scenario-btn.low {
+    border-color: rgba(76, 175, 80, 0.5);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+}
+
+.demo-scenario-btn.low:hover {
+    border-color: #4CAF50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(76, 175, 80, 0.1));
+}
+
+.scenario-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.scenario-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+}
+
+/* Triggered animation */
+.demo-scenario-btn.triggered {
+    animation: scenario-triggered 0.6s ease;
+}
+
+@keyframes scenario-triggered {
+    0% { transform: scale(1); }
+    15% { transform: scale(0.95); }
+    30% { transform: scale(1.05); box-shadow: 0 0 20px currentColor; }
+    100% { transform: scale(1); }
+}
+
+/* ============================================
+   QUICK ACTIONS
+   ============================================ */
+
+.demo-quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.demo-action-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 14px;
+    background: #2a2a4a;
+    border: 1px solid #3a3a5a;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.demo-action-btn:hover {
+    background: #3a3a5a;
+    border-color: #4a4a6a;
+}
+
+/* ============================================
+   SIMULATION CONTROLS
+   ============================================ */
+
+.demo-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.demo-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+}
+
+.demo-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #9C27B0;
+}
+
+.demo-speed-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.demo-speed-control label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+.demo-speed-control select {
+    flex: 1;
+    padding: 8px 12px;
+    background: #2a2a4a;
+    border: 1px solid #3a3a5a;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.demo-speed-control select:hover {
+    border-color: #4a4a6a;
+}
+
+/* ============================================
+   STATS
+   ============================================ */
+
+.demo-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.demo-stat {
+    background: #2a2a4a;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+.demo-panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.demo-panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.demo-panel-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.demo-panel-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
