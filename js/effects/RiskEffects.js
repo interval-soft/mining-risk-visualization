@@ -108,9 +108,9 @@ export class RiskEffects {
     setupLockoutEffect(effect, levelData) {
         const mesh = effect.mesh;
 
-        // Set base lockout color
-        mesh.material.emissive.setHex(0x440000);
-        mesh.material.emissiveIntensity = 0.3;
+        // Set base lockout color - bright red for bloom visibility
+        mesh.material.emissive.setHex(0xff2200);
+        mesh.material.emissiveIntensity = 0.6;
 
         // Create lockout indicator (floating warning sign)
         const warningGeometry = new THREE.PlaneGeometry(30, 30);
@@ -130,12 +130,13 @@ export class RiskEffects {
         this.scene.add(warning);
         effect.warningMesh = warning;
 
-        // Animation function
+        // Animation function - higher intensity range for bloom
         effect.animate = (deltaTime) => {
             const t = Date.now() * 0.001 * this.config.lockoutPulseSpeed;
             const pulse = (Math.sin(t) + 1) * 0.5;
 
-            mesh.material.emissiveIntensity = 0.2 + pulse * this.config.lockoutPulseIntensity;
+            // Pulse between 0.5 and 1.0 for strong bloom
+            mesh.material.emissiveIntensity = 0.5 + pulse * this.config.lockoutPulseIntensity;
 
             // Pulsing warning
             if (warning) {
@@ -151,14 +152,16 @@ export class RiskEffects {
     setupHighRiskEffect(effect) {
         const mesh = effect.mesh;
 
-        mesh.material.emissive.setHex(0x331100);
-        mesh.material.emissiveIntensity = 0.1;
+        // Bright orange-red emissive for bloom visibility
+        mesh.material.emissive.setHex(0xff4400);
+        mesh.material.emissiveIntensity = 0.3;
 
         effect.animate = (deltaTime) => {
             const t = Date.now() * 0.001 * this.config.highRiskPulseSpeed;
             const pulse = (Math.sin(t) + 1) * 0.5;
 
-            mesh.material.emissiveIntensity = 0.05 + pulse * this.config.highRiskPulseIntensity;
+            // Pulse between 0.2 and 0.6 for noticeable bloom
+            mesh.material.emissiveIntensity = 0.2 + pulse * (this.config.highRiskPulseIntensity + 0.2);
         };
     }
 
@@ -168,8 +171,9 @@ export class RiskEffects {
     setupMediumRiskEffect(effect) {
         const mesh = effect.mesh;
 
-        mesh.material.emissive.setHex(0x222200);
-        mesh.material.emissiveIntensity = 0.05;
+        // Yellow-orange emissive - subtle but visible with bloom
+        mesh.material.emissive.setHex(0xffaa00);
+        mesh.material.emissiveIntensity = 0.15;
 
         // No animation for medium - just static subtle glow
         effect.animate = null;

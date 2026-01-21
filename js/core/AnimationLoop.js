@@ -28,9 +28,7 @@ export class AnimationLoop {
         this.cameraController.update();
         this.callbacks.forEach(cb => cb());
 
-        this.sceneManager.renderer.render(
-            this.sceneManager.scene,
-            this.sceneManager.camera
-        );
+        // Use SceneManager's render method for post-processing
+        this.sceneManager.render();
     }
 }

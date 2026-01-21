@@ -1,6 +1,7 @@
 // js/core/SceneManager.js
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
+import { PostProcessing } from './PostProcessing.js';
 
 export class SceneManager {
     constructor(container) {
@@ -15,6 +16,11 @@ export class SceneManager {
         this.renderer = this.createRenderer();
 
         this.setupLighting();
+        this.setupEnvironment();
+        
+        // Initialize post-processing pipeline
+        this.postProcessing = new PostProcessing(this.renderer, this.scene, this.camera);
+        
         this.handleResize();
 
         window.addEventListener('resize', () => this.handleResize());
@@ -27,6 +33,16 @@ export class SceneManager {
         const isDark = theme === 'dark';
         const targetColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
         this.scene.background = new THREE.Color(targetColor);
+        
+        // Update fog color
+        if (this.scene.fog) {
+            this.scene.fog.color = new THREE.Color(targetColor);
+        }
+        
+        // Update ground plane color
+        if (this.groundPlane) {
+            this.groundPlane.material.color.setHex(isDark ? 0x0d0d1a : 0xc0c0c0);
+        }
     }
 
     createCamera() {
@@ -46,24 +62,77 @@ export class SceneManager {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(this.container.clientWidth, this.container.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Enable shadow mapping for realistic depth
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        // ACES filmic tone mapping for cinematic look
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        
         this.container.appendChild(renderer.domElement);
         return renderer;
     }
 
     setupLighting() {
-        // Ambient light
-        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        // Ambient light - provides base illumination
+        const ambient = new THREE.AmbientLight(0xffffff, 0.3);
         this.scene.add(ambient);
 
-        // Key light
-        const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        keyLight.position.set(100, 200, 150);
+        // Key light - main shadow-casting light
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        keyLight.position.set(150, 300, 200);
+        
+        // Configure shadow casting
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.camera.near = 10;
+        keyLight.shadow.camera.far = 1500;
+        
+        // Shadow frustum - covers all mine levels
+        keyLight.shadow.camera.left = -500;
+        keyLight.shadow.camera.right = 500;
+        keyLight.shadow.camera.top = 400;
+        keyLight.shadow.camera.bottom = -800;
+        
+        // Soft shadow bias to prevent artifacts
+        keyLight.shadow.bias = -0.0005;
+        keyLight.shadow.normalBias = 0.02;
+        
         this.scene.add(keyLight);
 
-        // Fill light
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-        fillLight.position.set(-100, 100, -100);
+        // Fill light - softer, from opposite side
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        fillLight.position.set(-150, 150, -150);
         this.scene.add(fillLight);
+        
+        // Rim light - adds depth separation
+        const rimLight = new THREE.DirectionalLight(0x6666ff, 0.15);
+        rimLight.position.set(0, -100, -200);
+        this.scene.add(rimLight);
+    }
+
+    setupEnvironment() {
+        // Exponential fog for depth atmosphere
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        const fogColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
+        this.scene.fog = new THREE.FogExp2(fogColor, 0.0008);
+
+        // Ground plane to receive shadows and provide visual grounding
+        const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: isDark ? 0x0d0d1a : 0xc0c0c0,
+            roughness: 0.9,
+            metalness: 0.1
+        });
+        
+        this.groundPlane = new THREE.Mesh(groundGeometry, groundMaterial);
+        this.groundPlane.rotation.x = -Math.PI / 2;
+        this.groundPlane.position.y = -800; // Below all mine levels
+        this.groundPlane.receiveShadow = true;
+        this.scene.add(this.groundPlane);
     }
 
     handleResize() {
@@ -73,6 +142,11 @@ export class SceneManager {
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
+        
+        // Update post-processing composer size
+        if (this.postProcessing) {
+            this.postProcessing.setSize(width, height);
+        }
     }
 
     add(object) {
@@ -81,5 +155,20 @@ export class SceneManager {
 
     remove(object) {
         this.scene.remove(object);
+    }
+
+    /**
+     * Render the scene with post-processing effects.
+     */
+    render() {
+        this.postProcessing.render();
+    }
+
+    /**
+     * Set bloom intensity for risk visualization.
+     * @param {number} intensity - Bloom strength (0.0 to 1.5)
+     */
+    setBloomIntensity(intensity) {
+        this.postProcessing.setBloomIntensity(intensity);
     }
 }
