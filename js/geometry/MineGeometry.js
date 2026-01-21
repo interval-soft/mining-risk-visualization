@@ -30,9 +30,9 @@ export class MineGeometry {
         
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
         
-        // Center the geometry and rotate to correct orientation
+        // Rotate to lay flat (shape was in XY plane, extrusion along Z)
+        // After rotation: X centered, Y = [0, height], Z centered
         geometry.rotateX(-Math.PI / 2);
-        geometry.translate(-width / 2, height / 2, depth / 2);
         
         geometry.computeVertexNormals();
         return geometry;
