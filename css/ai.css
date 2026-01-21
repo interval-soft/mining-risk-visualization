@@ -451,8 +451,10 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
+    padding: 0 12px;
+    height: 40px;
     background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
     border-radius: 6px;
     font-size: 11px;
     transition: all 0.3s;
