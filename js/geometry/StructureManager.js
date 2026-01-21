@@ -156,7 +156,7 @@ export class StructureManager {
     }
 
     /**
-     * Set focus mode - highlight one structure, fade others.
+     * Set focus mode - show only the focused structure, hide others.
      * @param {string|null} focusCode - Structure code to focus, or null for site view
      */
     setFocusMode(focusCode) {
@@ -165,25 +165,29 @@ export class StructureManager {
         this.structures.forEach(({ group, levelFactory }, code) => {
             const isFocused = focusCode === null || code === focusCode;
 
-            // Set opacity on all materials in this structure
-            levelFactory.getAllLevels().forEach(mesh => {
-                if (mesh.material) {
-                    mesh.material.transparent = !isFocused;
-                    mesh.material.opacity = isFocused ? 1.0 : this.unfocusedOpacity;
-                    mesh.material.needsUpdate = true;
-                }
-            });
+            // Show/hide the entire structure group
+            group.visible = isFocused;
 
-            // Also fade structural elements (pillars, etc.)
-            group.traverse(child => {
-                if (child.isMesh && child.userData.type !== 'level') {
-                    if (child.material) {
-                        child.material.transparent = !isFocused;
-                        child.material.opacity = isFocused ? 1.0 : this.unfocusedOpacity;
-                        child.material.needsUpdate = true;
+            // Reset opacity to full for visible structures
+            if (isFocused) {
+                levelFactory.getAllLevels().forEach(mesh => {
+                    if (mesh.material) {
+                        mesh.material.transparent = false;
+                        mesh.material.opacity = 1.0;
+                        mesh.material.needsUpdate = true;
                     }
-                }
-            });
+                });
+
+                group.traverse(child => {
+                    if (child.isMesh && child.userData.type !== 'level') {
+                        if (child.material) {
+                            child.material.transparent = false;
+                            child.material.opacity = 1.0;
+                            child.material.needsUpdate = true;
+                        }
+                    }
+                });
+            }
         });
     }
 
