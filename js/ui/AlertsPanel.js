@@ -295,7 +295,7 @@ export class AlertsPanel {
                 <div class="alert-severity ${severityClass}"></div>
                 <div class="alert-content">
                     <div class="alert-header">
-                        <span class="alert-location" title="${hasStructure ? alert.structureName : ''}">${locationStr}</span>
+                        <span class="alert-location" style="color: #64B5F6; background: #1e3a5f;" title="${hasStructure ? alert.structureName : ''}">${locationStr}</span>
                         <span class="alert-score">Risk: ${alert.riskScore}</span>
                         <span class="alert-time">${timeStr} ${dateStr}</span>
                     </div>
