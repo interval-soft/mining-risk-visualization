@@ -265,8 +265,15 @@ body {
 
 #alerts-container {
     flex: 1;
-    min-height: 200px;
-    max-height: 400px;
+    min-height: 150px;
+    max-height: 280px;
+}
+
+#ai-insights-container {
+    flex: 0 0 auto;
+    min-height: 100px;
+    max-height: 180px;
+    overflow: hidden;
 }
 
 /* Top bar */
@@ -470,6 +477,10 @@ body {
 
     #alerts-container {
         max-height: 150px;
+    }
+
+    #ai-insights-container {
+        display: none; /* Hide on mobile to save space */
     }
 
     #detail-container {
