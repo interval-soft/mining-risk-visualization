@@ -21,6 +21,7 @@ import { AlertsPanel } from './ui/AlertsPanel.js';
 import { DetailPanel } from './ui/DetailPanel.js';
 import { AIInsightsPanel } from './ui/AIInsightsPanel.js';
 import { QueryInterface } from './ui/QueryInterface.js';
+import { CameraControlsPanel } from './ui/CameraControlsPanel.js';
 
 class MineVisualizationApp {
     constructor() {
@@ -146,6 +147,15 @@ class MineVisualizationApp {
                 this.queryInterface = new QueryInterface(
                     queryContainer,
                     this.apiClient
+                );
+            }
+
+            // Setup Camera Controls Panel (if container exists)
+            const cameraControlsContainer = document.getElementById('camera-controls-container');
+            if (cameraControlsContainer) {
+                this.cameraControlsPanel = new CameraControlsPanel(
+                    cameraControlsContainer,
+                    this.cameraController
                 );
             }
 

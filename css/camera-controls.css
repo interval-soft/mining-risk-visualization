@@ -1,0 +1,235 @@
+/* Camera Controls Panel Styles */
+
+#camera-controls-container {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    width: 140px;
+    z-index: 100;
+}
+
+.camera-controls-panel {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Header */
+.camera-controls-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--btn-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.camera-controls-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.camera-controls-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.camera-controls-toggle:hover {
+    color: var(--text-primary);
+}
+
+/* Body */
+.camera-controls-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+}
+
+/* Sections */
+.controls-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.controls-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Base button style */
+.ctrl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
+}
+
+.ctrl-btn:hover {
+    background: var(--btn-bg-hover);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.ctrl-btn:active {
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(0.95);
+}
+
+.ctrl-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.ctrl-text {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Rotation grid - cross pattern */
+.rotation-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    width: 100%;
+}
+
+.rotation-grid .ctrl-btn {
+    width: 36px;
+    height: 36px;
+}
+
+.rotation-grid .ctrl-btn[data-action="rotate-up"] {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.rotation-grid .ctrl-btn[data-action="rotate-left"] {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.rotation-grid .ctrl-btn[data-action="rotate-right"] {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.rotation-grid .ctrl-btn[data-action="rotate-down"] {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+/* Zoom controls */
+.zoom-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.ctrl-btn-wide {
+    flex: 1;
+    height: 36px;
+}
+
+/* Preset buttons */
+.preset-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+}
+
+.ctrl-btn-preset {
+    height: 32px;
+    padding: 0 8px;
+}
+
+/* Reset button */
+.ctrl-btn-reset {
+    width: 100%;
+    height: 36px;
+    gap: 6px;
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.ctrl-btn-reset:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.ctrl-btn-reset .ctrl-icon {
+    font-size: 14px;
+}
+
+.ctrl-btn-reset .ctrl-text {
+    font-size: 11px;
+}
+
+/* Keyboard hint */
+.keyboard-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+.hint-icon {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.hint-text {
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    #camera-controls-container {
+        width: 120px;
+    }
+
+    .rotation-grid .ctrl-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .ctrl-icon {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    #camera-controls-container {
+        display: none;
+    }
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .keyboard-hint {
+    background: rgba(0, 0, 0, 0.03);
+}
