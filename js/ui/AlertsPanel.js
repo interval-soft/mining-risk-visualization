@@ -1,6 +1,8 @@
 // js/ui/AlertsPanel.js
-// Alerts panel for displaying and managing risk alerts
-
+/**
+ * Alerts panel for displaying and managing risk alerts.
+ * Supports structure-level context for multi-structure sites.
+ */
 export class AlertsPanel {
     constructor(container, apiClient, stateManager) {
         this.container = container;
@@ -11,7 +13,8 @@ export class AlertsPanel {
         this.filteredAlerts = [];
         this.filters = {
             status: 'all',
-            level: 'all'
+            level: 'all',
+            structure: 'all'
         };
 
         this.onAlertClick = null; // Callback for timeline jump
@@ -22,6 +25,9 @@ export class AlertsPanel {
     }
 
     render() {
+        const structures = this.getStructures();
+        const hasMultiStructure = structures.length > 1;
+
         this.container.innerHTML = `
             <div class="alerts-panel">
                 <div class="alerts-header">
@@ -37,6 +43,15 @@ export class AlertsPanel {
                         <option value="resolved">Resolved</option>
                     </select>
 
+                    ${hasMultiStructure ? `
+                    <select class="filter-structure">
+                        <option value="all">All Structures</option>
+                        ${structures.map(s => `
+                            <option value="${s.code}">${s.name}</option>
+                        `).join('')}
+                    </select>
+                    ` : ''}
+
                     <select class="filter-level">
                         <option value="all">All Levels</option>
                         <option value="1">Level 1</option>
@@ -44,6 +59,8 @@ export class AlertsPanel {
                         <option value="3">Level 3</option>
                         <option value="4">Level 4</option>
                         <option value="5">Level 5</option>
+                        <option value="6">Level 6</option>
+                        <option value="7">Level 7</option>
                     </select>
                 </div>
 
@@ -55,6 +72,17 @@ export class AlertsPanel {
         this.countBadge = this.container.querySelector('.alerts-count');
         this.statusFilter = this.container.querySelector('.filter-status');
         this.levelFilter = this.container.querySelector('.filter-level');
+        this.structureFilter = this.container.querySelector('.filter-structure');
+    }
+
+    /**
+     * Get list of structures from state manager.
+     */
+    getStructures() {
+        if (this.stateManager && typeof this.stateManager.getStructures === 'function') {
+            return Array.from(this.stateManager.getStructures().values());
+        }
+        return [];
     }
 
     bindEvents() {
@@ -68,15 +96,43 @@ export class AlertsPanel {
             this.applyFilters();
         });
 
+        if (this.structureFilter) {
+            this.structureFilter.addEventListener('change', (e) => {
+                this.filters.structure = e.target.value;
+                this.applyFilters();
+            });
+        }
+
         // Listen to state changes to refresh alerts
         this.stateManager.addEventListener('stateChanged', () => {
             this.loadAlerts();
+        });
+
+        // Sync structure filter with view mode changes
+        this.stateManager.addEventListener('viewModeChanged', (e) => {
+            const { focusedStructure } = e.detail || {};
+            if (this.structureFilter) {
+                if (focusedStructure) {
+                    this.structureFilter.value = focusedStructure;
+                    this.filters.structure = focusedStructure;
+                } else {
+                    this.structureFilter.value = 'all';
+                    this.filters.structure = 'all';
+                }
+                this.applyFilters();
+            }
         });
     }
 
     async loadAlerts() {
         try {
-            const response = await this.apiClient.getAlerts();
+            // Pass structure filter to API if set
+            const params = {};
+            if (this.filters.structure !== 'all') {
+                params.structure = this.filters.structure;
+            }
+
+            const response = await this.apiClient.getAlerts(params);
             this.alerts = response.alerts || [];
             this.applyFilters();
         } catch (error) {
@@ -94,6 +150,8 @@ export class AlertsPanel {
                 id: '1',
                 timestamp: new Date(now - 3600000).toISOString(), // 1 hour ago
                 levelNumber: 3,
+                structureCode: 'PIT_MAIN',
+                structureName: 'Main Open Pit',
                 riskScore: 100,
                 status: 'active',
                 cause: 'Blast fired - awaiting reentry clearance',
@@ -103,7 +161,9 @@ export class AlertsPanel {
             {
                 id: '2',
                 timestamp: new Date(now - 7200000).toISOString(), // 2 hours ago
-                levelNumber: 4,
+                levelNumber: 2,
+                structureCode: 'DECLINE_NORTH',
+                structureName: 'Northern Decline',
                 riskScore: 72,
                 status: 'acknowledged',
                 cause: 'Gas concentration above threshold',
@@ -116,6 +176,8 @@ export class AlertsPanel {
                 id: '3',
                 timestamp: new Date(now - 14400000).toISOString(), // 4 hours ago
                 levelNumber: 2,
+                structureCode: 'PIT_MAIN',
+                structureName: 'Main Open Pit',
                 riskScore: 45,
                 status: 'resolved',
                 cause: 'Proximity alarm threshold exceeded',
@@ -126,12 +188,26 @@ export class AlertsPanel {
             {
                 id: '4',
                 timestamp: new Date(now - 1800000).toISOString(), // 30 min ago
-                levelNumber: 3,
+                levelNumber: 1,
+                structureCode: 'PROCESSING',
+                structureName: 'Processing Plant',
                 riskScore: 65,
+                status: 'active',
+                cause: 'Crusher temperature elevated',
+                explanation: 'Primary crusher bearing temperature at 85°C, above 80°C threshold.',
+                severity: 'high'
+            },
+            {
+                id: '5',
+                timestamp: new Date(now - 900000).toISOString(), // 15 min ago
+                levelNumber: 4,
+                structureCode: 'PIT_MAIN',
+                structureName: 'Main Open Pit',
+                riskScore: 55,
                 status: 'active',
                 cause: 'Blast scheduled within 30 minutes',
                 explanation: 'Scheduled blast at 14:30 in Stope 3A. Evacuation in progress.',
-                severity: 'high'
+                severity: 'medium'
             }
         ];
     }
@@ -142,7 +218,9 @@ export class AlertsPanel {
                                alert.status === this.filters.status;
             const levelMatch = this.filters.level === 'all' ||
                               alert.levelNumber === parseInt(this.filters.level);
-            return statusMatch && levelMatch;
+            const structureMatch = this.filters.structure === 'all' ||
+                                  alert.structureCode === this.filters.structure;
+            return statusMatch && levelMatch && structureMatch;
         });
 
         // Sort by timestamp (newest first)
@@ -205,13 +283,19 @@ export class AlertsPanel {
 
         const severityClass = this.getSeverityClass(alert);
         const statusClass = alert.status;
+        const hasStructure = alert.structureCode && alert.structureName;
+
+        // Build location string: Structure > Level or just Level
+        const locationStr = hasStructure
+            ? `${this.getStructureShortName(alert.structureName)} › L${alert.levelNumber}`
+            : `L${alert.levelNumber}`;
 
         return `
             <div class="alert-item ${statusClass}" data-alert-id="${alert.id}">
                 <div class="alert-severity ${severityClass}"></div>
                 <div class="alert-content">
                     <div class="alert-header">
-                        <span class="alert-level">L${alert.levelNumber}</span>
+                        <span class="alert-location" title="${hasStructure ? alert.structureName : ''}">${locationStr}</span>
                         <span class="alert-score">Risk: ${alert.riskScore}</span>
                         <span class="alert-time">${timeStr} ${dateStr}</span>
                     </div>
@@ -234,6 +318,16 @@ export class AlertsPanel {
         `;
     }
 
+    /**
+     * Get short name for structure (first word or abbreviation).
+     */
+    getStructureShortName(fullName) {
+        if (!fullName) return '';
+        // Take first word, max 12 chars
+        const firstWord = fullName.split(' ')[0];
+        return firstWord.length > 12 ? firstWord.substring(0, 10) + '...' : firstWord;
+    }
+
     getSeverityClass(alert) {
         if (alert.severity) return `severity-${alert.severity}`;
         // Derive from risk score
@@ -246,6 +340,11 @@ export class AlertsPanel {
     jumpToAlertTime(alert) {
         const timestamp = new Date(alert.timestamp);
         this.stateManager.setViewTime(timestamp);
+
+        // Focus on the structure if available
+        if (alert.structureCode) {
+            this.stateManager.setFocusedStructure(alert.structureCode);
+        }
 
         // Callback for additional handling (e.g., highlight level)
         if (this.onAlertClick) {
@@ -297,6 +396,18 @@ export class AlertsPanel {
     }
 
     /**
+     * Filter alerts by structure.
+     * @param {string|null} structureCode - Structure code or null for all
+     */
+    filterByStructure(structureCode) {
+        this.filters.structure = structureCode || 'all';
+        if (this.structureFilter) {
+            this.structureFilter.value = this.filters.structure;
+        }
+        this.applyFilters();
+    }
+
+    /**
      * Refresh alerts from API
      */
     refresh() {
@@ -308,5 +419,15 @@ export class AlertsPanel {
      */
     getActiveCount() {
         return this.alerts.filter(a => a.status === 'active').length;
+    }
+
+    /**
+     * Get count of active alerts for a specific structure.
+     * @param {string} structureCode - Structure code
+     */
+    getActiveCountForStructure(structureCode) {
+        return this.alerts.filter(
+            a => a.status === 'active' && a.structureCode === structureCode
+        ).length;
     }
 }

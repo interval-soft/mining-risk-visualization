@@ -7,6 +7,7 @@ import { DataLoader } from './data/DataLoader.js';
 import { ApiClient } from './data/ApiClient.js';
 import { MaterialSystem } from './geometry/MaterialSystem.js';
 import { LevelFactory } from './geometry/LevelFactory.js';
+import { StructureManager } from './geometry/StructureManager.js';
 import { StructuralElements } from './geometry/StructuralElements.js';
 import { RiskEffects } from './effects/RiskEffects.js';
 import { ActivityIconManager } from './objects/ActivityIconManager.js';
@@ -15,10 +16,12 @@ import { RaycasterManager } from './interaction/RaycasterManager.js';
 import { TooltipManager } from './interaction/TooltipManager.js';
 import { HoverHandler } from './interaction/HoverHandler.js';
 import { ClickHandler } from './interaction/ClickHandler.js';
+import { KeyboardNavigation } from './interaction/KeyboardNavigation.js';
 import { FilterPanel } from './ui/FilterPanel.js';
 import { TimelinePanel } from './ui/TimelinePanel.js';
 import { AlertsPanel } from './ui/AlertsPanel.js';
 import { DetailPanel } from './ui/DetailPanel.js';
+import { SiteOverviewPanel } from './ui/SiteOverviewPanel.js';
 import { AIInsightsPanel } from './ui/AIInsightsPanel.js';
 import { QueryInterface } from './ui/QueryInterface.js';
 import { CameraControlsPanel } from './ui/CameraControlsPanel.js';
@@ -50,46 +53,77 @@ class MineVisualizationApp {
             // Load initial data
             const mineData = await this.stateManager.initialize();
 
-            // Create geometry
-            this.levelFactory = new LevelFactory(
-                this.sceneManager.scene,
-                this.materialSystem
-            );
-            this.levelFactory.createLevels(mineData.levels);
+            // Determine if we have multi-structure data
+            const hasMultipleStructures = mineData.structures && mineData.structures.length > 1;
 
-            // Create structural elements (shafts, ramps)
-            this.structuralElements = new StructuralElements(this.sceneManager.scene);
-            this.structuralElements.createStructure(this.levelFactory.getAllLevels());
+            // Create geometry - use StructureManager for multi-structure, LevelFactory for single
+            if (hasMultipleStructures) {
+                this.structureManager = new StructureManager(
+                    this.sceneManager.scene,
+                    this.materialSystem
+                );
+                this.structureManager.createStructures(mineData.structures);
+
+                // For backward compatibility, also keep a reference to level source
+                this.levelSource = this.structureManager;
+            } else {
+                // Single structure - use legacy LevelFactory directly on scene
+                this.levelFactory = new LevelFactory(
+                    this.sceneManager.scene,
+                    this.materialSystem
+                );
+                this.levelFactory.createLevels(mineData.levels);
+                this.levelSource = this.levelFactory;
+            }
+
+            // Create structural elements (shafts, ramps) - only for single structure
+            if (!hasMultipleStructures) {
+                this.structuralElements = new StructuralElements(this.sceneManager.scene);
+                this.structuralElements.createStructure(this.getAllLevelMeshes());
+            }
 
             // Initialize risk effects
             this.riskEffects = new RiskEffects(
                 this.sceneManager.scene,
-                this.levelFactory
+                this.levelSource
             );
 
             // Create icons
             this.iconManager = new ActivityIconManager(this.sceneManager.scene);
             await this.iconManager.loadTextures();
-            mineData.levels.forEach(levelData => {
-                const mesh = this.levelFactory.getLevelMesh(levelData.level);
-                this.iconManager.createActivityIcons(levelData, mesh);
-            });
+            this.createActivityIcons(mineData);
 
             // Create labels
-            mineData.levels.forEach(levelData => {
-                const mesh = this.levelFactory.getLevelMesh(levelData.level);
-                this.labelRenderer.createLevelLabel(levelData, mesh);
-            });
+            this.createLevelLabels(mineData);
 
             // Setup interactions
             this.setupInteractions();
 
             // Setup UI
             this.filterPanel = new FilterPanel(
-                this.levelFactory,
+                this.levelSource,
                 this.materialSystem,
-                this.iconManager
+                this.iconManager,
+                this.stateManager
             );
+
+            // Setup Site Overview Panel (for multi-structure)
+            const siteOverviewContainer = document.getElementById('site-overview-container');
+            if (siteOverviewContainer && hasMultipleStructures) {
+                this.siteOverviewPanel = new SiteOverviewPanel(
+                    siteOverviewContainer,
+                    this.stateManager
+                );
+
+                // Wire up structure focus from site overview
+                this.siteOverviewPanel.setStructureClickHandler((code) => {
+                    this.focusOnStructure(code);
+                });
+
+                this.siteOverviewPanel.setSiteViewClickHandler(() => {
+                    this.showSiteOverview();
+                });
+            }
 
             // Setup timeline panel (if container exists)
             const timelineContainer = document.getElementById('timeline-container');
@@ -112,7 +146,7 @@ class MineVisualizationApp {
 
                 // Handle alert clicks to highlight level in 3D view
                 this.alertsPanel.setAlertClickHandler((alert) => {
-                    this.highlightLevel(alert.levelNumber);
+                    this.highlightLevel(alert.levelNumber, alert.structureCode);
                 });
             }
 
@@ -124,6 +158,15 @@ class MineVisualizationApp {
                     this.apiClient,
                     this.stateManager
                 );
+
+                // Handle breadcrumb navigation
+                this.detailPanel.setBreadcrumbClickHandler((type, code) => {
+                    if (type === 'site') {
+                        this.showSiteOverview();
+                    } else if (type === 'structure') {
+                        this.focusOnStructure(code);
+                    }
+                });
             }
 
             // Setup AI Insights panel (if container exists)
@@ -137,7 +180,7 @@ class MineVisualizationApp {
 
                 // Handle insight clicks to highlight level in 3D view
                 this.aiInsightsPanel.setInsightClickHandler((insight) => {
-                    this.highlightLevel(insight.levelNumber);
+                    this.highlightLevel(insight.levelNumber, insight.structureCode);
                 });
             }
 
@@ -159,6 +202,26 @@ class MineVisualizationApp {
                 );
             }
 
+            // Setup keyboard navigation
+            this.keyboardNavigation = new KeyboardNavigation(
+                this.stateManager,
+                this.cameraController,
+                this.structureManager || null
+            );
+
+            this.keyboardNavigation.setStructureFocusHandler((code) => {
+                this.focusOnStructure(code);
+            });
+
+            this.keyboardNavigation.setSiteViewHandler(() => {
+                this.showSiteOverview();
+            });
+
+            // Show keyboard shortcuts hint briefly
+            if (hasMultipleStructures) {
+                this.keyboardNavigation.showHintBriefly(4000);
+            }
+
             // Check AI status and update indicator
             this.checkAIStatus();
 
@@ -171,10 +234,22 @@ class MineVisualizationApp {
                 this.onModeChanged(e.detail);
             });
 
-            // Reset camera button
-            document.getElementById('reset-camera').addEventListener('click', () => {
-                this.cameraController.reset();
+            this.stateManager.addEventListener('viewModeChanged', (e) => {
+                this.onViewModeChanged(e.detail);
             });
+
+            // Reset camera button
+            const resetBtn = document.getElementById('reset-camera');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    if (this.stateManager.focusedStructure) {
+                        // If focused on structure, return to site view
+                        this.showSiteOverview();
+                    } else {
+                        this.cameraController.reset();
+                    }
+                });
+            }
 
             // Start render loop
             this.animationLoop = new AnimationLoop(
@@ -199,10 +274,78 @@ class MineVisualizationApp {
 
             console.log('Mine Visualization initialized successfully');
             console.log(`Data source: ${this.dataLoader.isUsingApi() ? 'API' : 'Static JSON'}`);
+            console.log(`Mode: ${hasMultipleStructures ? 'Multi-Structure' : 'Single-Structure'}`);
 
         } catch (error) {
             console.error('Failed to initialize:', error);
             this.showError(error.message);
+        }
+    }
+
+    /**
+     * Get all level meshes from the current level source.
+     */
+    getAllLevelMeshes() {
+        if (this.structureManager) {
+            return this.structureManager.getAllLevelMeshes();
+        }
+        if (this.levelFactory) {
+            return this.levelFactory.getAllLevels();
+        }
+        return [];
+    }
+
+    /**
+     * Create activity icons for all levels.
+     */
+    createActivityIcons(mineData) {
+        if (mineData.structures && mineData.structures.length > 1) {
+            // Multi-structure: iterate structures
+            mineData.structures.forEach(structure => {
+                structure.levels.forEach(levelData => {
+                    const mesh = this.structureManager.getLevelMesh(structure.code, levelData.level);
+                    if (mesh) {
+                        this.iconManager.createActivityIcons(levelData, mesh);
+                    }
+                });
+            });
+        } else {
+            // Single structure
+            mineData.levels.forEach(levelData => {
+                const mesh = this.levelFactory
+                    ? this.levelFactory.getLevelMesh(levelData.level)
+                    : null;
+                if (mesh) {
+                    this.iconManager.createActivityIcons(levelData, mesh);
+                }
+            });
+        }
+    }
+
+    /**
+     * Create level labels for all levels.
+     */
+    createLevelLabels(mineData) {
+        if (mineData.structures && mineData.structures.length > 1) {
+            // Multi-structure: iterate structures
+            mineData.structures.forEach(structure => {
+                structure.levels.forEach(levelData => {
+                    const mesh = this.structureManager.getLevelMesh(structure.code, levelData.level);
+                    if (mesh) {
+                        this.labelRenderer.createLevelLabel(levelData, mesh);
+                    }
+                });
+            });
+        } else {
+            // Single structure
+            mineData.levels.forEach(levelData => {
+                const mesh = this.levelFactory
+                    ? this.levelFactory.getLevelMesh(levelData.level)
+                    : null;
+                if (mesh) {
+                    this.labelRenderer.createLevelLabel(levelData, mesh);
+                }
+            });
         }
     }
 
@@ -211,7 +354,7 @@ class MineVisualizationApp {
 
         this.raycasterManager = new RaycasterManager(this.sceneManager.camera);
         this.raycasterManager.setInteractables([
-            ...this.levelFactory.getAllLevels(),
+            ...this.getAllLevelMeshes(),
             ...this.iconManager.getAllSprites()
         ]);
 
@@ -225,16 +368,26 @@ class MineVisualizationApp {
 
         this.clickHandler = new ClickHandler(
             this.raycasterManager,
-            this.levelFactory,
+            this.levelSource,
             this.materialSystem,
             this.iconManager,
             this.cameraController,
             this.labelRenderer
         );
 
-        // Wire up level selection to detail panel
-        this.clickHandler.setLevelSelectHandler((levelNumber) => {
-            this.showLevelDetail(levelNumber);
+        // Wire up level selection to detail panel (with structure context)
+        this.clickHandler.setLevelSelectHandler((levelNumber, structureCode) => {
+            this.showLevelDetail(levelNumber, structureCode);
+        });
+
+        // Wire up structure selection (double-click)
+        this.clickHandler.setStructureSelectHandler((structureCode) => {
+            this.focusOnStructure(structureCode);
+        });
+
+        // Wire up background click
+        this.clickHandler.setBackgroundClickHandler(() => {
+            // Could return to site view or just deselect
         });
 
         canvas.addEventListener('mousemove', (e) => {
@@ -247,36 +400,107 @@ class MineVisualizationApp {
     }
 
     /**
+     * Focus on a specific structure.
+     */
+    focusOnStructure(structureCode) {
+        this.stateManager.setFocusedStructure(structureCode);
+
+        // Update 3D view
+        if (this.structureManager) {
+            this.structureManager.setFocusMode(structureCode);
+
+            // Animate camera to structure
+            const worldPos = this.structureManager.getStructureWorldPosition(structureCode);
+            if (worldPos) {
+                this.cameraController.focusOnStructure(worldPos);
+            }
+        }
+    }
+
+    /**
+     * Return to site overview (unfocus all structures).
+     */
+    showSiteOverview() {
+        this.stateManager.setFocusedStructure(null);
+
+        // Update 3D view
+        if (this.structureManager) {
+            this.structureManager.setFocusMode(null);
+        }
+
+        // Animate camera to site view
+        this.cameraController.showSiteOverview();
+    }
+
+    /**
+     * Handle view mode changes (site vs structure focus).
+     */
+    onViewModeChanged(detail) {
+        const { viewMode, focusedStructure } = detail;
+
+        // Update 3D visualization
+        if (this.structureManager) {
+            this.structureManager.setFocusMode(focusedStructure);
+        }
+    }
+
+    /**
      * Handle state changes from the StateManager.
      * Updates the 3D visualization to reflect the new state.
      */
     onStateChanged(detail) {
         const { state } = detail;
-        if (!state || !state.levels) return;
+        if (!state) return;
 
-        // Update each level's visual representation
-        state.levels.forEach(levelData => {
-            const mesh = this.levelFactory.getLevelMesh(levelData.level);
-            if (!mesh) return;
+        // Multi-structure update
+        if (state.structures && this.structureManager) {
+            this.structureManager.updateFromState(state.structures);
+        }
 
-            // Update material color based on risk band
-            const riskBand = levelData.riskBand || this.computeRiskBand(levelData);
-            this.levelFactory.updateLevelRisk(levelData.level, riskBand);
+        // Legacy single-structure update
+        if (state.levels && this.levelFactory) {
+            state.levels.forEach(levelData => {
+                const mesh = this.levelFactory.getLevelMesh(levelData.level);
+                if (!mesh) return;
 
-            // Update label with risk score if available
-            this.labelRenderer.updateLevelLabel(levelData);
-        });
+                const riskBand = levelData.riskBand || this.computeRiskBand(levelData);
+                this.levelFactory.updateLevelRisk(levelData.level, riskBand);
+                this.labelRenderer.updateLevelLabel(levelData);
+            });
+        }
 
-        // Update icons if activities changed
-        state.levels.forEach(levelData => {
-            const mesh = this.levelFactory.getLevelMesh(levelData.level);
-            if (mesh) {
-                this.iconManager.updateActivityIcons(levelData, mesh);
-            }
-        });
+        // Update icons
+        if (state.structures) {
+            state.structures.forEach(structure => {
+                structure.levels.forEach(levelData => {
+                    const mesh = this.structureManager?.getLevelMesh(structure.code, levelData.level);
+                    if (mesh) {
+                        this.iconManager.updateActivityIcons(levelData, mesh);
+                    }
+                });
+            });
+        } else if (state.levels) {
+            state.levels.forEach(levelData => {
+                const mesh = this.levelFactory?.getLevelMesh(levelData.level);
+                if (mesh) {
+                    this.iconManager.updateActivityIcons(levelData, mesh);
+                }
+            });
+        }
 
-        // Update risk visual effects (pulsing, glow, etc.)
-        this.riskEffects.updateEffects(state.levels);
+        // Update risk visual effects
+        const levels = state.levels || this.flattenStructureLevels(state.structures);
+        this.riskEffects.updateEffects(levels);
+    }
+
+    /**
+     * Flatten structure levels to array.
+     */
+    flattenStructureLevels(structures) {
+        if (!structures) return [];
+        const levels = [];
+        structures.forEach(s => levels.push(...(s.levels || [])));
+        return levels;
     }
 
     /**
@@ -329,8 +553,18 @@ class MineVisualizationApp {
      * Highlight a specific level in the 3D view.
      * Called when clicking on an alert.
      */
-    highlightLevel(levelNumber) {
-        const mesh = this.levelFactory.getLevelMesh(levelNumber);
+    highlightLevel(levelNumber, structureCode = null) {
+        let mesh = null;
+
+        if (structureCode && this.structureManager) {
+            mesh = this.structureManager.getLevelMesh(structureCode, levelNumber);
+
+            // Also focus on the structure
+            this.focusOnStructure(structureCode);
+        } else if (this.levelFactory) {
+            mesh = this.levelFactory.getLevelMesh(levelNumber);
+        }
+
         if (mesh) {
             // Focus camera on the level
             this.cameraController.focusOn(mesh.position.clone());
@@ -344,21 +578,27 @@ class MineVisualizationApp {
             }, 500);
 
             // Show detail panel for this level
-            this.showLevelDetail(levelNumber);
+            this.showLevelDetail(levelNumber, structureCode);
         }
     }
 
     /**
      * Show the detail panel for a specific level.
      */
-    showLevelDetail(levelNumber) {
+    showLevelDetail(levelNumber, structureCode = null) {
         if (!this.detailPanel) return;
 
-        const state = this.stateManager.currentState;
-        const levelData = state?.levels?.find(l => l.level === levelNumber);
+        let levelData = null;
+
+        if (structureCode) {
+            levelData = this.stateManager.getLevel(structureCode, levelNumber);
+        } else {
+            const state = this.stateManager.currentState;
+            levelData = state?.levels?.find(l => l.level === levelNumber);
+        }
 
         if (levelData) {
-            this.detailPanel.showLevel(levelData);
+            this.detailPanel.showLevel(levelData, structureCode);
         }
     }
 

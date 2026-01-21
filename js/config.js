@@ -10,12 +10,26 @@ export const CONFIG = {
     ICON_OFFSET_Y: 25,
     LABEL_OFFSET_X: -220,
 
-    // Camera - adjusted for 7 levels
+    // Camera - default for single structure
     CAMERA_POSITION: [0, 200, 750],
     CAMERA_TARGET: [0, -450, 0],
     CAMERA_FOV: 60,
     CAMERA_NEAR: 1,
     CAMERA_FAR: 5000,
+
+    // Camera presets for multi-structure views
+    CAMERA_PRESETS: {
+        // Site overview - zoomed out to see all structures
+        site: {
+            position: [0, 800, 1200],
+            target: [0, -200, 0]
+        },
+        // Single structure focus - closer view
+        structure: {
+            position: [0, 200, 750],
+            target: [0, -450, 0]
+        }
+    },
 
     // Risk colors (hex)
     COLORS: {
@@ -29,6 +43,9 @@ export const CONFIG = {
 
     // Interaction
     ISOLATION_FADE_OPACITY: 0.15,
+
+    // Animation
+    CAMERA_TRANSITION_DURATION: 1000, // ms
 
     // Depth mapping - Newman Iron Operations (7 levels)
     DEPTHS: {
