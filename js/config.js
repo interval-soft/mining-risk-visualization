@@ -11,8 +11,8 @@ export const CONFIG = {
     LABEL_OFFSET_X: -220,
 
     // Camera - default for single structure
-    CAMERA_POSITION: [0, 200, 750],
-    CAMERA_TARGET: [0, -450, 0],
+    CAMERA_POSITION: [0, 400, 1100],
+    CAMERA_TARGET: [0, -300, 0],
     CAMERA_FOV: 60,
     CAMERA_NEAR: 1,
     CAMERA_FAR: 5000,
@@ -21,13 +21,13 @@ export const CONFIG = {
     CAMERA_PRESETS: {
         // Site overview - zoomed out to see all structures
         site: {
-            position: [0, 800, 1200],
-            target: [0, -200, 0]
+            position: [0, 1000, 1800],
+            target: [0, -100, 0]
         },
         // Single structure focus - closer view
         structure: {
-            position: [0, 200, 750],
-            target: [0, -450, 0]
+            position: [0, 300, 900],
+            target: [0, -350, 0]
         }
     },
 
