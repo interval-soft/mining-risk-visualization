@@ -267,6 +267,7 @@ body {
     flex: 1;
     min-height: 150px;
     max-height: 280px;
+    overflow: hidden;
 }
 
 #ai-insights-container {
@@ -274,6 +275,8 @@ body {
     min-height: 100px;
     max-height: 180px;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 
 /* Top bar */
