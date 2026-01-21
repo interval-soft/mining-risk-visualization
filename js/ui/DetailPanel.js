@@ -1,6 +1,8 @@
 // js/ui/DetailPanel.js
-// Detail panel showing selected level information, risk breakdown, and alerts
-
+/**
+ * Detail panel showing selected level information, risk breakdown, and alerts.
+ * Supports breadcrumb navigation for multi-structure sites.
+ */
 export class DetailPanel {
     constructor(container, apiClient, stateManager) {
         this.container = container;
@@ -8,7 +10,11 @@ export class DetailPanel {
         this.stateManager = stateManager;
 
         this.selectedLevel = null;
+        this.selectedStructure = null;
         this.levelAlerts = [];
+
+        // Callbacks
+        this.onBreadcrumbClick = null;
 
         this.render();
         this.bindEvents();
@@ -18,7 +24,7 @@ export class DetailPanel {
         this.container.innerHTML = `
             <div class="detail-panel">
                 <div class="detail-header">
-                    <h3>Level Details</h3>
+                    <div class="detail-breadcrumb"></div>
                     <button class="detail-close" title="Close">×</button>
                 </div>
                 <div class="detail-content">
@@ -30,6 +36,7 @@ export class DetailPanel {
         `;
 
         this.panelEl = this.container.querySelector('.detail-panel');
+        this.breadcrumbEl = this.container.querySelector('.detail-breadcrumb');
         this.contentEl = this.container.querySelector('.detail-content');
         this.closeBtn = this.container.querySelector('.detail-close');
 
@@ -45,8 +52,7 @@ export class DetailPanel {
         // Listen to state changes to update if viewing a level
         this.stateManager.addEventListener('stateChanged', (e) => {
             if (this.selectedLevel !== null) {
-                const state = e.detail.state;
-                const levelData = state?.levels?.find(l => l.level === this.selectedLevel);
+                const levelData = this.getLevelData();
                 if (levelData) {
                     this.updateContent(levelData);
                 }
@@ -55,14 +61,97 @@ export class DetailPanel {
     }
 
     /**
+     * Get level data from state manager.
+     */
+    getLevelData() {
+        if (this.selectedStructure) {
+            return this.stateManager.getLevel(this.selectedStructure, this.selectedLevel);
+        }
+        // Legacy: search in flat levels array
+        const state = this.stateManager.currentState;
+        return state?.levels?.find(l => l.level === this.selectedLevel);
+    }
+
+    /**
      * Show detail panel for a specific level.
      * @param {Object} levelData - Level data from state
+     * @param {string} structureCode - Optional structure code
      */
-    showLevel(levelData) {
+    showLevel(levelData, structureCode = null) {
         this.selectedLevel = levelData.level;
+        this.selectedStructure = structureCode || levelData.structureCode || null;
+        this.updateBreadcrumb(levelData);
         this.updateContent(levelData);
         this.show();
-        this.loadLevelAlerts(levelData.level);
+        this.loadLevelAlerts(levelData.level, this.selectedStructure);
+    }
+
+    /**
+     * Update breadcrumb navigation.
+     */
+    updateBreadcrumb(levelData) {
+        const structure = this.selectedStructure
+            ? this.stateManager.getStructure(this.selectedStructure)
+            : null;
+
+        let breadcrumbHtml = '';
+
+        // Site link (always shown for multi-structure)
+        if (structure || this.stateManager.getStructures().size > 1) {
+            breadcrumbHtml += `
+                <span class="breadcrumb-item breadcrumb-site" data-action="site" title="View all structures">
+                    Site
+                </span>
+                <span class="breadcrumb-separator">›</span>
+            `;
+        }
+
+        // Structure link
+        if (structure) {
+            breadcrumbHtml += `
+                <span class="breadcrumb-item breadcrumb-structure" data-action="structure" data-code="${structure.code}" title="${structure.name}">
+                    ${this.truncateName(structure.name, 20)}
+                </span>
+                <span class="breadcrumb-separator">›</span>
+            `;
+        }
+
+        // Current level (not a link)
+        breadcrumbHtml += `
+            <span class="breadcrumb-item breadcrumb-current">
+                Level ${levelData.level}
+            </span>
+        `;
+
+        this.breadcrumbEl.innerHTML = breadcrumbHtml;
+
+        // Bind breadcrumb click events
+        this.breadcrumbEl.querySelectorAll('.breadcrumb-item[data-action]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const action = item.dataset.action;
+                const code = item.dataset.code;
+
+                if (action === 'site') {
+                    this.stateManager.setFocusedStructure(null);
+                    if (this.onBreadcrumbClick) {
+                        this.onBreadcrumbClick('site', null);
+                    }
+                } else if (action === 'structure' && code) {
+                    this.stateManager.setFocusedStructure(code);
+                    if (this.onBreadcrumbClick) {
+                        this.onBreadcrumbClick('structure', code);
+                    }
+                }
+            });
+        });
+    }
+
+    /**
+     * Truncate name for display.
+     */
+    truncateName(name, maxLength) {
+        if (!name || name.length <= maxLength) return name;
+        return name.substring(0, maxLength - 2) + '...';
     }
 
     /**
@@ -142,46 +231,68 @@ export class DetailPanel {
     /**
      * Load alerts for a specific level.
      */
-    async loadLevelAlerts(levelNumber) {
+    async loadLevelAlerts(levelNumber, structureCode = null) {
         try {
-            const response = await this.apiClient.getAlerts({
+            const params = {
                 level: levelNumber,
                 status: 'active'
-            });
+            };
+            if (structureCode) {
+                params.structure = structureCode;
+            }
+
+            const response = await this.apiClient.getAlerts(params);
             this.levelAlerts = response.alerts || [];
         } catch (error) {
             // Use mock alerts
-            this.levelAlerts = this.getMockAlerts(levelNumber);
+            this.levelAlerts = this.getMockAlerts(levelNumber, structureCode);
         }
 
         // Re-render if we're still viewing this level
         if (this.selectedLevel === levelNumber) {
-            const state = this.stateManager.currentState;
-            const levelData = state?.levels?.find(l => l.level === levelNumber);
+            const levelData = this.getLevelData();
             if (levelData) {
                 this.updateContent(levelData);
             }
         }
     }
 
-    getMockAlerts(levelNumber) {
+    getMockAlerts(levelNumber, structureCode) {
         const mockAlerts = {
             3: [
                 {
                     cause: 'Blast fired - awaiting reentry clearance',
                     timestamp: new Date(Date.now() - 3600000).toISOString(),
-                    riskScore: 100
+                    riskScore: 100,
+                    structureCode: 'PIT_MAIN'
                 }
             ],
             4: [
                 {
                     cause: 'Gas concentration above threshold',
                     timestamp: new Date(Date.now() - 7200000).toISOString(),
-                    riskScore: 72
+                    riskScore: 72,
+                    structureCode: 'DECLINE_NORTH'
+                }
+            ],
+            1: [
+                {
+                    cause: 'Crusher temperature elevated',
+                    timestamp: new Date(Date.now() - 1800000).toISOString(),
+                    riskScore: 65,
+                    structureCode: 'PROCESSING'
                 }
             ]
         };
-        return mockAlerts[levelNumber] || [];
+
+        let alerts = mockAlerts[levelNumber] || [];
+
+        // Filter by structure if specified
+        if (structureCode) {
+            alerts = alerts.filter(a => a.structureCode === structureCode);
+        }
+
+        return alerts;
     }
 
     getSeverityClass(alert) {
@@ -207,6 +318,14 @@ export class DetailPanel {
         return 'high';
     }
 
+    /**
+     * Set callback for breadcrumb navigation.
+     * @param {Function} callback - (type: 'site'|'structure', code?: string) => void
+     */
+    setBreadcrumbClickHandler(callback) {
+        this.onBreadcrumbClick = callback;
+    }
+
     show() {
         this.container.style.display = 'block';
         this.panelEl.classList.add('visible');
@@ -218,6 +337,7 @@ export class DetailPanel {
             this.container.style.display = 'none';
         }, 200);
         this.selectedLevel = null;
+        this.selectedStructure = null;
     }
 
     /**
@@ -225,5 +345,15 @@ export class DetailPanel {
      */
     isVisible() {
         return this.selectedLevel !== null;
+    }
+
+    /**
+     * Get current selection info.
+     */
+    getSelection() {
+        return {
+            level: this.selectedLevel,
+            structure: this.selectedStructure
+        };
     }
 }

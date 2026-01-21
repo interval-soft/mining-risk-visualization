@@ -1,6 +1,7 @@
 import { query } from '../_lib/db.js';
 
 // Mock alerts fallback for Newman Iron Operations (used when database is empty or unavailable)
+// Now includes structure_code for multi-structure support
 function getMockAlerts() {
     const now = Date.now();
     return [
@@ -8,6 +9,8 @@ function getMockAlerts() {
             id: 'alert-001',
             timestamp: new Date(now - 15 * 60 * 1000).toISOString(),
             level_number: 2,
+            structure_code: 'PIT_MAIN',
+            structure_name: 'Main Open Pit',
             risk_score: 85,
             status: 'active',
             cause: 'Production drilling active with explosive magazine access',
@@ -20,11 +23,13 @@ function getMockAlerts() {
         {
             id: 'alert-002',
             timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
-            level_number: 6,
+            level_number: 1,
+            structure_code: 'DECLINE_NORTH',
+            structure_name: 'Northern Decline',
             risk_score: 82,
             status: 'acknowledged',
             cause: 'Active decline development with confined space entry',
-            explanation: 'Level 6 (Underground Decline) HIGH risk (82) due to decline development, ground support work, and confined space entry. DECLINE_DEV (+35), GROUND_SUPPORT (+25), CONFINED_SPACE (+30) rules triggered.',
+            explanation: 'Decline Portal (Northern Decline) HIGH risk (82) due to decline development, ground support work, and confined space entry. DECLINE_DEV (+35), GROUND_SUPPORT (+25), CONFINED_SPACE (+30) rules triggered.',
             acknowledged_at: new Date(now - 90 * 60 * 1000).toISOString(),
             acknowledged_by: 'Underground Supervisor',
             acknowledged_comment: 'Permits verified, gas monitors on all personnel, bogger operator briefed',
@@ -33,11 +38,13 @@ function getMockAlerts() {
         {
             id: 'alert-003',
             timestamp: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
-            level_number: 7,
+            level_number: 4,
+            structure_code: 'DECLINE_NORTH',
+            structure_name: 'Northern Decline',
             risk_score: 62,
             status: 'resolved',
             cause: 'Air quality reading elevated',
-            explanation: 'Level 7 (Deep Services) MEDIUM-HIGH risk (62) due to elevated dust particulates at 85 µg/m³. AIR_QUALITY_ALERT rule triggered (+20).',
+            explanation: 'Deep Services (Northern Decline) MEDIUM-HIGH risk (62) due to elevated dust particulates at 85 µg/m³. AIR_QUALITY_ALERT rule triggered (+20).',
             acknowledged_at: new Date(now - 5.5 * 60 * 60 * 1000).toISOString(),
             acknowledged_by: 'Ventilation Officer',
             acknowledged_comment: 'Increasing main fan output, monitoring levels',
@@ -47,6 +54,8 @@ function getMockAlerts() {
             id: 'alert-004',
             timestamp: new Date(now - 12 * 60 * 60 * 1000).toISOString(),
             level_number: 2,
+            structure_code: 'PIT_MAIN',
+            structure_name: 'Main Open Pit',
             risk_score: 100,
             status: 'resolved',
             cause: 'Post-blast lockout active',
@@ -60,6 +69,8 @@ function getMockAlerts() {
             id: 'alert-005',
             timestamp: new Date(now - 8 * 60 * 60 * 1000).toISOString(),
             level_number: 3,
+            structure_code: 'PIT_MAIN',
+            structure_name: 'Main Open Pit',
             risk_score: 48,
             status: 'acknowledged',
             cause: 'Haul truck overspeed violation',
@@ -67,6 +78,21 @@ function getMockAlerts() {
             acknowledged_at: new Date(now - 7.8 * 60 * 60 * 1000).toISOString(),
             acknowledged_by: 'Pit Supervisor',
             acknowledged_comment: 'Operator counseled, incident logged, monitoring continues',
+            resolved_at: null
+        },
+        {
+            id: 'alert-006',
+            timestamp: new Date(now - 4 * 60 * 60 * 1000).toISOString(),
+            level_number: 1,
+            structure_code: 'PROCESSING',
+            structure_name: 'Processing Plant',
+            risk_score: 45,
+            status: 'active',
+            cause: 'Crusher maintenance required',
+            explanation: 'Primary Crushing (Processing Plant) MEDIUM risk (45) - Primary jaw crusher bearing temperature elevated. MAINTENANCE_REQUIRED rule triggered (+25).',
+            acknowledged_at: null,
+            acknowledged_by: null,
+            acknowledged_comment: null,
             resolved_at: null
         }
     ];
@@ -78,6 +104,8 @@ function normalizeAlert(alert) {
         id: alert.id,
         timestamp: alert.timestamp,
         levelNumber: alert.level_number,
+        structureCode: alert.structure_code || null,
+        structureName: alert.structure_name || null,
         riskScore: alert.risk_score,
         status: alert.status,
         cause: alert.cause,
@@ -92,23 +120,33 @@ function normalizeAlert(alert) {
 export default async function handler(req, res) {
     const status = req.query.status;
     const level = req.query.level ? parseInt(req.query.level, 10) : undefined;
+    const structure = req.query.structure; // Structure code filter
 
     try {
         // Try to fetch from database
-        let sql = 'SELECT * FROM alerts WHERE 1=1';
+        let sql = `
+            SELECT a.*, s.code as structure_code, s.name as structure_name
+            FROM alerts a
+            LEFT JOIN structures s ON a.structure_id = s.id
+            WHERE 1=1
+        `;
         const params = [];
         let paramIndex = 1;
 
         if (status) {
-            sql += ` AND status = $${paramIndex++}`;
+            sql += ` AND a.status = $${paramIndex++}`;
             params.push(status);
         }
         if (level !== undefined) {
-            sql += ` AND level_number = $${paramIndex++}`;
+            sql += ` AND a.level_number = $${paramIndex++}`;
             params.push(level);
         }
+        if (structure) {
+            sql += ` AND s.code = $${paramIndex++}`;
+            params.push(structure);
+        }
 
-        sql += ' ORDER BY timestamp DESC';
+        sql += ' ORDER BY a.timestamp DESC';
 
         const alerts = await query(sql, params);
 
@@ -130,6 +168,9 @@ export default async function handler(req, res) {
         if (level !== undefined) {
             mockAlerts = mockAlerts.filter(a => a.level_number === level);
         }
+        if (structure) {
+            mockAlerts = mockAlerts.filter(a => a.structure_code === structure);
+        }
 
         mockAlerts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
@@ -149,6 +190,9 @@ export default async function handler(req, res) {
         }
         if (level !== undefined) {
             mockAlerts = mockAlerts.filter(a => a.level_number === level);
+        }
+        if (structure) {
+            mockAlerts = mockAlerts.filter(a => a.structure_code === structure);
         }
 
         mockAlerts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());

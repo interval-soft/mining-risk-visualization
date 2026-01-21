@@ -32,6 +32,7 @@ export interface SnapshotLevelRow {
   risk_band: 'low' | 'medium' | 'high' | null;
   risk_explanation: string | null;
   rule_triggers: Record<string, unknown> | null;
+  structure_id: string | null;
 }
 
 export interface SnapshotActivityRow {
@@ -51,6 +52,7 @@ export interface EventRow {
   severity: 'low' | 'medium' | 'high' | 'critical';
   metadata: Record<string, unknown> | null;
   created_at: Date;
+  structure_id: string | null;
 }
 
 export interface MeasurementRow {
@@ -60,6 +62,7 @@ export interface MeasurementRow {
   sensor_type: string;
   value: number;
   unit: string;
+  structure_id: string | null;
 }
 
 export interface AlertRow {
@@ -75,6 +78,7 @@ export interface AlertRow {
   acknowledged_comment: string | null;
   resolved_at: Date | null;
   created_at: Date;
+  structure_id: string | null;
 }
 
 export interface RiskRuleRow {
@@ -102,4 +106,29 @@ export interface RiskAuditRow {
   explanation: string;
   rule_version_hash: string;
   created_at: Date;
+}
+
+// Multi-structure support
+export interface StructureRow {
+  id: string;
+  site_id: string;
+  code: string;
+  name: string;
+  type: 'open_pit' | 'underground' | 'processing' | 'stockpile' | 'mixed';
+  position_x: number;
+  position_z: number;
+  rotation_y: number;
+  enabled: boolean;
+  display_order: number;
+  metadata: Record<string, unknown>;
+  created_at: Date;
+}
+
+export interface StructureLevelRow {
+  id: string;
+  structure_id: string;
+  level_number: number;
+  name: string;
+  depth_meters: number | null;
+  enabled: boolean;
 }

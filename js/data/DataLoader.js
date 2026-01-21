@@ -4,6 +4,7 @@ import { ApiClient } from './ApiClient.js';
 /**
  * Data loader that fetches mine state from the API.
  * Falls back to static JSON if API is unavailable.
+ * Supports multi-structure mine sites.
  */
 export class DataLoader {
     constructor(apiClient = null) {
@@ -15,7 +16,7 @@ export class DataLoader {
     /**
      * Load current mine state.
      * Tries API first, falls back to static JSON.
-     * @returns {Promise<Object>} Mine state data
+     * @returns {Promise<Object>} Mine state data with structures and levels
      */
     async loadCurrent() {
         if (this.useApi) {
@@ -117,27 +118,127 @@ export class DataLoader {
 
     /**
      * Transform API response to internal format.
-     * API returns riskScore/riskBand directly; we normalize to the format
-     * expected by existing visualization components.
+     * Handles both multi-structure and legacy single-structure responses.
      */
     transformApiResponse(apiData) {
+        // Check if response has structures (new format)
+        if (apiData.structures && Array.isArray(apiData.structures)) {
+            return this.transformMultiStructureResponse(apiData);
+        }
+
+        // Legacy format with just levels
+        return this.transformLegacyApiResponse(apiData);
+    }
+
+    /**
+     * Transform multi-structure API response.
+     */
+    transformMultiStructureResponse(apiData) {
+        const structures = apiData.structures.map(structure => ({
+            code: structure.code,
+            name: structure.name,
+            type: structure.type,
+            position: structure.position || { x: 0, z: 0 },
+            rotation: structure.rotation || 0,
+            riskScore: structure.riskScore,
+            riskBand: structure.riskBand,
+            levels: structure.levels.map(level => this.transformLevel(level)),
+        }));
+
+        // Also maintain flat levels array for backward compatibility
+        const levels = apiData.levels
+            ? apiData.levels.map(level => this.transformLevel(level))
+            : this.flattenStructureLevels(structures);
+
         return {
             timestamp: apiData.timestamp,
-            levels: apiData.levels.map(level => ({
-                level: level.level,
-                name: level.name,
-                riskScore: level.riskScore,
-                riskBand: level.riskBand,
-                riskExplanation: level.riskExplanation,
-                triggeredRules: level.triggeredRules || [],
-                activities: level.activities.map(activity => ({
-                    name: activity.name,
-                    status: activity.status,
-                    riskScore: activity.riskScore,
-                    // Map riskScore to risk band for backward compat
-                    risk: this.scoreToRisk(activity.riskScore),
-                })),
+            structures,
+            levels,
+        };
+    }
+
+    /**
+     * Transform a single level object.
+     */
+    transformLevel(level) {
+        return {
+            level: level.level,
+            name: level.name,
+            riskScore: level.riskScore,
+            riskBand: level.riskBand,
+            riskExplanation: level.riskExplanation,
+            triggeredRules: level.triggeredRules || [],
+            structureCode: level.structureCode || null,
+            structureName: level.structureName || null,
+            activities: (level.activities || []).map(activity => ({
+                name: activity.name,
+                status: activity.status,
+                riskScore: activity.riskScore,
+                // Map riskScore to risk band for backward compat
+                risk: this.scoreToRisk(activity.riskScore),
             })),
+        };
+    }
+
+    /**
+     * Flatten structure levels into a single array.
+     */
+    flattenStructureLevels(structures) {
+        const levels = [];
+        let globalLevelNumber = 1;
+
+        for (const structure of structures) {
+            for (const level of structure.levels) {
+                levels.push({
+                    ...level,
+                    level: globalLevelNumber++,
+                    structureCode: structure.code,
+                    structureName: structure.name,
+                });
+            }
+        }
+
+        return levels;
+    }
+
+    /**
+     * Transform legacy API response (single-structure, no structures array).
+     */
+    transformLegacyApiResponse(apiData) {
+        const levels = apiData.levels.map(level => ({
+            level: level.level,
+            name: level.name,
+            riskScore: level.riskScore,
+            riskBand: level.riskBand,
+            riskExplanation: level.riskExplanation,
+            triggeredRules: level.triggeredRules || [],
+            structureCode: null,
+            structureName: null,
+            activities: (level.activities || []).map(activity => ({
+                name: activity.name,
+                status: activity.status,
+                riskScore: activity.riskScore,
+                risk: this.scoreToRisk(activity.riskScore),
+            })),
+        }));
+
+        // Create a default structure from the levels
+        const maxRisk = Math.max(...levels.map(l => l.riskScore || 0), 0);
+        const defaultStructure = {
+            code: 'DEFAULT',
+            name: 'Mine Site',
+            type: 'mixed',
+            position: { x: 0, z: 0 },
+            rotation: 0,
+            riskScore: maxRisk,
+            riskBand: this.scoreToRisk(maxRisk),
+            levels: levels,
+        };
+
+        return {
+            timestamp: apiData.timestamp,
+            structures: [defaultStructure],
+            levels: levels,
         };
     }
 
@@ -146,28 +247,46 @@ export class DataLoader {
      * Adds computed risk scores based on activity risks.
      */
     transformLegacyData(data) {
+        const levels = data.levels.map(level => {
+            // Compute level risk from activities (legacy behavior)
+            const maxRisk = this.computeLevelRisk(level.activities);
+            const riskScore = this.riskToScore(maxRisk);
+
+            return {
+                level: level.level,
+                name: level.name,
+                riskScore,
+                riskBand: maxRisk,
+                riskExplanation: `Risk determined by ${level.activities.length} activities.`,
+                triggeredRules: [],
+                structureCode: null,
+                structureName: null,
+                activities: level.activities.map(activity => ({
+                    name: activity.name,
+                    status: activity.status,
+                    risk: activity.risk,
+                    riskScore: this.riskToScore(activity.risk),
+                })),
+            };
+        });
+
+        // Create a default structure from the levels
+        const maxRisk = Math.max(...levels.map(l => l.riskScore || 0), 0);
+        const defaultStructure = {
+            code: 'DEFAULT',
+            name: 'Mine Site',
+            type: 'mixed',
+            position: { x: 0, z: 0 },
+            rotation: 0,
+            riskScore: maxRisk,
+            riskBand: this.scoreToRisk(maxRisk),
+            levels: levels,
+        };
+
         return {
             timestamp: data.timestamp,
-            levels: data.levels.map(level => {
-                // Compute level risk from activities (legacy behavior)
-                const maxRisk = this.computeLevelRisk(level.activities);
-                const riskScore = this.riskToScore(maxRisk);
-
-                return {
-                    level: level.level,
-                    name: level.name,
-                    riskScore,
-                    riskBand: maxRisk,
-                    riskExplanation: `Risk determined by ${level.activities.length} activities.`,
-                    triggeredRules: [],
-                    activities: level.activities.map(activity => ({
-                        name: activity.name,
-                        status: activity.status,
-                        risk: activity.risk,
-                        riskScore: this.riskToScore(activity.risk),
-                    })),
-                };
-            }),
+            structures: [defaultStructure],
+            levels: levels,
         };
     }
 

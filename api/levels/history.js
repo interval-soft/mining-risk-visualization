@@ -1,8 +1,13 @@
 /**
- * Newman Iron Operations - 7 Level Mixed Operations Mine
- * Generate levels with time-varying risk scores.
+ * Newman Iron Operations - Multi-Structure Mine Site
+ * Generate historical snapshots with time-varying risk scores.
+ * Supports multiple structures with independent positioning.
  */
-function getMockLevels(timestamp) {
+
+/**
+ * Get mock levels for the Main Open Pit structure
+ */
+function getPitMainLevels(timestamp) {
     const hour = timestamp.getHours();
 
     // Level 2: Active Pit Face - risk varies based on blasting schedule
@@ -28,37 +33,6 @@ function getMockLevels(timestamp) {
     } else if (hour >= 21 || hour < 6) {
         level2Risk = 35;
         level2Explanation = 'MEDIUM risk. Night shift, reduced drilling activity.';
-    }
-
-    // Level 6: Underground Decline - consistently high risk
-    let level6Risk = 82;
-    let level6Explanation = 'HIGH risk: Active decline development with confined space entry.';
-    const level6Rules = [
-        { ruleCode: 'DECLINE_DEV', ruleName: 'Active Decline Development', impactType: 'additive', impactValue: 35, reason: 'Underground decline development in progress' },
-        { ruleCode: 'GROUND_SUPPORT', ruleName: 'Ground Support Installation', impactType: 'additive', impactValue: 25, reason: 'Active rock bolting and mesh installation' },
-        { ruleCode: 'CONFINED_SPACE', ruleName: 'Confined Space Entry', impactType: 'additive', impactValue: 30, reason: 'Confined space work with valid permit' }
-    ];
-
-    if (hour >= 22 || hour < 5) {
-        level6Risk = 55;
-        level6Explanation = 'MEDIUM risk: Night maintenance, reduced development activity.';
-        level6Rules.length = 1;
-    }
-
-    // Level 7: Deep Services - ventilation and air quality
-    let level7Risk = 45;
-    let level7Explanation = 'MEDIUM risk: Primary ventilation with air quality monitoring.';
-    const level7Rules = [
-        { ruleCode: 'VENTILATION_OPS', ruleName: 'Primary Ventilation Fan', impactType: 'additive', impactValue: 20, reason: 'Main ventilation fan operating' },
-        { ruleCode: 'ELECTRICAL_SUB', ruleName: 'Electrical Substation', impactType: 'additive', impactValue: 15, reason: 'High voltage substation active' }
-    ];
-
-    if (hour === 14 || hour === 15) {
-        level7Risk = 62;
-        level7Explanation = 'HIGH risk: Air quality reading elevated, increased ventilation required.';
-        level7Rules.push(
-            { ruleCode: 'AIR_QUALITY', ruleName: 'Air Quality Alert', impactType: 'additive', impactValue: 20, reason: 'Dust particulates elevated at 85 µg/m³' }
-        );
     }
 
     return [
@@ -134,38 +108,240 @@ function getMockLevels(timestamp) {
                 { name: 'Drainage Channel Clearing', status: 'active', riskScore: 20 },
                 { name: 'Water Quality Monitoring', status: 'active', riskScore: 10 }
             ]
-        },
+        }
+    ];
+}
+
+/**
+ * Get mock levels for the Northern Decline (underground) structure
+ */
+function getDeclineNorthLevels(timestamp) {
+    const hour = timestamp.getHours();
+
+    // Underground risk varies by shift
+    let level1Risk = 82;
+    let level1Explanation = 'HIGH risk: Active decline development with confined space entry.';
+    const level1Rules = [
+        { ruleCode: 'DECLINE_DEV', ruleName: 'Active Decline Development', impactType: 'additive', impactValue: 35, reason: 'Underground decline development in progress' },
+        { ruleCode: 'GROUND_SUPPORT', ruleName: 'Ground Support Installation', impactType: 'additive', impactValue: 25, reason: 'Active rock bolting and mesh installation' },
+        { ruleCode: 'CONFINED_SPACE', ruleName: 'Confined Space Entry', impactType: 'additive', impactValue: 30, reason: 'Confined space work with valid permit' }
+    ];
+
+    if (hour >= 22 || hour < 5) {
+        level1Risk = 55;
+        level1Explanation = 'MEDIUM risk: Night maintenance, reduced development activity.';
+        level1Rules.length = 1;
+    }
+
+    // Level 4: Deep Services - ventilation and air quality
+    let level4Risk = 45;
+    let level4Explanation = 'MEDIUM risk: Primary ventilation with air quality monitoring.';
+    const level4Rules = [
+        { ruleCode: 'VENTILATION_OPS', ruleName: 'Primary Ventilation Fan', impactType: 'additive', impactValue: 20, reason: 'Main ventilation fan operating' },
+        { ruleCode: 'ELECTRICAL_SUB', ruleName: 'Electrical Substation', impactType: 'additive', impactValue: 15, reason: 'High voltage substation active' }
+    ];
+
+    if (hour === 14 || hour === 15) {
+        level4Risk = 62;
+        level4Explanation = 'HIGH risk: Air quality reading elevated, increased ventilation required.';
+        level4Rules.push(
+            { ruleCode: 'AIR_QUALITY', ruleName: 'Air Quality Alert', impactType: 'additive', impactValue: 20, reason: 'Dust particulates elevated at 85 µg/m³' }
+        );
+    }
+
+    return [
         {
-            level: 6,
-            name: 'Underground Decline',
-            riskScore: level6Risk,
-            riskBand: level6Risk > 70 ? 'high' : level6Risk > 30 ? 'medium' : 'low',
-            riskExplanation: level6Explanation,
-            triggeredRules: level6Rules,
+            level: 1,
+            name: 'Decline Portal',
+            riskScore: level1Risk,
+            riskBand: level1Risk > 70 ? 'high' : level1Risk > 30 ? 'medium' : 'low',
+            riskExplanation: level1Explanation,
+            triggeredRules: level1Rules,
             activities: [
                 { name: 'Decline Development', status: 'active', riskScore: 75 },
                 { name: 'Ground Support Installation', status: 'active', riskScore: 70 },
                 { name: 'Shotcrete Application', status: 'planned', riskScore: 45 },
-                { name: 'Bogger Ore Extraction', status: 'active', riskScore: 65 },
-                { name: 'Confined Space Entry', status: 'active', riskScore: 80 }
+                { name: 'Bogger Ore Extraction', status: 'active', riskScore: 65 }
             ]
         },
         {
-            level: 7,
+            level: 2,
+            name: 'Level 1 Development',
+            riskScore: 68,
+            riskBand: 'medium',
+            riskExplanation: 'MEDIUM risk: Active stope development with ventilation.',
+            triggeredRules: [
+                { ruleCode: 'STOPE_DEV', ruleName: 'Stope Development', impactType: 'additive', impactValue: 30, reason: 'Active stoping operations' }
+            ],
+            activities: [
+                { name: 'Stope Development', status: 'active', riskScore: 70 },
+                { name: 'Ore Pass Loading', status: 'active', riskScore: 55 },
+                { name: 'Ventilation Duct Installation', status: 'completed', riskScore: 35 }
+            ]
+        },
+        {
+            level: 3,
+            name: 'Level 2 Extraction',
+            riskScore: 58,
+            riskBand: 'medium',
+            riskExplanation: 'MEDIUM risk: Active ore extraction with bogger operations.',
+            triggeredRules: [
+                { ruleCode: 'BOGGER_OPS', ruleName: 'Bogger Operations', impactType: 'additive', impactValue: 25, reason: 'Active LHD ore extraction' }
+            ],
+            activities: [
+                { name: 'LHD Ore Mucking', status: 'active', riskScore: 60 },
+                { name: 'Scaling Operations', status: 'planned', riskScore: 65 },
+                { name: 'Ground Monitoring', status: 'active', riskScore: 20 }
+            ]
+        },
+        {
+            level: 4,
             name: 'Deep Services',
-            riskScore: level7Risk,
-            riskBand: level7Risk > 70 ? 'high' : level7Risk > 30 ? 'medium' : 'low',
-            riskExplanation: level7Explanation,
-            triggeredRules: level7Rules,
+            riskScore: level4Risk,
+            riskBand: level4Risk > 70 ? 'high' : level4Risk > 30 ? 'medium' : 'low',
+            riskExplanation: level4Explanation,
+            triggeredRules: level4Rules,
             activities: [
                 { name: 'Primary Ventilation Fan', status: 'active', riskScore: 40 },
                 { name: 'Emergency Refuge Check', status: 'completed', riskScore: 15 },
                 { name: 'Secondary Escapeway', status: 'active', riskScore: 20 },
-                { name: 'Air Quality Monitoring', status: 'active', riskScore: 45 },
-                { name: 'Electrical Substation', status: 'active', riskScore: 50 }
+                { name: 'Air Quality Monitoring', status: 'active', riskScore: 45 }
             ]
         }
     ];
+}
+
+/**
+ * Get mock levels for the Processing Plant structure
+ */
+function getProcessingLevels(timestamp) {
+    const hour = timestamp.getHours();
+
+    // Crusher maintenance during afternoon shift
+    let level1Risk = 32;
+    let level1Explanation = 'MEDIUM risk: Heavy equipment operation with rotating machinery.';
+    const level1Rules = [
+        { ruleCode: 'ROTATING_EQUIP', ruleName: 'Rotating Equipment', impactType: 'additive', impactValue: 15, reason: 'Primary crusher and conveyors operating' }
+    ];
+
+    if (hour >= 13 && hour < 15) {
+        level1Risk = 45;
+        level1Explanation = 'MEDIUM risk: Crusher bearing temperature elevated, maintenance required.';
+        level1Rules.push(
+            { ruleCode: 'MAINTENANCE_REQ', ruleName: 'Maintenance Required', impactType: 'additive', impactValue: 15, reason: 'Primary crusher bearing temperature at 85°C' }
+        );
+    }
+
+    return [
+        {
+            level: 1,
+            name: 'Primary Crushing',
+            riskScore: level1Risk,
+            riskBand: level1Risk > 70 ? 'high' : level1Risk > 30 ? 'medium' : 'low',
+            riskExplanation: level1Explanation,
+            triggeredRules: level1Rules,
+            activities: [
+                { name: 'Primary Jaw Crusher', status: 'active', riskScore: 35 },
+                { name: 'Apron Feeder', status: 'active', riskScore: 25 },
+                { name: 'Grizzly Screen', status: 'active', riskScore: 30 }
+            ]
+        },
+        {
+            level: 2,
+            name: 'Screening & Conveying',
+            riskScore: 28,
+            riskBand: 'low',
+            riskExplanation: 'Low risk: Automated screening operations.',
+            triggeredRules: [],
+            activities: [
+                { name: 'Vibrating Screens', status: 'active', riskScore: 25 },
+                { name: 'Conveyor System', status: 'active', riskScore: 20 },
+                { name: 'Dust Suppression', status: 'active', riskScore: 15 }
+            ]
+        },
+        {
+            level: 3,
+            name: 'Stockpile Area',
+            riskScore: 22,
+            riskBand: 'low',
+            riskExplanation: 'Low risk: Stockpile management with stacker/reclaimer.',
+            triggeredRules: [],
+            activities: [
+                { name: 'Stacker Operations', status: 'active', riskScore: 25 },
+                { name: 'Reclaimer Operations', status: 'planned', riskScore: 25 },
+                { name: 'Train Loadout', status: 'active', riskScore: 30 }
+            ]
+        }
+    ];
+}
+
+/**
+ * Get all structures with their levels at a given timestamp
+ */
+function getMockStructures(timestamp) {
+    const pitMainLevels = getPitMainLevels(timestamp);
+    const declineLevels = getDeclineNorthLevels(timestamp);
+    const processingLevels = getProcessingLevels(timestamp);
+
+    // Calculate max risk per structure
+    const pitMainRisk = Math.max(...pitMainLevels.map(l => l.riskScore));
+    const declineRisk = Math.max(...declineLevels.map(l => l.riskScore));
+    const processingRisk = Math.max(...processingLevels.map(l => l.riskScore));
+
+    return [
+        {
+            code: 'PIT_MAIN',
+            name: 'Main Open Pit',
+            type: 'open_pit',
+            position: { x: 0, z: 0 },
+            rotation: 0,
+            riskScore: pitMainRisk,
+            riskBand: pitMainRisk > 70 ? 'high' : pitMainRisk > 30 ? 'medium' : 'low',
+            levels: pitMainLevels
+        },
+        {
+            code: 'DECLINE_NORTH',
+            name: 'Northern Decline',
+            type: 'underground',
+            position: { x: 600, z: -200 },
+            rotation: 0,
+            riskScore: declineRisk,
+            riskBand: declineRisk > 70 ? 'high' : declineRisk > 30 ? 'medium' : 'low',
+            levels: declineLevels
+        },
+        {
+            code: 'PROCESSING',
+            name: 'Processing Plant',
+            type: 'processing',
+            position: { x: -500, z: 300 },
+            rotation: 0,
+            riskScore: processingRisk,
+            riskBand: processingRisk > 70 ? 'high' : processingRisk > 30 ? 'medium' : 'low',
+            levels: processingLevels
+        }
+    ];
+}
+
+/**
+ * Flatten structures into legacy levels array for backward compatibility
+ * Adds structureCode to each level for reference
+ */
+function flattenToLegacyLevels(structures) {
+    const levels = [];
+    let globalLevelNumber = 1;
+
+    for (const structure of structures) {
+        for (const level of structure.levels) {
+            levels.push({
+                ...level,
+                level: globalLevelNumber++,
+                structureCode: structure.code,
+                structureName: structure.name
+            });
+        }
+    }
+
+    return levels;
 }
 
 function generateUUID() {
@@ -177,15 +353,25 @@ function generateUUID() {
 }
 
 export default function handler(req, res) {
-    const { from, to, at } = req.query;
+    const { from, to, at, structure: structureFilter } = req.query;
 
     // If 'at' parameter provided, return single snapshot at that time
     if (at) {
         const atDate = new Date(at);
+        let structures = getMockStructures(atDate);
+
+        // Filter by structure if specified
+        if (structureFilter) {
+            structures = structures.filter(s => s.code === structureFilter);
+        }
+
+        const levels = flattenToLegacyLevels(structures);
+
         const response = {
             id: generateUUID(),
             timestamp: atDate.toISOString(),
-            levels: getMockLevels(atDate)
+            structures: structures,
+            levels: levels
         };
         return res.status(200).json(response);
     }
@@ -198,10 +384,20 @@ export default function handler(req, res) {
     const current = new Date(fromDate);
 
     while (current <= toDate && snapshots.length < 48) {
+        let structures = getMockStructures(current);
+
+        // Filter by structure if specified
+        if (structureFilter) {
+            structures = structures.filter(s => s.code === structureFilter);
+        }
+
+        const levels = flattenToLegacyLevels(structures);
+
         snapshots.push({
             id: generateUUID(),
             timestamp: current.toISOString(),
-            levels: getMockLevels(current)
+            structures: structures,
+            levels: levels
         });
         current.setMinutes(current.getMinutes() + 30); // 30-minute intervals
     }

@@ -14,7 +14,7 @@ export class CameraController {
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.minDistance = 200;
-        this.controls.maxDistance = 1500;
+        this.controls.maxDistance = 2500; // Increased for site view
         this.controls.maxPolarAngle = Math.PI * 0.85;
 
         this.controls.target.copy(this.defaultTarget);
@@ -22,6 +22,10 @@ export class CameraController {
         // Rotation and zoom speeds
         this.rotateSpeed = 0.1; // radians per step
         this.zoomSpeed = 50;    // distance per step
+
+        // Animation state
+        this.isAnimating = false;
+        this.animationId = null;
     }
 
     reset() {
@@ -107,7 +111,7 @@ export class CameraController {
 
     /**
      * Set camera to a preset view
-     * @param {string} view - 'top', 'front', 'side', 'isometric'
+     * @param {string} view - 'top', 'front', 'side', 'isometric', 'site', 'structure'
      */
     setPresetView(view) {
         const target = this.controls.target.clone();
@@ -122,6 +126,28 @@ export class CameraController {
                 break;
             case 'side':
                 this.camera.position.set(target.x + distance, target.y, target.z);
+                break;
+            case 'site':
+                // Use site preset from config
+                if (CONFIG.CAMERA_PRESETS?.site) {
+                    const preset = CONFIG.CAMERA_PRESETS.site;
+                    this.animateTo(
+                        new THREE.Vector3(...preset.position),
+                        new THREE.Vector3(...preset.target)
+                    );
+                    return;
+                }
+                break;
+            case 'structure':
+                // Use structure preset from config
+                if (CONFIG.CAMERA_PRESETS?.structure) {
+                    const preset = CONFIG.CAMERA_PRESETS.structure;
+                    this.animateTo(
+                        new THREE.Vector3(...preset.position),
+                        new THREE.Vector3(...preset.target)
+                    );
+                    return;
+                }
                 break;
             case 'isometric':
             default:
@@ -140,5 +166,116 @@ export class CameraController {
     focusOn(position) {
         this.controls.target.copy(position);
         this.controls.update();
+    }
+
+    /**
+     * Focus on a structure with animated camera movement.
+     * @param {THREE.Vector3} structurePosition - World position of structure center
+     * @param {Object} options - Optional settings
+     */
+    focusOnStructure(structurePosition, options = {}) {
+        const {
+            distance = 750,
+            height = 200,
+            duration = CONFIG.CAMERA_TRANSITION_DURATION || 1000
+        } = options;
+
+        // Calculate camera position relative to structure
+        const targetPosition = structurePosition.clone();
+
+        // Offset camera from structure
+        const cameraPosition = new THREE.Vector3(
+            structurePosition.x,
+            structurePosition.y + height,
+            structurePosition.z + distance
+        );
+
+        this.animateTo(cameraPosition, targetPosition, duration);
+    }
+
+    /**
+     * Switch to site overview (all structures visible).
+     * @param {THREE.Vector3} siteCenter - Optional center point of site
+     */
+    showSiteOverview(siteCenter = null) {
+        const preset = CONFIG.CAMERA_PRESETS?.site || {
+            position: [0, 800, 1200],
+            target: [0, -200, 0]
+        };
+
+        let targetPos = new THREE.Vector3(...preset.target);
+        let cameraPos = new THREE.Vector3(...preset.position);
+
+        // Adjust for site center if provided
+        if (siteCenter) {
+            const offset = cameraPos.clone().sub(targetPos);
+            targetPos = siteCenter.clone();
+            cameraPos = siteCenter.clone().add(offset);
+        }
+
+        this.animateTo(cameraPos, targetPos);
+    }
+
+    /**
+     * Animate camera to new position and target.
+     * @param {THREE.Vector3} newPosition - Target camera position
+     * @param {THREE.Vector3} newTarget - Target look-at point
+     * @param {number} duration - Animation duration in ms
+     */
+    animateTo(newPosition, newTarget, duration = CONFIG.CAMERA_TRANSITION_DURATION || 1000) {
+        // Cancel any ongoing animation
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+
+        const startPosition = this.camera.position.clone();
+        const startTarget = this.controls.target.clone();
+        const startTime = performance.now();
+
+        this.isAnimating = true;
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+
+            // Interpolate position
+            this.camera.position.lerpVectors(startPosition, newPosition, eased);
+
+            // Interpolate target
+            this.controls.target.lerpVectors(startTarget, newTarget, eased);
+
+            this.controls.update();
+
+            if (progress < 1) {
+                this.animationId = requestAnimationFrame(animate);
+            } else {
+                this.isAnimating = false;
+                this.animationId = null;
+            }
+        };
+
+        this.animationId = requestAnimationFrame(animate);
+    }
+
+    /**
+     * Stop any ongoing camera animation.
+     */
+    stopAnimation() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+            this.isAnimating = false;
+        }
+    }
+
+    /**
+     * Check if camera is currently animating.
+     * @returns {boolean}
+     */
+    getIsAnimating() {
+        return this.isAnimating;
     }
 }
