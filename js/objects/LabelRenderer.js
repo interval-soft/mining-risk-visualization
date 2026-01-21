@@ -98,7 +98,13 @@ export class LabelRenderer {
 
         // Update level labels visibility
         this.labels.forEach((label, key) => {
-            const labelStructureCode = label.structureCode || '';
+            // Parse structure code from composite key (e.g., "PIT_MAIN:1" -> "PIT_MAIN")
+            // or use the stored structureCode property
+            let labelStructureCode = label.structureCode || '';
+            if (!labelStructureCode && typeof key === 'string' && key.includes(':')) {
+                labelStructureCode = key.split(':')[0];
+            }
+
             if (focusedCode === null) {
                 // Site view - all level labels visible
                 label.element.style.display = 'block';
