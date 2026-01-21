@@ -59,6 +59,7 @@
 /* Filters */
 .alerts-filters {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     padding: 12px 16px;
     background: var(--btn-bg);
@@ -66,12 +67,14 @@
 }
 
 .alerts-filters select {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 150px;
     background: var(--btn-bg);
     border: 1px solid var(--btn-border);
     border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: 8px 10px;
+    font-size: 11px;
     color: var(--text-primary);
     cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s, color 0.3s;
