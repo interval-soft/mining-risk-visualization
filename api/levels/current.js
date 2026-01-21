@@ -1,131 +1,172 @@
 /**
- * Generate mock levels with time-varying risk scores.
- * Simulates a 24-hour cycle with:
- * - Level 3: High risk during blasting (hours 9-12)
- * - Level 4: Gas spike (hour 14)
- * - Others: Normal operations
+ * Newman Iron Operations - 7 Level Mixed Operations Mine
+ *
+ * Generate levels with time-varying risk scores simulating a 24-hour cycle:
+ * - Level 2 (Active Pit Face): High risk during blasting (hours 9-12)
+ * - Level 6 (Underground Decline): High risk with active development
+ * - Level 7 (Deep Services): Moderate risk with ventilation and electrical
  */
 function getMockLevels(timestamp) {
     const hour = timestamp.getHours();
 
-    // Level 3 risk varies based on blasting schedule
-    let level3Risk = 25;
-    let level3Explanation = 'Normal operations.';
-    const level3Rules = [];
-
-    if (hour >= 9 && hour < 10) {
-        level3Risk = 65;
-        level3Explanation = 'MEDIUM risk: Blasting scheduled, explosive handling in progress.';
-        level3Rules.push({
-            ruleCode: 'BLAST_SCHEDULED',
-            ruleName: 'Blasting Scheduled',
-            impactType: 'additive',
-            impactValue: 40,
-            reason: 'Blast scheduled within 30 minutes'
-        });
-    } else if (hour >= 10 && hour < 12) {
-        level3Risk = 100;
-        level3Explanation = 'LOCKOUT: Post-blast, re-entry not cleared.';
-        level3Rules.push({
-            ruleCode: 'BLAST_NO_REENTRY',
-            ruleName: 'Post-Blast No Re-entry',
-            impactType: 'force',
-            impactValue: 100,
-            reason: 'Blast fired, awaiting re-entry clearance'
-        });
-    } else if (hour >= 21 || hour < 6) {
-        level3Risk = 15;
-        level3Explanation = 'Low risk. Night shift, minimal activity.';
-    }
-
-    // Level 4 risk varies based on gas readings
-    let level4Risk = 40;
-    let level4Explanation = 'MEDIUM risk: Confined space work with valid permit.';
-    const level4Rules = [
-        {
-            ruleCode: 'CONFINED_SPACE',
-            ruleName: 'Confined Space Work',
-            impactType: 'additive',
-            impactValue: 30,
-            reason: 'Confined space entry work active with valid permit'
-        }
+    // Level 2: Active Pit Face - risk varies based on blasting schedule
+    let level2Risk = 55;
+    let level2Explanation = 'MEDIUM risk: Active drilling operations with explosive magazine access.';
+    const level2Rules = [
+        { ruleCode: 'EXPLOSIVE_HANDLING', ruleName: 'Explosive Magazine Access', impactType: 'additive', impactValue: 35, reason: 'Explosive magazine access currently active' }
     ];
 
-    if (hour === 14) {
-        level4Risk = 72;
-        level4Explanation = 'HIGH risk: Gas reading elevated, ventilation low.';
-        level4Rules.push({
-            ruleCode: 'GAS_THRESHOLD',
-            ruleName: 'Gas Level Above Threshold',
-            impactType: 'additive',
-            impactValue: 30,
-            reason: 'Methane reading 1.5 ppm above threshold 1.0'
-        });
+    if (hour >= 9 && hour < 10) {
+        level2Risk = 85;
+        level2Explanation = 'HIGH risk: Blasting scheduled, explosive handling in progress.';
+        level2Rules.push(
+            { ruleCode: 'BLAST_SCHEDULED', ruleName: 'Shot Firing Scheduled', impactType: 'additive', impactValue: 40, reason: 'West Wall shot firing scheduled within 30 minutes' }
+        );
+    } else if (hour >= 10 && hour < 12) {
+        level2Risk = 100;
+        level2Explanation = 'LOCKOUT: Post-blast, re-entry not cleared.';
+        level2Rules.length = 0;
+        level2Rules.push(
+            { ruleCode: 'BLAST_NO_REENTRY', ruleName: 'Post-Blast No Re-entry', impactType: 'force', impactValue: 100, reason: 'Blast fired, awaiting re-entry clearance' }
+        );
+    } else if (hour >= 21 || hour < 6) {
+        level2Risk = 35;
+        level2Explanation = 'MEDIUM risk. Night shift, reduced drilling activity.';
+    }
+
+    // Level 6: Underground Decline - consistently high risk
+    let level6Risk = 82;
+    let level6Explanation = 'HIGH risk: Active decline development with confined space entry.';
+    const level6Rules = [
+        { ruleCode: 'DECLINE_DEV', ruleName: 'Active Decline Development', impactType: 'additive', impactValue: 35, reason: 'Underground decline development in progress' },
+        { ruleCode: 'GROUND_SUPPORT', ruleName: 'Ground Support Installation', impactType: 'additive', impactValue: 25, reason: 'Active rock bolting and mesh installation' },
+        { ruleCode: 'CONFINED_SPACE', ruleName: 'Confined Space Entry', impactType: 'additive', impactValue: 30, reason: 'Confined space work with valid permit' }
+    ];
+
+    if (hour >= 22 || hour < 5) {
+        level6Risk = 55;
+        level6Explanation = 'MEDIUM risk: Night maintenance, reduced development activity.';
+        level6Rules.length = 1;
+    }
+
+    // Level 7: Deep Services - ventilation and air quality
+    let level7Risk = 45;
+    let level7Explanation = 'MEDIUM risk: Primary ventilation with air quality monitoring.';
+    const level7Rules = [
+        { ruleCode: 'VENTILATION_OPS', ruleName: 'Primary Ventilation Fan', impactType: 'additive', impactValue: 20, reason: 'Main ventilation fan operating' },
+        { ruleCode: 'ELECTRICAL_SUB', ruleName: 'Electrical Substation', impactType: 'additive', impactValue: 15, reason: 'High voltage substation active' }
+    ];
+
+    if (hour === 14 || hour === 15) {
+        level7Risk = 62;
+        level7Explanation = 'HIGH risk: Air quality reading elevated, increased ventilation required.';
+        level7Rules.push(
+            { ruleCode: 'AIR_QUALITY', ruleName: 'Air Quality Alert', impactType: 'additive', impactValue: 20, reason: 'Dust particulates elevated at 85 µg/m³' }
+        );
     }
 
     return [
         {
             level: 1,
-            name: 'Processing & Logistics',
-            riskScore: 20,
-            riskBand: 'low',
-            riskExplanation: 'Normal operations with routine diesel equipment movement.',
-            triggeredRules: [],
+            name: 'ROM Pad & Primary Crushing',
+            riskScore: 32,
+            riskBand: 'medium',
+            riskExplanation: 'MEDIUM risk: Active haul truck dumping and primary crushing operations.',
+            triggeredRules: [
+                { ruleCode: 'HAUL_OPS', ruleName: 'Haul Truck Dumping', impactType: 'additive', impactValue: 15, reason: 'Active haul truck operations at ROM pad' }
+            ],
             activities: [
-                { name: 'Control Room Operations', status: 'active', riskScore: 10 },
-                { name: 'Diesel Equipment Movement', status: 'active', riskScore: 20 }
+                { name: 'Haul Truck Dumping', status: 'active', riskScore: 35 },
+                { name: 'Primary Jaw Crusher Operation', status: 'active', riskScore: 35 },
+                { name: 'Light Vehicle Workshop', status: 'active', riskScore: 15 },
+                { name: 'Fuel Bay Operations', status: 'planned', riskScore: 40 }
             ]
         },
         {
             level: 2,
-            name: 'Haulage & Crushing',
-            riskScore: hour === 16 ? 45 : 35,
-            riskBand: 'medium',
-            riskExplanation: hour === 16
-                ? 'MEDIUM risk: Equipment overspeed violation detected.'
-                : 'Active ore crushing operations with planned maintenance.',
-            triggeredRules: hour === 16
-                ? [{ ruleCode: 'EQUIPMENT_OVERSPEED', ruleName: 'Equipment Overspeed Violation', impactType: 'additive', impactValue: 15, reason: 'HAUL-03 at 28 km/h, limit 25 km/h' }]
-                : [],
+            name: 'Active Pit Face',
+            riskScore: level2Risk,
+            riskBand: level2Risk > 70 ? 'high' : level2Risk > 30 ? 'medium' : 'low',
+            riskExplanation: level2Explanation,
+            triggeredRules: level2Rules,
             activities: [
-                { name: 'Ore Crushing', status: 'active', riskScore: 35 },
-                { name: 'Conveyor Maintenance', status: 'planned', riskScore: 20 }
+                { name: 'Production Drilling', status: 'active', riskScore: 65 },
+                { name: 'Shot Firing - West Wall', status: hour >= 9 && hour < 12 ? 'active' : 'planned', riskScore: 90 },
+                { name: 'Explosive Magazine Access', status: 'active', riskScore: 75 },
+                { name: 'Pit Wall Inspection', status: 'completed', riskScore: 35 }
             ]
         },
         {
             level: 3,
-            name: 'Active Stoping',
-            riskScore: level3Risk,
-            riskBand: level3Risk > 70 ? 'high' : level3Risk > 30 ? 'medium' : 'low',
-            riskExplanation: level3Explanation,
-            triggeredRules: level3Rules,
+            name: 'Haulage Ramp',
+            riskScore: 38,
+            riskBand: 'medium',
+            riskExplanation: 'MEDIUM risk: Heavy vehicle operations on ramp with dust suppression.',
+            triggeredRules: [
+                { ruleCode: 'HEAVY_VEHICLE', ruleName: 'Heavy Vehicle Movement', impactType: 'additive', impactValue: 20, reason: 'CAT 793 haul trucks on ramp' }
+            ],
             activities: [
-                { name: 'Blasting Operations', status: hour >= 9 && hour < 12 ? 'active' : 'planned', riskScore: level3Risk },
-                { name: 'Explosive Magazine Handling', status: hour >= 9 && hour < 11 ? 'active' : 'completed', riskScore: 70 }
+                { name: 'CAT 793 Haul Operations', status: 'active', riskScore: 40 },
+                { name: 'Front-End Loader', status: 'active', riskScore: 35 },
+                { name: 'Road Maintenance Grader', status: 'active', riskScore: 20 },
+                { name: 'Water Cart Dust Suppression', status: 'active', riskScore: 15 }
             ]
         },
         {
             level: 4,
-            name: 'Development & Ground Support',
-            riskScore: level4Risk,
-            riskBand: level4Risk > 70 ? 'high' : level4Risk > 30 ? 'medium' : 'low',
-            riskExplanation: level4Explanation,
-            triggeredRules: level4Rules,
+            name: 'Grade Control',
+            riskScore: 18,
+            riskBand: 'low',
+            riskExplanation: 'Low risk: Geological sampling and survey operations.',
+            triggeredRules: [],
             activities: [
-                { name: 'Ground Support Installation', status: 'active', riskScore: 40 },
-                { name: 'Confined Space Work', status: 'active', riskScore: 55 }
+                { name: 'Geological Sampling', status: 'active', riskScore: 15 },
+                { name: 'Survey Mark-Up', status: 'active', riskScore: 10 },
+                { name: 'Assay Sample Transport', status: 'completed', riskScore: 15 }
             ]
         },
         {
             level: 5,
-            name: 'Ventilation & Pumping',
-            riskScore: 15,
+            name: 'Pit Floor',
+            riskScore: 22,
             riskBand: 'low',
-            riskExplanation: 'Low risk. Routine ventilation and pump operations.',
+            riskExplanation: 'Low risk: Dewatering and drainage operations.',
             triggeredRules: [],
             activities: [
-                { name: 'Ventilation Fan Maintenance', status: hour < 8 ? 'active' : 'completed', riskScore: 10 },
-                { name: 'Dewatering Pump Check', status: 'active', riskScore: 15 }
+                { name: 'Dewatering Pump Operations', status: 'active', riskScore: 20 },
+                { name: 'Sump Inspection', status: 'completed', riskScore: 15 },
+                { name: 'Drainage Channel Clearing', status: 'active', riskScore: 20 },
+                { name: 'Water Quality Monitoring', status: 'active', riskScore: 10 }
+            ]
+        },
+        {
+            level: 6,
+            name: 'Underground Decline',
+            riskScore: level6Risk,
+            riskBand: level6Risk > 70 ? 'high' : level6Risk > 30 ? 'medium' : 'low',
+            riskExplanation: level6Explanation,
+            triggeredRules: level6Rules,
+            activities: [
+                { name: 'Decline Development', status: 'active', riskScore: 75 },
+                { name: 'Ground Support Installation', status: 'active', riskScore: 70 },
+                { name: 'Shotcrete Application', status: 'planned', riskScore: 45 },
+                { name: 'Bogger Ore Extraction', status: 'active', riskScore: 65 },
+                { name: 'Confined Space Entry', status: 'active', riskScore: 80 }
+            ]
+        },
+        {
+            level: 7,
+            name: 'Deep Services',
+            riskScore: level7Risk,
+            riskBand: level7Risk > 70 ? 'high' : level7Risk > 30 ? 'medium' : 'low',
+            riskExplanation: level7Explanation,
+            triggeredRules: level7Rules,
+            activities: [
+                { name: 'Primary Ventilation Fan', status: 'active', riskScore: 40 },
+                { name: 'Emergency Refuge Check', status: 'completed', riskScore: 15 },
+                { name: 'Secondary Escapeway', status: 'active', riskScore: 20 },
+                { name: 'Air Quality Monitoring', status: 'active', riskScore: 45 },
+                { name: 'Electrical Substation', status: 'active', riskScore: 50 }
             ]
         }
     ];

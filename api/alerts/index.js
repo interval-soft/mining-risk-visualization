@@ -1,17 +1,17 @@
 import { query } from '../_lib/db.js';
 
-// Mock alerts fallback (used when database is empty or unavailable)
+// Mock alerts fallback for Newman Iron Operations (used when database is empty or unavailable)
 function getMockAlerts() {
     const now = Date.now();
     return [
         {
             id: 'alert-001',
             timestamp: new Date(now - 15 * 60 * 1000).toISOString(),
-            level_number: 3,
+            level_number: 2,
             risk_score: 85,
             status: 'active',
-            cause: 'Blasting operations scheduled with explosive handling in progress',
-            explanation: 'Level 3 has reached HIGH risk (85) due to scheduled blasting at 10:30 and active explosive magazine handling. BLAST_SCHEDULED (+40) and EXPLOSIVE_HANDLING (+35) rules triggered.',
+            cause: 'Production drilling active with explosive magazine access',
+            explanation: 'Level 2 (Active Pit Face) has reached HIGH risk (85) due to concurrent drilling and explosive handling. PRODUCTION_DRILLING (+30) and EXPLOSIVE_MAGAZINE (+35) rules triggered.',
             acknowledged_at: null,
             acknowledged_by: null,
             acknowledged_comment: null,
@@ -20,28 +20,54 @@ function getMockAlerts() {
         {
             id: 'alert-002',
             timestamp: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
-            level_number: 4,
-            risk_score: 55,
+            level_number: 6,
+            risk_score: 82,
             status: 'acknowledged',
-            cause: 'Confined space work active',
-            explanation: 'Level 4 MEDIUM risk (55) due to confined space entry. Permit CSP-2024-0142 is valid. CONFINED_SPACE rule triggered (+30).',
+            cause: 'Active decline development with confined space entry',
+            explanation: 'Level 6 (Underground Decline) HIGH risk (82) due to decline development, ground support work, and confined space entry. DECLINE_DEV (+35), GROUND_SUPPORT (+25), CONFINED_SPACE (+30) rules triggered.',
             acknowledged_at: new Date(now - 90 * 60 * 1000).toISOString(),
-            acknowledged_by: 'Shift Supervisor',
-            acknowledged_comment: 'Permit verified, crew equipped with gas monitors',
+            acknowledged_by: 'Underground Supervisor',
+            acknowledged_comment: 'Permits verified, gas monitors on all personnel, bogger operator briefed',
             resolved_at: null
         },
         {
             id: 'alert-003',
             timestamp: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
-            level_number: 4,
-            risk_score: 72,
+            level_number: 7,
+            risk_score: 62,
             status: 'resolved',
-            cause: 'Gas reading elevated',
-            explanation: 'Level 4 HIGH risk (72) due to elevated methane reading of 0.9 ppm. GAS_THRESHOLD rule triggered (+30).',
+            cause: 'Air quality reading elevated',
+            explanation: 'Level 7 (Deep Services) MEDIUM-HIGH risk (62) due to elevated dust particulates at 85 µg/m³. AIR_QUALITY_ALERT rule triggered (+20).',
             acknowledged_at: new Date(now - 5.5 * 60 * 60 * 1000).toISOString(),
-            acknowledged_by: 'Safety Officer',
-            acknowledged_comment: 'Investigating source',
+            acknowledged_by: 'Ventilation Officer',
+            acknowledged_comment: 'Increasing main fan output, monitoring levels',
             resolved_at: new Date(now - 5 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            id: 'alert-004',
+            timestamp: new Date(now - 12 * 60 * 60 * 1000).toISOString(),
+            level_number: 2,
+            risk_score: 100,
+            status: 'resolved',
+            cause: 'Post-blast lockout active',
+            explanation: 'Level 2 (Active Pit Face) LOCKOUT (100) - West Wall blast fired, re-entry not yet cleared. BLAST_NO_REENTRY rule force=100.',
+            acknowledged_at: new Date(now - 11.9 * 60 * 60 * 1000).toISOString(),
+            acknowledged_by: 'Blast Supervisor M. Chen',
+            acknowledged_comment: 'Standard post-blast protocol, monitoring dust and fumes clearance',
+            resolved_at: new Date(now - 10 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            id: 'alert-005',
+            timestamp: new Date(now - 8 * 60 * 60 * 1000).toISOString(),
+            level_number: 3,
+            risk_score: 48,
+            status: 'acknowledged',
+            cause: 'Haul truck overspeed violation',
+            explanation: 'Level 3 (Haulage Ramp) MEDIUM risk (48) due to CAT793-05 exceeding speed limit (42 km/h in 35 km/h zone). EQUIPMENT_OVERSPEED rule triggered (+18).',
+            acknowledged_at: new Date(now - 7.8 * 60 * 60 * 1000).toISOString(),
+            acknowledged_by: 'Pit Supervisor',
+            acknowledged_comment: 'Operator counseled, incident logged, monitoring continues',
+            resolved_at: null
         }
     ];
 }
