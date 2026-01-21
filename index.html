@@ -45,7 +45,7 @@
             </div>
             <button id="reset-camera" class="control-btn">Reset View</button>
             <div class="bg-color-picker-wrapper" title="Change background color">
-                <input type="color" id="bg-color-picker" class="bg-color-picker" value="#0d1117">
+                <input type="color" id="bg-color-picker" class="bg-color-picker" value="#1a1a2e">
                 <span class="bg-color-label">BG</span>
             </div>
             <button id="theme-toggle" class="control-btn theme-btn" title="Toggle light/dark mode">
@@ -123,9 +123,9 @@
                 if (savedBgColor) {
                     bgColorPicker.value = savedBgColor;
                 } else {
-                    // Set default based on current theme
+                    // Set default based on current theme (must match CONFIG.COLORS values)
                     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    bgColorPicker.value = isDark ? '#0d1117' : '#e8eaed';
+                    bgColorPicker.value = isDark ? '#1a1a2e' : '#e8eaed';
                 }
 
                 bgColorPicker.addEventListener('input', function(e) {

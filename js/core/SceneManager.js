@@ -73,7 +73,8 @@ export class SceneManager {
         if (!this.customBgColor) {
             const picker = document.getElementById('bg-color-picker');
             if (picker) {
-                picker.value = isDark ? '#0d1117' : '#e8eaed';
+                // Must match CONFIG.COLORS.BACKGROUND / BACKGROUND_LIGHT
+                picker.value = isDark ? '#1a1a2e' : '#e8eaed';
             }
         }
     }
