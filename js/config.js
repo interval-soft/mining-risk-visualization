@@ -10,9 +10,9 @@ export const CONFIG = {
     ICON_OFFSET_Y: 25,
     LABEL_OFFSET_X: -220,
 
-    // Camera
-    CAMERA_POSITION: [0, 200, 600],
-    CAMERA_TARGET: [0, -300, 0],
+    // Camera - adjusted for 7 levels
+    CAMERA_POSITION: [0, 200, 750],
+    CAMERA_TARGET: [0, -450, 0],
     CAMERA_FOV: 60,
     CAMERA_NEAR: 1,
     CAMERA_FAR: 5000,
@@ -30,12 +30,14 @@ export const CONFIG = {
     // Interaction
     ISOLATION_FADE_OPACITY: 0.15,
 
-    // Depth mapping
+    // Depth mapping - Newman Iron Operations (7 levels)
     DEPTHS: {
-        1: '0m (Surface)',
-        2: '-150m',
-        3: '-300m',
-        4: '-450m',
-        5: '-600m'
+        1: 'Surface',
+        2: '-75m',
+        3: '-150m',
+        4: '-225m',
+        5: '-300m',
+        6: '-375m',
+        7: '-450m'
     }
 };

@@ -35,10 +35,10 @@ export class SceneManager {
         const targetColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
         this.scene.background = new THREE.Color(targetColor);
         
-        // Update fog color and density
+        // Update fog color and density (reduced for deeper mine)
         if (this.scene.fog) {
             this.scene.fog.color = new THREE.Color(targetColor);
-            this.scene.fog.density = isDark ? 0.0008 : 0.0003;
+            this.scene.fog.density = isDark ? 0.0006 : 0.00025;
         }
         
         // Update ground plane - subtle in light mode
@@ -89,20 +89,20 @@ export class SceneManager {
 
         // Key light - main shadow-casting light
         const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        keyLight.position.set(150, 300, 200);
+        keyLight.position.set(150, 400, 250);
         
         // Configure shadow casting
         keyLight.castShadow = true;
         keyLight.shadow.mapSize.width = 2048;
         keyLight.shadow.mapSize.height = 2048;
         keyLight.shadow.camera.near = 10;
-        keyLight.shadow.camera.far = 1500;
+        keyLight.shadow.camera.far = 2000;
         
-        // Shadow frustum - covers all mine levels
-        keyLight.shadow.camera.left = -500;
-        keyLight.shadow.camera.right = 500;
-        keyLight.shadow.camera.top = 400;
-        keyLight.shadow.camera.bottom = -800;
+        // Shadow frustum - covers all 7 mine levels (down to -900)
+        keyLight.shadow.camera.left = -600;
+        keyLight.shadow.camera.right = 600;
+        keyLight.shadow.camera.top = 500;
+        keyLight.shadow.camera.bottom = -1200;
         
         // Soft shadow bias to prevent artifacts
         keyLight.shadow.bias = -0.0005;
@@ -125,11 +125,11 @@ export class SceneManager {
         // Exponential fog for depth atmosphere
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
         const fogColor = isDark ? CONFIG.COLORS.BACKGROUND : CONFIG.COLORS.BACKGROUND_LIGHT;
-        // Lighter fog in light mode to avoid washing out colors
-        this.scene.fog = new THREE.FogExp2(fogColor, isDark ? 0.0008 : 0.0003);
+        // Reduced fog density for deeper 7-level mine
+        this.scene.fog = new THREE.FogExp2(fogColor, isDark ? 0.0006 : 0.00025);
 
-        // Ground plane to receive shadows - subtle in light mode
-        const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
+        // Ground plane to receive shadows - below all 7 levels
+        const groundGeometry = new THREE.PlaneGeometry(2500, 2500);
         const groundMaterial = new THREE.MeshStandardMaterial({
             color: isDark ? 0x0d0d1a : 0xd8dce0,
             roughness: 0.95,
@@ -138,7 +138,7 @@ export class SceneManager {
         
         this.groundPlane = new THREE.Mesh(groundGeometry, groundMaterial);
         this.groundPlane.rotation.x = -Math.PI / 2;
-        this.groundPlane.position.y = -800; // Below all mine levels
+        this.groundPlane.position.y = -1100; // Below all 7 mine levels
         this.groundPlane.receiveShadow = true;
         this.scene.add(this.groundPlane);
     }

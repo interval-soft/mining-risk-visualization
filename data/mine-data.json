@@ -1,44 +1,83 @@
 {
-  "timestamp": "2026-01-20T09:00:00Z",
+  "timestamp": "2026-01-21T09:00:00Z",
+  "mineName": "Newman Iron Operations",
   "levels": [
     {
       "level": 1,
-      "name": "Processing & Logistics",
+      "name": "ROM Pad & Primary Crushing",
+      "depth": "Surface",
       "activities": [
-        { "name": "Control Room Operations", "risk": "low", "status": "active" },
-        { "name": "Diesel Equipment Movement", "risk": "medium", "status": "active" }
+        { "name": "Haul Truck Dumping", "risk": "medium", "status": "active" },
+        { "name": "Primary Jaw Crusher Operation", "risk": "medium", "status": "active" },
+        { "name": "Light Vehicle Workshop", "risk": "low", "status": "active" },
+        { "name": "Fuel Bay Operations", "risk": "medium", "status": "planned" }
       ]
     },
     {
       "level": 2,
-      "name": "Haulage & Crushing",
+      "name": "Active Pit Face",
+      "depth": "-75m",
       "activities": [
-        { "name": "Ore Crushing", "risk": "medium", "status": "active" },
-        { "name": "Conveyor Maintenance", "risk": "low", "status": "planned" }
+        { "name": "Production Drilling", "risk": "high", "status": "active" },
+        { "name": "Shot Firing - West Wall", "risk": "high", "status": "planned" },
+        { "name": "Explosive Magazine Access", "risk": "high", "status": "active" },
+        { "name": "Pit Wall Inspection", "risk": "medium", "status": "completed" }
       ]
     },
     {
       "level": 3,
-      "name": "Active Stoping",
+      "name": "Haulage Ramp",
+      "depth": "-150m",
       "activities": [
-        { "name": "Blasting Operations", "risk": "high", "status": "planned" },
-        { "name": "Explosive Magazine Handling", "risk": "high", "status": "active" }
+        { "name": "CAT 793 Haul Operations", "risk": "medium", "status": "active" },
+        { "name": "Front-End Loader", "risk": "medium", "status": "active" },
+        { "name": "Road Maintenance Grader", "risk": "low", "status": "active" },
+        { "name": "Water Cart Dust Suppression", "risk": "low", "status": "active" }
       ]
     },
     {
       "level": 4,
-      "name": "Development & Ground Support",
+      "name": "Grade Control",
+      "depth": "-225m",
       "activities": [
-        { "name": "Ground Support Installation", "risk": "medium", "status": "active" },
-        { "name": "Confined Space Work", "risk": "high", "status": "active" }
+        { "name": "Geological Sampling", "risk": "low", "status": "active" },
+        { "name": "Survey Mark-Up", "risk": "low", "status": "active" },
+        { "name": "Assay Sample Transport", "risk": "low", "status": "completed" }
       ]
     },
     {
       "level": 5,
-      "name": "Ventilation & Pumping",
+      "name": "Pit Floor",
+      "depth": "-300m",
       "activities": [
-        { "name": "Ventilation Fan Maintenance", "risk": "low", "status": "completed" },
-        { "name": "Dewatering Pump Check", "risk": "low", "status": "active" }
+        { "name": "Dewatering Pump Operations", "risk": "low", "status": "active" },
+        { "name": "Sump Inspection", "risk": "low", "status": "completed" },
+        { "name": "Drainage Channel Clearing", "risk": "low", "status": "active" },
+        { "name": "Water Quality Monitoring", "risk": "low", "status": "active" }
+      ]
+    },
+    {
+      "level": 6,
+      "name": "Underground Decline",
+      "depth": "-375m",
+      "activities": [
+        { "name": "Decline Development", "risk": "high", "status": "active" },
+        { "name": "Ground Support Installation", "risk": "high", "status": "active" },
+        { "name": "Shotcrete Application", "risk": "medium", "status": "planned" },
+        { "name": "Bogger Ore Extraction", "risk": "high", "status": "active" },
+        { "name": "Confined Space Entry", "risk": "high", "status": "active" }
+      ]
+    },
+    {
+      "level": 7,
+      "name": "Deep Services",
+      "depth": "-450m",
+      "activities": [
+        { "name": "Primary Ventilation Fan", "risk": "medium", "status": "active" },
+        { "name": "Emergency Refuge Check", "risk": "low", "status": "completed" },
+        { "name": "Secondary Escapeway", "risk": "low", "status": "active" },
+        { "name": "Air Quality Monitoring", "risk": "medium", "status": "active" },
+        { "name": "Electrical Substation", "risk": "medium", "status": "active" }
       ]
     }
   ]
