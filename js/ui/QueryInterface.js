@@ -205,7 +205,7 @@ export class QueryInterface {
         }
 
         this.suggestionsEl.innerHTML = `
-            <div class="suggestions-label">Try asking:</div>
+            <div class="suggestions-label"></div>
             <div class="suggestions-list">
                 ${suggestions.map(s => `
                     <button class="btn-suggestion" data-query="${this.escapeHtml(s)}">
