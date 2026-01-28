@@ -152,7 +152,7 @@ export class ActivityIconManager {
         });
 
         const sprite = new THREE.Sprite(material);
-        sprite.scale.set(32, 32, 1);
+        sprite.scale.set(48, 48, 1);
         sprite.renderOrder = 999;
         return sprite;
     }

@@ -117,7 +117,7 @@ export class SceneManager {
     setupEnvironment() {
         // Exponential fog for depth atmosphere
         const fogColor = this.customBgColor || CONFIG.COLORS.BACKGROUND;
-        this.scene.fog = new THREE.FogExp2(fogColor, 0.00015);
+        this.scene.fog = new THREE.FogExp2(fogColor, 0.00022);
 
         // Ground plane to receive shadows - below all 7 levels
         const groundGeometry = new THREE.PlaneGeometry(2500, 2500);
