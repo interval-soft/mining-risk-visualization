@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { LevelFactory } from './LevelFactory.js';
 import { MineGeometry } from './MineGeometry.js';
+import { StructuralElements } from './StructuralElements.js';
 
 /**
  * Manages multiple mine structures in 3D space.
@@ -72,6 +73,10 @@ export class StructureManager {
         const levelFactory = new LevelFactory(group, this.materialSystem);
         levelFactory.createLevels(levels, code);
 
+        // Create structural elements (shafts, ramps, elevator) for this structure
+        const structuralElements = new StructuralElements(group);
+        structuralElements.createStructure(levelFactory.getAllLevels());
+
         // Add structure group to scene
         this.scene.add(group);
 
@@ -79,6 +84,7 @@ export class StructureManager {
         this.structures.set(code, {
             group,
             levelFactory,
+            structuralElements,
             data: structureData
         });
 
@@ -89,9 +95,14 @@ export class StructureManager {
      * Clear all structures from the scene.
      */
     clearStructures() {
-        this.structures.forEach(({ group, levelFactory }) => {
+        this.structures.forEach(({ group, levelFactory, structuralElements }) => {
             // Dispose level meshes
             levelFactory.dispose();
+
+            // Dispose structural elements
+            if (structuralElements) {
+                structuralElements.dispose();
+            }
 
             // Remove group from scene
             this.scene.remove(group);
