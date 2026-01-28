@@ -34,6 +34,10 @@ export class ClickHandler {
         this.lastClickTime = 0;
         this.lastClickedMesh = null;
         this.doubleClickThreshold = 300; // ms
+
+        // Drag detection to ignore clicks after camera orbit
+        this.mouseDownPosition = null;
+        this.dragThreshold = 5; // pixels
     }
 
     /**
@@ -61,6 +65,26 @@ export class ClickHandler {
     }
 
     /**
+     * Track mouse down position for drag detection.
+     * @param {MouseEvent} event - Mousedown event
+     */
+    onMouseDown(event) {
+        this.mouseDownPosition = { x: event.clientX, y: event.clientY };
+    }
+
+    /**
+     * Check if the mouse movement constitutes a drag.
+     * @param {MouseEvent} event - Click event
+     * @returns {boolean} True if it was a drag, not a click
+     */
+    wasDrag(event) {
+        if (!this.mouseDownPosition) return false;
+        const dx = event.clientX - this.mouseDownPosition.x;
+        const dy = event.clientY - this.mouseDownPosition.y;
+        return Math.sqrt(dx * dx + dy * dy) > this.dragThreshold;
+    }
+
+    /**
      * Handle click event on canvas.
      * @param {MouseEvent} event - Click event
      * @param {HTMLCanvasElement} canvas - Canvas element
@@ -70,6 +94,13 @@ export class ClickHandler {
         if (this.disabled) {
             return;
         }
+
+        // Skip if this was a drag (camera orbit), not a click
+        if (this.wasDrag(event)) {
+            this.mouseDownPosition = null;
+            return;
+        }
+        this.mouseDownPosition = null;
 
         this.raycaster.updateMousePosition(event, canvas);
         const intersected = this.raycaster.getIntersectedObject();

@@ -483,6 +483,10 @@ class MineVisualizationApp {
             this.hoverHandler.onMouseMove(e, canvas);
         });
 
+        canvas.addEventListener('mousedown', (e) => {
+            this.clickHandler.onMouseDown(e);
+        });
+
         canvas.addEventListener('click', (e) => {
             this.clickHandler.onClick(e, canvas);
         });
