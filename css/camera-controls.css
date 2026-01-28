@@ -17,7 +17,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 8px 12px;
     background: var(--btn-bg);
     border-bottom: 1px solid var(--border-color);
 }
@@ -48,23 +48,8 @@
 .camera-controls-body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-}
-
-/* Sections */
-.controls-section {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.controls-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    gap: 8px;
+    padding: 10px;
 }
 
 /* Base button style */
@@ -92,7 +77,7 @@
 }
 
 .ctrl-icon {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
 }
 
@@ -102,18 +87,24 @@
     letter-spacing: 0.5px;
 }
 
-/* Rotation grid - cross pattern */
+/* Row 1: Rotation grid + Zoom column side by side */
+.controls-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .rotation-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 4px;
-    width: 100%;
+    gap: 3px;
+    flex: 1;
 }
 
 .rotation-grid .ctrl-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
 }
 
 .rotation-grid .ctrl-btn[data-action="rotate-up"] {
@@ -136,62 +127,40 @@
     grid-row: 3;
 }
 
-/* Zoom controls */
-.zoom-controls {
-    display: flex;
-    gap: 4px;
-}
-
-.ctrl-btn-wide {
-    flex: 1;
-    height: 36px;
-}
-
-/* Preset buttons */
-.preset-controls {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
-}
-
-.ctrl-btn-preset {
-    height: 32px;
-    padding: 0 8px;
-}
-
-/* Reset button */
-.ctrl-btn-reset {
-    width: 100%;
-    height: 36px;
-    gap: 6px;
-    background: rgba(102, 126, 234, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.ctrl-btn-reset:hover {
-    background: rgba(102, 126, 234, 0.2);
-    border-color: rgba(102, 126, 234, 0.5);
-}
-
-.ctrl-btn-reset .ctrl-icon {
-    font-size: 14px;
-}
-
-.ctrl-btn-reset .ctrl-text {
-    font-size: 11px;
-}
-
-/* Display controls (toggle buttons) */
-.display-controls {
+/* Zoom column next to rotation */
+.zoom-column {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+}
+
+.zoom-column .ctrl-btn {
+    width: 32px;
+    height: 32px;
+}
+
+/* Row 2: Presets + Reset in one row */
+.controls-row-presets {
+    display: flex;
+    gap: 3px;
+}
+
+.controls-row-presets .ctrl-btn-preset {
+    flex: 1;
+    height: 28px;
+    padding: 0 4px;
+}
+
+/* Row 3: Display toggles side by side */
+.controls-row-display {
+    display: flex;
+    gap: 3px;
 }
 
 .ctrl-btn-toggle {
-    width: 100%;
-    height: 32px;
-    gap: 6px;
+    flex: 1;
+    height: 28px;
+    gap: 4px;
     opacity: 0.5;
     transition: all 0.15s;
 }
@@ -211,41 +180,20 @@
     line-height: 1;
 }
 
-/* Keyboard hint */
-.keyboard-hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 4px;
-    margin-top: 4px;
-}
-
-.hint-icon {
-    font-size: 12px;
-    opacity: 0.6;
-}
-
-.hint-text {
-    font-size: 9px;
-    color: var(--text-muted);
-}
-
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     #right-sidebar {
         width: 240px;
     }
 
-    .rotation-grid .ctrl-btn {
-        width: 32px;
-        height: 32px;
+    .rotation-grid .ctrl-btn,
+    .zoom-column .ctrl-btn {
+        width: 28px;
+        height: 28px;
     }
 
     .ctrl-icon {
-        font-size: 14px;
+        font-size: 12px;
     }
 }
 

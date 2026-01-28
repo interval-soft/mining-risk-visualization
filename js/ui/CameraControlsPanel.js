@@ -40,9 +40,8 @@ export class CameraControlsPanel {
                     <button class="camera-controls-toggle" title="Toggle panel">−</button>
                 </div>
                 <div class="camera-controls-body">
-                    <!-- Rotation controls -->
-                    <div class="controls-section">
-                        <div class="controls-label">Rotate</div>
+                    <!-- Row 1: Rotation + Zoom -->
+                    <div class="controls-row">
                         <div class="rotation-grid">
                             <button class="ctrl-btn" data-action="rotate-up" title="Rotate Up (W)">
                                 <span class="ctrl-icon">↑</span>
@@ -57,67 +56,43 @@ export class CameraControlsPanel {
                                 <span class="ctrl-icon">↓</span>
                             </button>
                         </div>
-                    </div>
-
-                    <!-- Zoom controls -->
-                    <div class="controls-section">
-                        <div class="controls-label">Zoom</div>
-                        <div class="zoom-controls">
-                            <button class="ctrl-btn ctrl-btn-wide" data-action="zoom-in" title="Zoom In (+)">
+                        <div class="zoom-column">
+                            <button class="ctrl-btn" data-action="zoom-in" title="Zoom In (+)">
                                 <span class="ctrl-icon">+</span>
                             </button>
-                            <button class="ctrl-btn ctrl-btn-wide" data-action="zoom-out" title="Zoom Out (-)">
+                            <button class="ctrl-btn" data-action="zoom-out" title="Zoom Out (-)">
                                 <span class="ctrl-icon">−</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Preset views -->
-                    <div class="controls-section">
-                        <div class="controls-label">Presets</div>
-                        <div class="preset-controls">
-                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-isometric" title="Isometric View (1)">
-                                <span class="ctrl-text">ISO</span>
-                            </button>
-                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-top" title="Top View (2)">
-                                <span class="ctrl-text">TOP</span>
-                            </button>
-                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-front" title="Front View (3)">
-                                <span class="ctrl-text">FRT</span>
-                            </button>
-                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-side" title="Side View (4)">
-                                <span class="ctrl-text">SIDE</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Reset button -->
-                    <div class="controls-section">
-                        <button class="ctrl-btn ctrl-btn-reset" data-action="reset" title="Reset View (R)">
+                    <!-- Row 2: Presets + Reset -->
+                    <div class="controls-row-presets">
+                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-isometric" title="Isometric (1)">
+                            <span class="ctrl-text">ISO</span>
+                        </button>
+                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-top" title="Top (2)">
+                            <span class="ctrl-text">TOP</span>
+                        </button>
+                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-front" title="Front (3)">
+                            <span class="ctrl-text">FRT</span>
+                        </button>
+                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-side" title="Side (4)">
+                            <span class="ctrl-text">SIDE</span>
+                        </button>
+                        <button class="ctrl-btn ctrl-btn-preset" data-action="reset" title="Reset (R)">
                             <span class="ctrl-icon">⟲</span>
-                            <span class="ctrl-text">Reset</span>
                         </button>
                     </div>
 
-                    <!-- Display options -->
-                    <div class="controls-section">
-                        <div class="controls-label">Display</div>
-                        <div class="display-controls">
-                            <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-labels" title="Toggle Labels (L)">
-                                <span class="material-symbols-rounded ctrl-icon-material">label</span>
-                                <span class="ctrl-text">Labels</span>
-                            </button>
-                            <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-panels" title="Toggle Panels (P)">
-                                <span class="material-symbols-rounded ctrl-icon-material">dashboard</span>
-                                <span class="ctrl-text">Panels</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Keyboard hint -->
-                    <div class="keyboard-hint">
-                        <span class="hint-icon">⌨</span>
-                        <span class="hint-text">WASD / Arrows to rotate</span>
+                    <!-- Row 3: Display toggles -->
+                    <div class="controls-row-display">
+                        <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-labels" title="Toggle Labels (L)">
+                            <span class="material-symbols-rounded ctrl-icon-material">label</span>
+                        </button>
+                        <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-panels" title="Toggle Panels (P)">
+                            <span class="material-symbols-rounded ctrl-icon-material">dashboard</span>
+                        </button>
                     </div>
                 </div>
             </div>
