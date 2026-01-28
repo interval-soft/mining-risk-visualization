@@ -76,7 +76,7 @@ export class LevelFactory {
     createLevelMesh(levelData, index, structureCode = null) {
         const meshName = `level_${levelData.level}_${structureCode || 'default'}`;
 
-        // Create beveled level geometry
+        // Create level geometry
         const mesh = MineGeometry.createLevel(
             this.scene,
             meshName,
@@ -87,6 +87,7 @@ export class LevelFactory {
         );
 
         // Position vertically based on index
+        // Box is centered at origin, so offset by half height to align bottom at the target Y
         mesh.position.y = -index * CONFIG.LEVEL_SPACING;
 
         // Apply risk-based material

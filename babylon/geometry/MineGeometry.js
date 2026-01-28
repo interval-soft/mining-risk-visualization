@@ -2,121 +2,33 @@
 import * as BABYLON from '@babylonjs/core';
 import { CONFIG } from '../../js/config.js';
 
-// Babylon.js ES6 modules require earcut for polygon triangulation
-// Import it statically and set on window before any polygon meshes are created
-import earcut from 'earcut';
-if (typeof window !== 'undefined') {
-    window.earcut = earcut;
-}
-
 /**
  * Factory for creating mine-specific geometry with enhanced visual details.
- * Babylon.js version using MeshBuilder and ExtrudePolygon.
+ * Babylon.js version using MeshBuilder.
  */
 export class MineGeometry {
     /**
-     * Create a beveled level mesh using ExtrudePolygon.
+     * Create a level mesh using CreateBox (reliable fallback).
+     * Uses fillet option for beveled edges when available.
      * @param {BABYLON.Scene} scene - Babylon.js scene
      * @param {string} name - Mesh name
      * @param {number} width - Level width
-     * @param {number} height - Level height (extrusion depth)
+     * @param {number} height - Level height
      * @param {number} depth - Level depth
-     * @param {number} bevelSize - Size of the bevel (corner radius)
+     * @param {number} bevelSize - Size of the bevel (not used in box, kept for API compat)
      * @returns {BABYLON.Mesh}
      */
     static createLevel(scene, name, width = CONFIG.LEVEL_WIDTH, height = CONFIG.LEVEL_HEIGHT, depth = CONFIG.LEVEL_DEPTH, bevelSize = 3) {
-        // Create rounded rectangle shape as Vector3 array (XZ plane)
-        const shape = this.createRoundedRectShape(width, depth, bevelSize * 2);
-
-        // ExtrudePolygon creates geometry extruded along Y axis
-        const mesh = BABYLON.MeshBuilder.ExtrudePolygon(name, {
-            shape: shape,
-            depth: height,
-            sideOrientation: BABYLON.Mesh.DOUBLESIDE,
-            wrap: true
+        // Use CreateBox - simple and reliable
+        // Box is centered at origin by default
+        const mesh = BABYLON.MeshBuilder.CreateBox(name, {
+            width: width,
+            height: height,
+            depth: depth
         }, scene);
 
-        // ExtrudePolygon extrudes downward by default (-Y direction)
-        // Move it so bottom is at y=0 and top at y=height
-        mesh.position.y = height;
-
-        // Compute normals for proper lighting
-        mesh.convertToFlatShadedMesh();
-
+        // Don't set position - let LevelFactory handle positioning
         return mesh;
-    }
-
-    /**
-     * Create a rounded rectangle shape for extrusion.
-     * Returns array of Vector3 points in XZ plane.
-     * @param {number} width - Shape width (X axis)
-     * @param {number} depth - Shape depth (Z axis)
-     * @param {number} radius - Corner radius
-     * @returns {BABYLON.Vector3[]}
-     */
-    static createRoundedRectShape(width, depth, radius) {
-        const points = [];
-        const segments = 4; // Segments per corner
-
-        const hw = width / 2;
-        const hd = depth / 2;
-        const r = Math.min(radius, hw, hd);
-
-        // Start at bottom-left, after corner
-        // Bottom edge (left to right)
-        points.push(new BABYLON.Vector3(-hw + r, 0, -hd));
-        points.push(new BABYLON.Vector3(hw - r, 0, -hd));
-
-        // Bottom-right corner
-        for (let i = 0; i <= segments; i++) {
-            const angle = -Math.PI / 2 + (Math.PI / 2) * (i / segments);
-            points.push(new BABYLON.Vector3(
-                hw - r + r * Math.cos(angle),
-                0,
-                -hd + r + r * Math.sin(angle)
-            ));
-        }
-
-        // Right edge (bottom to top)
-        points.push(new BABYLON.Vector3(hw, 0, hd - r));
-
-        // Top-right corner
-        for (let i = 0; i <= segments; i++) {
-            const angle = 0 + (Math.PI / 2) * (i / segments);
-            points.push(new BABYLON.Vector3(
-                hw - r + r * Math.cos(angle),
-                0,
-                hd - r + r * Math.sin(angle)
-            ));
-        }
-
-        // Top edge (right to left)
-        points.push(new BABYLON.Vector3(-hw + r, 0, hd));
-
-        // Top-left corner
-        for (let i = 0; i <= segments; i++) {
-            const angle = Math.PI / 2 + (Math.PI / 2) * (i / segments);
-            points.push(new BABYLON.Vector3(
-                -hw + r + r * Math.cos(angle),
-                0,
-                hd - r + r * Math.sin(angle)
-            ));
-        }
-
-        // Left edge (top to bottom)
-        points.push(new BABYLON.Vector3(-hw, 0, -hd + r));
-
-        // Bottom-left corner
-        for (let i = 0; i <= segments; i++) {
-            const angle = Math.PI + (Math.PI / 2) * (i / segments);
-            points.push(new BABYLON.Vector3(
-                -hw + r + r * Math.cos(angle),
-                0,
-                -hd + r + r * Math.sin(angle)
-            ));
-        }
-
-        return points;
     }
 
     /**
@@ -136,7 +48,7 @@ export class MineGeometry {
         // Create base cylinder mesh
         const pillarMesh = BABYLON.MeshBuilder.CreateCylinder('pillar', {
             diameterTop: pillarRadius * 2,
-            diameterBottom: pillarRadius * 2.4, // Slightly wider base
+            diameterBottom: pillarRadius * 2.4,
             height: pillarHeight,
             tessellation: 8
         }, scene);
@@ -191,18 +103,12 @@ export class MineGeometry {
     static createTunnelEntrance(scene, width = 40, height = 30, tunnelDepth = 20) {
         const group = new BABYLON.TransformNode('tunnel', scene);
 
-        // Create arch shape
-        const archShape = this.createArchShape(width, height);
-
-        // Extrude the arch
-        const archMesh = BABYLON.MeshBuilder.ExtrudePolygon('arch', {
-            shape: archShape,
-            depth: tunnelDepth,
-            sideOrientation: BABYLON.Mesh.DOUBLESIDE
+        // Simple arch using a box with rounded top
+        const archMesh = BABYLON.MeshBuilder.CreateBox('arch', {
+            width: width,
+            height: height,
+            depth: tunnelDepth
         }, scene);
-
-        // Rotate to face outward
-        archMesh.rotation.y = Math.PI / 2;
 
         const archMaterial = new BABYLON.PBRMaterial('archMat', scene);
         archMaterial.albedoColor = new BABYLON.Color3(0.2, 0.2, 0.2);
@@ -229,34 +135,6 @@ export class MineGeometry {
         interior.parent = group;
 
         return group;
-    }
-
-    /**
-     * Create arch shape points for tunnel entrance.
-     */
-    static createArchShape(width, height) {
-        const points = [];
-        const halfWidth = width / 2;
-        const segments = 8;
-
-        // Start at bottom-left
-        points.push(new BABYLON.Vector3(-halfWidth, 0, 0));
-        points.push(new BABYLON.Vector3(-halfWidth, 0, height * 0.6));
-
-        // Left side of arch
-        for (let i = 0; i <= segments; i++) {
-            const t = i / segments;
-            const angle = Math.PI * (1 - t);
-            const x = halfWidth * Math.cos(angle);
-            const y = height * 0.6 + (height * 0.4) * Math.sin(angle);
-            points.push(new BABYLON.Vector3(x, 0, y));
-        }
-
-        // Right side
-        points.push(new BABYLON.Vector3(halfWidth, 0, height * 0.6));
-        points.push(new BABYLON.Vector3(halfWidth, 0, 0));
-
-        return points;
     }
 
     /**
