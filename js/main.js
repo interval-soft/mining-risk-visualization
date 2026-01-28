@@ -491,11 +491,6 @@ class MineVisualizationApp {
     focusOnStructure(structureCode) {
         this.stateManager.setFocusedStructure(structureCode);
 
-        // Clear any level isolation first
-        if (this.clickHandler) {
-            this.clickHandler.clearSelection();
-        }
-
         // Update 3D view
         if (this.structureManager) {
             this.structureManager.setFocusMode(structureCode);
@@ -523,11 +518,6 @@ class MineVisualizationApp {
      */
     showSiteOverview() {
         this.stateManager.setFocusedStructure(null);
-
-        // Clear any level isolation first
-        if (this.clickHandler) {
-            this.clickHandler.clearSelection();
-        }
 
         // Update 3D view
         if (this.structureManager) {
