@@ -125,9 +125,17 @@ export class ClickHandler {
 
         this.materials.setIsolationMode(allLevels, levelMesh);
 
+        // Hide all icons first, then show only the isolated level's icons
+        this.icons.setAllVisible(false);
+        this.icons.setVisibilityForLevel(
+            levelMesh.userData.levelNumber,
+            true,
+            levelMesh.userData.structureCode
+        );
+
+        // Update label visibility
         allLevels.forEach(mesh => {
             const isIsolated = mesh === levelMesh;
-            this.icons.setVisibilityForLevel(mesh.userData.levelNumber, isIsolated);
             this.labels.setLabelVisibility(mesh.userData.levelNumber, isIsolated);
         });
 
@@ -153,8 +161,11 @@ export class ClickHandler {
 
         this.materials.setIsolationMode(allLevels, null);
 
+        // Show all icons
+        this.icons.setAllVisible(true);
+
+        // Show all labels
         allLevels.forEach(mesh => {
-            this.icons.setVisibilityForLevel(mesh.userData.levelNumber, true);
             this.labels.setLabelVisibility(mesh.userData.levelNumber, true);
         });
     }

@@ -157,9 +157,16 @@ export class ActivityIconManager {
         return sprite;
     }
 
-    setVisibilityForLevel(levelNumber, visible) {
+    setVisibilityForLevel(levelNumber, visible, structureCode = null) {
         this.sprites
-            .filter(s => s.userData.levelNumber === levelNumber)
+            .filter(s => {
+                const levelMatch = s.userData.levelNumber === levelNumber;
+                // If structureCode provided, also filter by structure
+                if (structureCode !== null) {
+                    return levelMatch && s.userData.structureCode === structureCode;
+                }
+                return levelMatch;
+            })
             .forEach(s => s.visible = visible);
     }
 
