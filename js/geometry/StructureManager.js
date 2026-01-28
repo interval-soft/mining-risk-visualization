@@ -171,25 +171,28 @@ export class StructureManager {
      * @param {string|null} focusCode - Structure code to focus, or null for site view
      */
     setFocusMode(focusCode) {
+        // Prevent duplicate calls
+        if (this.focusedStructure === focusCode) {
+            console.log('[setFocusMode] Skipping duplicate call:', focusCode);
+            return;
+        }
         this.focusedStructure = focusCode;
 
-        console.log('[setFocusMode] called with:', focusCode);
+        console.log('[setFocusMode] Processing:', focusCode);
 
-        // Site view (focusCode is null): show all structures
+        // Site view (focusCode is null): show all structures at full opacity
         if (focusCode === null) {
-            // Make all structures visible and reset ALL their levels to fully opaque
             this.structures.forEach(({ group, levelFactory }, code) => {
-                console.log('[setFocusMode] Resetting structure:', code);
+                // First make visible
                 group.visible = true;
 
-                // Force opacity reset on each level through the factory
+                // Then reset each level's opacity (keep transparent:true to avoid render issues)
                 levelFactory.getAllLevels().forEach(mesh => {
                     mesh.material.opacity = 1.0;
-                    mesh.material.transparent = false;
                     mesh.material.needsUpdate = true;
                     mesh.visible = true;
-                    console.log('[setFocusMode] Reset', code, 'level', mesh.userData.levelNumber);
                 });
+                console.log('[setFocusMode] Reset structure:', code);
             });
             return;
         }
@@ -199,11 +202,9 @@ export class StructureManager {
             const isFocused = code === focusCode;
             group.visible = isFocused;
 
-            // Reset opacity for the focused structure's levels
             if (isFocused) {
                 levelFactory.getAllLevels().forEach(mesh => {
                     mesh.material.opacity = 1.0;
-                    mesh.material.transparent = false;
                     mesh.material.needsUpdate = true;
                 });
             }
