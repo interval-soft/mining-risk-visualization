@@ -198,9 +198,11 @@ export class StructuralElements {
                 depth: rampLength
             }, this.scene);
 
-            // Position at edge of level
+            // Position ramp at the back edge of the level
+            // The ramp extends ±50 in Z after rotation, so center at LEVEL_DEPTH/2 - 50
+            // to keep the top end at the level edge (z = LEVEL_DEPTH/2)
             const x = CONFIG.LEVEL_WIDTH / 2 - 50;
-            const z = CONFIG.LEVEL_DEPTH / 2 + 15;
+            const z = CONFIG.LEVEL_DEPTH / 2 - 50;
             const midY = (upperLevelBottom + lowerLevelTop) / 2;
 
             ramp.position.set(x, midY, z);
