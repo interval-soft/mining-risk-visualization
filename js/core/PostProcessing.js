@@ -147,18 +147,17 @@ export class PostProcessing {
         this.bloomComposer.render();
         this._restoreMaterials();
 
-        // Step 2: full scene + SSAO + bloom blend + SMAA
+        // Step 2: full scene + bloom blend + SMAA
         this.finalComposer.render();
     }
 
     _darkenNonBloom() {
         this._materialsCache.clear();
         this.scene.traverse((obj) => {
-            if (obj.isMesh || obj.isSprite) {
-                if (!this.bloomLayer.test(obj.layers)) {
-                    this._materialsCache.set(obj, obj.material);
-                    obj.material = this._darkMaterial;
-                }
+            // Only darken meshes, not sprites (MeshBasicMaterial is incompatible with Sprite)
+            if (obj.isMesh && !this.bloomLayer.test(obj.layers)) {
+                this._materialsCache.set(obj, obj.material);
+                obj.material = this._darkMaterial;
             }
         });
     }
