@@ -7,7 +7,9 @@ export class CameraControlsPanel {
         this.cameraController = cameraController;
         this.isCollapsed = false;
         this.labelsVisible = true;
+        this.panelsVisible = true;
         this.onLabelToggle = null;
+        this.onPanelToggle = null;
 
         this.render();
         this.bindEvents();
@@ -20,6 +22,14 @@ export class CameraControlsPanel {
      */
     setLabelToggleCallback(callback) {
         this.onLabelToggle = callback;
+    }
+
+    /**
+     * Set callback for panel visibility toggle.
+     * @param {Function} callback - Receives (isVisible) boolean
+     */
+    setPanelToggleCallback(callback) {
+        this.onPanelToggle = callback;
     }
 
     render() {
@@ -96,6 +106,10 @@ export class CameraControlsPanel {
                             <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-labels" title="Toggle Labels (L)">
                                 <span class="material-symbols-rounded ctrl-icon-material">label</span>
                                 <span class="ctrl-text">Labels</span>
+                            </button>
+                            <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-panels" title="Toggle Panels (P)">
+                                <span class="material-symbols-rounded ctrl-icon-material">dashboard</span>
+                                <span class="ctrl-text">Panels</span>
                             </button>
                         </div>
                     </div>
@@ -209,6 +223,11 @@ export class CameraControlsPanel {
                     this.handleAction('toggle-labels');
                     break;
 
+                // Toggle panels
+                case 'p':
+                    this.handleAction('toggle-panels');
+                    break;
+
                 default:
                     handled = false;
             }
@@ -259,6 +278,9 @@ export class CameraControlsPanel {
             case 'toggle-labels':
                 this.toggleLabels();
                 break;
+            case 'toggle-panels':
+                this.togglePanels();
+                break;
         }
     }
 
@@ -274,6 +296,21 @@ export class CameraControlsPanel {
         // Call the callback if set
         if (this.onLabelToggle) {
             this.onLabelToggle(this.labelsVisible);
+        }
+    }
+
+    togglePanels() {
+        this.panelsVisible = !this.panelsVisible;
+
+        // Update button state
+        const btn = this.container.querySelector('[data-action="toggle-panels"]');
+        if (btn) {
+            btn.classList.toggle('active', this.panelsVisible);
+        }
+
+        // Call the callback if set
+        if (this.onPanelToggle) {
+            this.onPanelToggle(this.panelsVisible);
         }
     }
 

@@ -206,6 +206,19 @@ class MineVisualizationApp {
                 this.cameraControlsPanel.setLabelToggleCallback((isVisible) => {
                     this.labelRenderer.setAllLabelsVisible(isVisible);
                 });
+
+                // Connect panel toggle to UI elements
+                this.cameraControlsPanel.setPanelToggleCallback((isVisible) => {
+                    const leftSidebar = document.getElementById('left-sidebar');
+                    const queryContainer = document.getElementById('query-container');
+
+                    if (leftSidebar) {
+                        leftSidebar.style.display = isVisible ? '' : 'none';
+                    }
+                    if (queryContainer) {
+                        queryContainer.style.display = isVisible ? '' : 'none';
+                    }
+                });
             }
 
             // Setup keyboard navigation
