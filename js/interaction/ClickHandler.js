@@ -123,6 +123,11 @@ export class ClickHandler {
 
         const allLevels = this.getAllLevels();
 
+        // Hide other structures if we have a structure manager
+        if (this.isolatedStructure && typeof this.levelSource.setFocusMode === 'function') {
+            this.levelSource.setFocusMode(this.isolatedStructure);
+        }
+
         this.materials.setIsolationMode(allLevels, levelMesh);
 
         // Hide all icons first, then show only the isolated level's icons
@@ -154,8 +159,15 @@ export class ClickHandler {
      * Exit isolation mode.
      */
     exitIsolation() {
+        const wasIsolatedStructure = this.isolatedStructure;
+
         this.isolatedLevel = null;
         this.isolatedStructure = null;
+
+        // Restore all structures visibility if we hid them
+        if (wasIsolatedStructure && typeof this.levelSource.setFocusMode === 'function') {
+            this.levelSource.setFocusMode(null);
+        }
 
         const allLevels = this.getAllLevels();
 
