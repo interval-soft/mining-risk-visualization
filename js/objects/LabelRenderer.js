@@ -47,10 +47,8 @@ export class LabelRenderer {
         div.addEventListener('click', (e) => {
             e.stopPropagation();
             e.preventDefault();
-            console.log('[LabelRenderer] Structure label clicked:', structureData.code);
             if (this.onStructureClick) {
                 const isFocused = div.classList.contains('focused');
-                console.log('[LabelRenderer] isFocused:', isFocused, '-> calling handler');
                 this.onStructureClick(structureData.code, isFocused);
             }
         });

@@ -489,6 +489,11 @@ class MineVisualizationApp {
      * Focus on a specific structure.
      */
     focusOnStructure(structureCode) {
+        // Clear any level isolation first (prevents canvas click interference)
+        if (this.clickHandler) {
+            this.clickHandler.clearSelection();
+        }
+
         this.stateManager.setFocusedStructure(structureCode);
 
         // Update 3D view
@@ -517,6 +522,11 @@ class MineVisualizationApp {
      * Return to site overview (unfocus all structures).
      */
     showSiteOverview() {
+        // Clear any level isolation first
+        if (this.clickHandler) {
+            this.clickHandler.clearSelection();
+        }
+
         this.stateManager.setFocusedStructure(null);
 
         // Update 3D view
