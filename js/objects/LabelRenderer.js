@@ -132,7 +132,8 @@ export class LabelRenderer {
             </div>
         `;
 
-        // Click on label triggers level isolation (same as clicking the level mesh)
+        // Enable pointer events (CSS2DRenderer container has pointerEvents: none)
+        div.style.pointerEvents = 'auto';
         div.style.cursor = 'pointer';
         div.addEventListener('click', (e) => {
             e.stopPropagation();
