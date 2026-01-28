@@ -52,15 +52,10 @@ function renderIconTexture(iconName) {
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // White filled circle background
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 60, 0, Math.PI * 2);
-    ctx.fillStyle = 'white';
-    ctx.fill();
-
-    // Dark icon glyph
+    // Transparent background — only the icon glyph is visible
+    // The glyph is white; SpriteMaterial.color tints it to the risk color
     ctx.font = '72px "Material Symbols Rounded"';
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(iconName, size / 2, size / 2);

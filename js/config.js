@@ -7,7 +7,7 @@ export const CONFIG = {
     LEVEL_SPACING: 150,
 
     // Positioning
-    ICON_OFFSET_Y: 35,
+    ICON_OFFSET_Y: 45,
     LABEL_OFFSET_X: -220,
 
     // Camera - default for single structure
