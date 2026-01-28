@@ -237,11 +237,19 @@ body {
 .level-label {
     background: var(--bg-panel);
     border-left: 3px solid var(--text-primary);
-    padding: 8px 12px;
+    padding: 6px 12px;
+    width: 110px;
     font-family: 'Roboto Mono', monospace;
     color: var(--text-primary);
     white-space: nowrap;
     transition: background-color 0.3s, color 0.3s;
+}
+
+.level-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .level-number {
@@ -249,13 +257,8 @@ body {
     font-weight: bold;
 }
 
-.level-name {
-    font-size: 12px;
-    color: var(--text-secondary);
-}
-
 .level-depth {
-    font-size: 10px;
+    font-size: 12px;
     color: var(--text-muted);
 }
 

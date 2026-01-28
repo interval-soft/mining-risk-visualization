@@ -126,9 +126,10 @@ export class LabelRenderer {
         const div = document.createElement('div');
         div.className = 'level-label';
         div.innerHTML = `
-            <div class="level-number">L${levelData.level}</div>
-            <div class="level-name">${levelData.name}</div>
-            <div class="level-depth">${CONFIG.DEPTHS[levelData.level]}</div>
+            <div class="level-header">
+                <span class="level-number">L${levelData.level}</span>
+                <span class="level-depth">${CONFIG.DEPTHS[levelData.level]}</span>
+            </div>
         `;
 
         const label = new CSS2DObject(div);
