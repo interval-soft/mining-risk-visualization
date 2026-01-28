@@ -173,22 +173,25 @@ export class StructureManager {
     setFocusMode(focusCode) {
         this.focusedStructure = focusCode;
 
-        this.structures.forEach(({ group, levelFactory }, code) => {
-            const isFocused = focusCode === null || code === focusCode;
+        // Get all level meshes for clearing isolation
+        const allLevels = this.getAllLevelMeshes();
 
-            // Show/hide the entire structure group
-            group.visible = isFocused;
+        // Clear any level isolation first (this resets all levels to opacity 1.0)
+        if (this.materialSystem) {
+            this.materialSystem.setIsolationMode(allLevels, null);
+        }
 
-            // Reset opacity for visible structures
-            if (isFocused) {
-                // Reset LEVEL meshes to full opacity (keep transparent=true as originally set)
-                levelFactory.getAllLevels().forEach(mesh => {
-                    if (mesh.material) {
-                        mesh.material.opacity = 1.0;
-                        mesh.material.needsUpdate = true;
-                    }
-                });
-            }
+        // Site view (focusCode is null): show all structures
+        if (focusCode === null) {
+            this.structures.forEach(({ group }) => {
+                group.visible = true;
+            });
+            return;
+        }
+
+        // Structure focus mode: show only focused structure
+        this.structures.forEach(({ group }, code) => {
+            group.visible = code === focusCode;
         });
     }
 
