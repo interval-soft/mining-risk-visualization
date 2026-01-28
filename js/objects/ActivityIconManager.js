@@ -163,6 +163,33 @@ export class ActivityIconManager {
             .forEach(s => s.visible = visible);
     }
 
+    /**
+     * Set visibility for icons belonging to a specific structure.
+     * @param {string} structureCode - Structure code
+     * @param {boolean} visible - Whether to show or hide
+     */
+    setVisibilityForStructure(structureCode, visible) {
+        this.sprites
+            .filter(s => s.userData.structureCode === structureCode)
+            .forEach(s => s.visible = visible);
+    }
+
+    /**
+     * Set focus mode - show only icons for the focused structure, hide others.
+     * @param {string|null} focusCode - Structure code to focus, or null to show all
+     */
+    setFocusMode(focusCode) {
+        this.sprites.forEach(s => {
+            if (focusCode === null) {
+                // Site view - show all icons
+                s.visible = true;
+            } else {
+                // Focus mode - only show icons for the focused structure
+                s.visible = s.userData.structureCode === focusCode;
+            }
+        });
+    }
+
     setAllVisible(visible) {
         this.sprites.forEach(s => s.visible = visible);
     }

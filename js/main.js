@@ -502,6 +502,11 @@ class MineVisualizationApp {
             }
         }
 
+        // Update icon visibility (icons are added to scene, not structure group)
+        if (this.iconManager) {
+            this.iconManager.setFocusMode(structureCode);
+        }
+
         // Update label visibility
         if (this.labelRenderer) {
             this.labelRenderer.setStructureFocus(structureCode);
@@ -517,6 +522,11 @@ class MineVisualizationApp {
         // Update 3D view
         if (this.structureManager) {
             this.structureManager.setFocusMode(null);
+        }
+
+        // Update icon visibility (show all icons in site view)
+        if (this.iconManager) {
+            this.iconManager.setFocusMode(null);
         }
 
         // Update label visibility
