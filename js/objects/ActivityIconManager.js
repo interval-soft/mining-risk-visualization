@@ -148,7 +148,7 @@ export class ActivityIconManager {
         });
 
         const sprite = new THREE.Sprite(material);
-        sprite.scale.set(25, 25, 1);
+        sprite.scale.set(32, 32, 1);
         return sprite;
     }
 
