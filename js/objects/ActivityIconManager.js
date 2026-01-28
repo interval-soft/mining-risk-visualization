@@ -130,6 +130,7 @@ export class ActivityIconManager {
                 type: 'activity',
                 activity: activity,
                 levelNumber: levelData.level,
+                structureCode: levelMesh.userData.structureCode || null,
                 activityIndex: index
             };
 
@@ -177,9 +178,11 @@ export class ActivityIconManager {
      */
     updateActivityIcons(levelData, levelMesh) {
         const levelNumber = levelData.level;
+        const structureCode = levelMesh.userData.structureCode || null;
 
         const existingSprites = this.sprites.filter(
-            s => s.userData.levelNumber === levelNumber
+            s => s.userData.levelNumber === levelNumber &&
+                 s.userData.structureCode === structureCode
         );
 
         levelData.activities.forEach((activity, index) => {
