@@ -596,26 +596,6 @@
 }
 
 /* ========================================
-   Light Mode Overrides
-   ======================================== */
-
-[data-theme="light"] .ai-insight-card {
-    background: rgba(0, 0, 0, 0.02);
-}
-
-[data-theme="light"] .ai-insight-card:hover {
-    background: rgba(0, 0, 0, 0.04);
-}
-
-[data-theme="light"] .query-interface {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .prediction-section {
-    background: rgba(102, 126, 234, 0.05);
-}
-
-/* ========================================
    Scrollbar Styling
    ======================================== */
 

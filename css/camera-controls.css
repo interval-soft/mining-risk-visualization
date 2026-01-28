@@ -258,8 +258,3 @@
         display: none;
     }
 }
-
-/* Light mode adjustments */
-[data-theme="light"] .keyboard-hint {
-    background: rgba(0, 0, 0, 0.03);
-}

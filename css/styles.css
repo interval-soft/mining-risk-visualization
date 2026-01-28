@@ -15,40 +15,6 @@
     --shadow: rgba(0, 0, 0, 0.4);
 }
 
-/* Light mode */
-[data-theme="light"] {
-    --bg-primary: #e8eaed;
-    --bg-secondary: #ffffff;
-    --bg-panel: #ffffff;
-    --text-primary: #202124;
-    --text-secondary: #3c4043;
-    --text-muted: #5f6368;
-    --border-color: #dadce0;
-    --btn-bg: #f1f3f4;
-    --btn-bg-hover: #e8eaed;
-    --btn-border: #dadce0;
-    --shadow: rgba(0, 0, 0, 0.12);
-}
-
-/* Light mode specific overrides for better visibility */
-[data-theme="light"] .level-label {
-    background: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .tooltip {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="light"] .alert-item {
-    background: rgba(0, 0, 0, 0.03);
-}
-
-[data-theme="light"] .alert-item:hover {
-    background: rgba(0, 0, 0, 0.06);
-    border-color: rgba(0, 0, 0, 0.1);
-}
-
 body {
     font-family: 'Segoe UI', system-ui, sans-serif;
     background: var(--bg-primary);
@@ -96,34 +62,6 @@ body {
 .control-btn.active {
     background: #4a4a6a;
     border-color: #6a6a8a;
-}
-
-.theme-btn {
-    padding: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-}
-
-.theme-btn:hover {
-    background: var(--btn-bg-hover);
-}
-
-.theme-icon {
-    display: block;
-    transition: transform 0.3s ease, opacity 0.2s ease;
-}
-
-.theme-btn:hover .theme-icon {
-    transform: rotate(15deg);
-}
-
-.sun-icon {
-    color: #FFC107;
-}
-
-.moon-icon {
-    color: #7C8CFF;
 }
 
 /* Background color picker */
@@ -843,11 +781,6 @@ body {
     width: auto;
     opacity: 0.8;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-}
-
-[data-theme="light"] #branding {
-    color: rgba(0, 0, 0, 0.8);
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
 }
 
 @media (max-width: 768px) {

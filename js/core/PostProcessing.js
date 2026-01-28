@@ -115,19 +115,6 @@ export class PostProcessing {
     }
 
     /**
-     * Update bloom settings for theme.
-     */
-    setTheme(isDark) {
-        if (isDark) {
-            this.bloomPass.strength = 0.6;
-            this.bloomPass.threshold = 0.4;
-        } else {
-            this.bloomPass.strength = 0.3;
-            this.bloomPass.threshold = 0.6;
-        }
-    }
-
-    /**
      * Get current bloom settings for debugging.
      */
     getBloomSettings() {

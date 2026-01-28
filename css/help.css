@@ -7,7 +7,7 @@
  * - Content sections with feature cards
  * - Keyboard shortcut badges
  * - Responsive layout
- * - Light/dark theme support
+ * - Dark theme
  */
 
 /* ============================================
@@ -459,34 +459,6 @@ kbd {
 }
 
 /* ============================================
-   LIGHT THEME OVERRIDES
-   ============================================ */
-
-[data-theme="light"] .help-modal {
-    background: rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="light"] .help-container {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="light"] .feature-card:hover {
-    border-color: rgba(33, 150, 243, 0.4);
-}
-
-[data-theme="light"] kbd {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .help-content::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="light"] .help-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-/* ============================================
    RESPONSIVE
    ============================================ */
 
@@ -590,34 +562,6 @@ kbd {
 
 .help-cta h3 {
     color: rgba(100, 180, 255, 0.95);
-}
-
-/* Light theme adjustments */
-[data-theme="light"] .help-prose {
-    color: rgba(0, 0, 0, 0.75);
-}
-
-[data-theme="light"] .help-requirements {
-    background: rgba(30, 100, 200, 0.06);
-    border-left-color: rgba(30, 100, 200, 0.3);
-    color: rgba(0, 0, 0, 0.65);
-}
-
-[data-theme="light"] .help-requirements .material-symbols-rounded {
-    color: rgba(30, 100, 200, 0.6);
-}
-
-[data-theme="light"] .help-requirements strong {
-    color: rgba(30, 100, 200, 0.8);
-}
-
-[data-theme="light"] .help-cta {
-    background: rgba(30, 100, 200, 0.04);
-    border-color: rgba(30, 100, 200, 0.12);
-}
-
-[data-theme="light"] .help-cta h3 {
-    color: rgba(30, 100, 200, 0.85);
 }
 
 @media (max-width: 480px) {

@@ -340,15 +340,6 @@ export class HelpPanel {
                         </div>
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <span class="material-symbols-rounded">dark_mode</span>
-                            </div>
-                            <div class="feature-info">
-                                <div class="feature-title">Theme Toggle</div>
-                                <div class="feature-desc">Switch between dark and light mode for comfortable viewing.</div>
-                            </div>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">
                                 <span class="material-symbols-rounded">palette</span>
                             </div>
                             <div class="feature-info">

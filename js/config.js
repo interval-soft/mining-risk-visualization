@@ -37,7 +37,6 @@ export const CONFIG = {
         MEDIUM: 0xFFC107,
         LOW: 0x4CAF50,
         BACKGROUND: 0x1a1a2e,
-        BACKGROUND_LIGHT: 0xe8eaed,
         HOVER_EMISSIVE: 0x333333
     },
 
