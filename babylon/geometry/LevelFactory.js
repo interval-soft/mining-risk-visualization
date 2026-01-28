@@ -55,7 +55,8 @@ export class LevelFactory {
                 );
 
                 // Position pillar group at the top surface of current level
-                pillars.position.y = mesh.position.y + CONFIG.LEVEL_HEIGHT;
+                // Box is centered, so top surface is at position.y + LEVEL_HEIGHT/2
+                pillars.position.y = mesh.position.y + CONFIG.LEVEL_HEIGHT / 2;
                 pillars.metadata = {
                     type: 'pillars',
                     structureCode: structureCode
