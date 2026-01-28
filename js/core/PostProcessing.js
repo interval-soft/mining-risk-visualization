@@ -5,7 +5,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
-import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
+// SSAOPass disabled — incompatible with sprites (renders them as black squares)
+// import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /**
@@ -14,7 +15,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
  *
  * Pipeline:
  *   1. bloomComposer: renders only bloom-layer objects → bloom texture
- *   2. finalComposer: RenderPass → SSAO → bloom blend → SMAA → OutputPass
+ *   2. finalComposer: RenderPass → bloom blend → SMAA → OutputPass
  */
 export const BLOOM_LAYER = 1;
 
@@ -83,14 +84,6 @@ export class PostProcessing {
         const finalRenderPass = new RenderPass(this.scene, this.camera);
         this.finalComposer.addPass(finalRenderPass);
 
-        // SSAO — ambient occlusion for contact shadows between levels/pillars
-        this.ssaoPass = new SSAOPass(this.scene, this.camera, width, height);
-        this.ssaoPass.kernelRadius = 16;
-        this.ssaoPass.minDistance = 0.005;
-        this.ssaoPass.maxDistance = 0.1;
-        this.ssaoPass.output = SSAOPass.OUTPUT.Default;
-        this.finalComposer.addPass(this.ssaoPass);
-
         // Blend bloom texture on top
         this.blendPass = new ShaderPass(AdditiveBlendShader);
         this.blendPass.uniforms.tBloom.value = this.bloomComposer.renderTarget2.texture;
@@ -112,7 +105,6 @@ export class PostProcessing {
         this.bloomComposer.setSize(width, height);
         this.finalComposer.setSize(width, height);
         this.smaaPass.setSize(width, height);
-        this.ssaoPass.setSize(width, height);
     }
 
     /**
