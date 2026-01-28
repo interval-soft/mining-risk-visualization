@@ -25,6 +25,7 @@ import { SiteOverviewPanel } from './ui/SiteOverviewPanel.js';
 import { AIInsightsPanel } from './ui/AIInsightsPanel.js';
 import { QueryInterface } from './ui/QueryInterface.js';
 import { CameraControlsPanel } from './ui/CameraControlsPanel.js';
+import { HelpPanel } from './ui/HelpPanel.js';
 import { DemoMode } from './demo/index.js';
 
 class MineVisualizationApp {
@@ -311,6 +312,17 @@ class MineVisualizationApp {
                 if (this.demoMode.isActive) {
                     demoToggleBtn.classList.add('active');
                 }
+            }
+
+            // Initialize Help Panel
+            this.helpPanel = new HelpPanel();
+
+            // Help button click handler
+            const helpBtn = document.getElementById('help-button');
+            if (helpBtn) {
+                helpBtn.addEventListener('click', () => {
+                    this.helpPanel.toggle();
+                });
             }
 
             console.log('Mine Visualization initialized successfully');

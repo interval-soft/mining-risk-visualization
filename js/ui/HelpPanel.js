@@ -1,0 +1,1028 @@
+// js/ui/HelpPanel.js
+// Comprehensive help modal with tabbed documentation
+
+export class HelpPanel {
+    constructor() {
+        this.isVisible = false;
+        this.activeTab = 'quick-start';
+        this.element = null;
+
+        this.createPanel();
+        this.bindEvents();
+        this.setupKeyboardShortcut();
+    }
+
+    createPanel() {
+        this.element = document.createElement('div');
+        this.element.className = 'help-modal';
+        this.element.innerHTML = this.getTemplate();
+        document.body.appendChild(this.element);
+    }
+
+    getTemplate() {
+        return `
+            <div class="help-container">
+                <div class="help-header">
+                    <h2>
+                        <span class="material-symbols-rounded">help</span>
+                        Digital Twin Help
+                    </h2>
+                    <span class="help-shortcut">Press ? to toggle</span>
+                    <button class="help-close" title="Close (ESC)">&times;</button>
+                </div>
+
+                <div class="help-tabs">
+                    <button class="help-tab active" data-tab="quick-start">
+                        <span class="material-symbols-rounded">rocket_launch</span>
+                        <span>Quick Start</span>
+                    </button>
+                    <button class="help-tab" data-tab="controls">
+                        <span class="material-symbols-rounded">gamepad</span>
+                        <span>Controls</span>
+                    </button>
+                    <button class="help-tab" data-tab="panels">
+                        <span class="material-symbols-rounded">dashboard</span>
+                        <span>Panels</span>
+                    </button>
+                    <button class="help-tab" data-tab="visualization">
+                        <span class="material-symbols-rounded">view_in_ar</span>
+                        <span>3D View</span>
+                    </button>
+                    <button class="help-tab" data-tab="demo">
+                        <span class="material-symbols-rounded">movie</span>
+                        <span>Demo</span>
+                    </button>
+                </div>
+
+                <div class="help-content">
+                    ${this.getQuickStartContent()}
+                    ${this.getControlsContent()}
+                    ${this.getPanelsContent()}
+                    ${this.get3DContent()}
+                    ${this.getDemoContent()}
+                </div>
+
+                <div class="help-footer">
+                    <div class="help-footer-tip">
+                        <span class="material-symbols-rounded">lightbulb</span>
+                        Press <kbd>?</kbd> anytime to open this help
+                    </div>
+                    <div>Digital Twin Mining Visualization</div>
+                </div>
+            </div>
+        `;
+    }
+
+    getQuickStartContent() {
+        return `
+            <div class="help-tab-content active" data-content="quick-start">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">info</span>
+                        What is Digital Twin?
+                    </h3>
+                    <p class="help-intro">
+                        Digital Twin is a real-time 3D visualization platform for mining operations.
+                        It displays mine structures, risk levels, active alerts, and AI-powered insights
+                        to help operators monitor safety conditions across multiple underground levels.
+                    </p>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">schedule</span>
+                        Operating Modes
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon risk-low">
+                                <span class="material-symbols-rounded">sensors</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">LIVE Mode</div>
+                                <div class="feature-desc">Real-time data from sensors and systems. Green indicator pulses in the top bar.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-medium">
+                                <span class="material-symbols-rounded">history</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">HISTORICAL Mode</div>
+                                <div class="feature-desc">Review past events using the timeline. Yellow indicator shows playback status.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">mouse</span>
+                        Basic 3D Navigation
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">rotate_left</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Rotate View</div>
+                                <div class="feature-desc">Click and drag to orbit around the mine structure.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">zoom_in</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Zoom</div>
+                                <div class="feature-desc">Scroll wheel or pinch gesture to zoom in/out.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">pan_tool</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Pan</div>
+                                <div class="feature-desc">Right-click and drag to pan the view.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">touch_app</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Touch Support</div>
+                                <div class="feature-desc">One finger to rotate, two fingers to zoom and pan.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">keyboard</span>
+                        Quick Shortcuts
+                    </h3>
+                    <div class="shortcuts-quick">
+                        <div class="shortcut-item"><kbd>WASD</kbd><span>Rotate camera</span></div>
+                        <div class="shortcut-item"><kbd>+</kbd> <kbd>-</kbd><span>Zoom</span></div>
+                        <div class="shortcut-item"><kbd>1-4</kbd><span>Preset views</span></div>
+                        <div class="shortcut-item"><kbd>R</kbd><span>Reset view</span></div>
+                        <div class="shortcut-item"><kbd>L</kbd><span>Toggle labels</span></div>
+                        <div class="shortcut-item"><kbd>P</kbd><span>Toggle panels</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getControlsContent() {
+        return `
+            <div class="help-tab-content" data-content="controls">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">videocam</span>
+                        Camera Controls Panel
+                    </h3>
+                    <p class="help-intro">
+                        The View Controls panel (bottom-left) provides on-screen buttons for camera manipulation.
+                        All controls also have keyboard shortcuts.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">rotate_left</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Rotation</div>
+                                <div class="feature-desc">Arrow buttons or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / Arrow keys to orbit the camera.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">zoom_in</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Zoom</div>
+                                <div class="feature-desc">Plus/minus buttons or <kbd>+</kbd><kbd>-</kbd> keys to zoom in/out.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">grid_view</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Preset Views</div>
+                                <div class="feature-desc">ISO, TOP, FRT, SIDE buttons or <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> for quick camera angles.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">refresh</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Reset View</div>
+                                <div class="feature-desc">Reset button or <kbd>R</kbd> to return to default camera position.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">toggle_on</span>
+                        Display Toggles
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">label</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Labels Toggle</div>
+                                <div class="feature-desc">Press <kbd>L</kbd> to show/hide 3D labels for levels and structures.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">dashboard</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Panels Toggle</div>
+                                <div class="feature-desc">Press <kbd>P</kbd> to show/hide the left sidebar panels.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">timeline</span>
+                        Timeline Controls
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon risk-low">
+                                <span class="material-symbols-rounded">sensors</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">LIVE Button</div>
+                                <div class="feature-desc">Click to return to real-time mode from historical playback.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">play_pause</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Play/Pause</div>
+                                <div class="feature-desc">Control historical playback. Pause to examine a specific moment.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">speed</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Speed Control</div>
+                                <div class="feature-desc">Adjust playback speed from 1x to 10x for faster review.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">linear_scale</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Scrubber</div>
+                                <div class="feature-desc">Drag the timeline scrubber to jump to any point in time.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">place</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Event Markers</div>
+                                <div class="feature-desc">Colored dots on timeline indicate alert events. Click to jump there.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">tune</span>
+                        Top Bar Controls
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">restart_alt</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Reset View Button</div>
+                                <div class="feature-desc">Returns camera to default position. If focused on a structure, returns to site overview.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">dark_mode</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Theme Toggle</div>
+                                <div class="feature-desc">Switch between dark and light mode for comfortable viewing.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">palette</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Background Color</div>
+                                <div class="feature-desc">Click the BG color picker to customize the 3D scene background.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">keyboard</span>
+                        Keyboard Shortcuts Reference
+                    </h3>
+                    <table class="shortcuts-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / Arrows</td><td>Rotate camera</td></tr>
+                            <tr><td><kbd>+</kbd> / <kbd>-</kbd></td><td>Zoom in/out</td></tr>
+                            <tr><td><kbd>1</kbd></td><td>Isometric view</td></tr>
+                            <tr><td><kbd>2</kbd></td><td>Top view</td></tr>
+                            <tr><td><kbd>3</kbd></td><td>Front view</td></tr>
+                            <tr><td><kbd>4</kbd></td><td>Side view</td></tr>
+                            <tr><td><kbd>R</kbd></td><td>Reset view</td></tr>
+                            <tr><td><kbd>L</kbd></td><td>Toggle labels</td></tr>
+                            <tr><td><kbd>P</kbd></td><td>Toggle panels</td></tr>
+                            <tr><td><kbd>?</kbd></td><td>Open/close help</td></tr>
+                            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></td><td>Toggle demo mode</td></tr>
+                            <tr><td><kbd>ESC</kbd></td><td>Close dialogs</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    getPanelsContent() {
+        return `
+            <div class="help-tab-content" data-content="panels">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">filter_alt</span>
+                        Filter Panel
+                    </h3>
+                    <p class="help-intro">
+                        Located at the top of the left sidebar. Filter the 3D visualization by risk level or structure.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">warning</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Risk Level Toggles</div>
+                                <div class="feature-desc">Click High, Medium, or Low to show/hide levels by risk. Active filters are highlighted.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">apartment</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Structure Dropdown</div>
+                                <div class="feature-desc">In multi-structure sites, select a specific mine structure to focus on.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">notifications</span>
+                        Alerts Panel
+                    </h3>
+                    <p class="help-intro">
+                        Shows real-time safety alerts from the mine. Alerts are color-coded by severity.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">filter_list</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Status Filtering</div>
+                                <div class="feature-desc">Filter alerts by status: All, Active, or Acknowledged.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-low">
+                                <span class="material-symbols-rounded">check_circle</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Acknowledge Button</div>
+                                <div class="feature-desc">Mark alerts as reviewed. Acknowledged alerts can be filtered out.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">my_location</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Jump to Location</div>
+                                <div class="feature-desc">Click an alert to focus the 3D view on that level and show details.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">schedule</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Jump to Timestamp</div>
+                                <div class="feature-desc">Click the timestamp to jump the timeline to when the alert occurred.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">psychology</span>
+                        AI Insights Panel
+                    </h3>
+                    <p class="help-intro">
+                        AI-generated predictions and recommendations based on sensor data and patterns.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">filter_list</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Severity Filtering</div>
+                                <div class="feature-desc">Filter insights by severity level to focus on critical predictions.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">thumb_up</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Feedback Buttons</div>
+                                <div class="feature-desc">Rate insights with thumbs up/down to improve AI accuracy over time.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">chat</span>
+                        Query Interface
+                    </h3>
+                    <p class="help-intro">
+                        Ask questions about the mine in natural language. Located at the bottom of the screen.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">edit_note</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Natural Language</div>
+                                <div class="feature-desc">Type questions like "Which level has the highest risk?" or "Show me recent gas alerts".</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">lightbulb</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Suggested Queries</div>
+                                <div class="feature-desc">Click suggested questions for quick insights without typing.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">verified</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Confidence Score</div>
+                                <div class="feature-desc">AI responses include a confidence percentage for transparency.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">info</span>
+                        Detail Panel
+                    </h3>
+                    <p class="help-intro">
+                        Shows detailed information when you select a level. Located on the right side.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">layers</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Level Information</div>
+                                <div class="feature-desc">Displays level name, depth, and current operational status.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-medium">
+                                <span class="material-symbols-rounded">speed</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Risk Score</div>
+                                <div class="feature-desc">Shows calculated risk score (0-100) with color-coded severity.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">engineering</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Active Activities</div>
+                                <div class="feature-desc">Lists current activities on the level (drilling, blasting, etc.).</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">error</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Active Alerts</div>
+                                <div class="feature-desc">Shows any alerts currently affecting this level.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">smart_toy</span>
+                        AI Status Indicator
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon risk-low">
+                                <span class="material-symbols-rounded">check_circle</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Active (Green)</div>
+                                <div class="feature-desc">AI services are connected and processing data.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">cancel</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Offline (Red)</div>
+                                <div class="feature-desc">AI services unavailable. Basic visualization still works.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    get3DContent() {
+        return `
+            <div class="help-tab-content" data-content="visualization">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">layers</span>
+                        Mine Structure
+                    </h3>
+                    <p class="help-intro">
+                        The 3D view represents the underground mine with multiple levels and structural elements.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">view_in_ar</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Levels</div>
+                                <div class="feature-desc">Horizontal platforms representing mine levels. Color indicates risk: green (low), yellow (medium), red (high).</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">square</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Pillars</div>
+                                <div class="feature-desc">Vertical support structures between levels.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">arrow_downward</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Shafts</div>
+                                <div class="feature-desc">Main vertical access points through the mine.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">trending_down</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Ramps</div>
+                                <div class="feature-desc">Inclined passages connecting levels for vehicle access.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">elevator</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Elevator</div>
+                                <div class="feature-desc">Personnel and material transport system.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">apps</span>
+                        Activity Icons
+                    </h3>
+                    <p class="help-intro">
+                        Icons on each level indicate active operations. Icon color reflects risk level.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">local_fire_department</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">High Risk (Red)</div>
+                                <div class="feature-desc">Blasting, hazardous materials, emergency conditions.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-medium">
+                                <span class="material-symbols-rounded">construction</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Medium Risk (Yellow)</div>
+                                <div class="feature-desc">Active drilling, equipment operation, maintenance.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-low">
+                                <span class="material-symbols-rounded">engineering</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Low Risk (Green)</div>
+                                <div class="feature-desc">Surveying, inspections, routine operations.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">label</span>
+                        3D Labels
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">apartment</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Structure Labels</div>
+                                <div class="feature-desc">Clickable labels above each mine structure. Click to focus.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">layers</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Level Labels</div>
+                                <div class="feature-desc">Show level number, name, and depth in meters.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">touch_app</span>
+                        Interactions
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">near_me</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Hover</div>
+                                <div class="feature-desc">Mouse over a level to highlight it and show a tooltip with details.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">ads_click</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Single Click</div>
+                                <div class="feature-desc">Click a level to select it, isolate the view, and open the detail panel.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">double_arrow</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Double-Click</div>
+                                <div class="feature-desc">Double-click a structure to focus on it and hide others.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">location_city</span>
+                        Multi-Structure Sites
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">public</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Site Overview</div>
+                                <div class="feature-desc">See all mine structures at once with aggregate risk indicators.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">center_focus_strong</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Focus Mode</div>
+                                <div class="feature-desc">Click a structure label or card to focus on a single mine structure.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getDemoContent() {
+        return `
+            <div class="help-tab-content" data-content="demo">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">movie</span>
+                        Demo Mode Overview
+                    </h3>
+                    <p class="help-intro">
+                        Demo mode allows you to trigger realistic mining scenarios for demonstrations,
+                        training, or testing. Access it with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>
+                        or the Demo button in the top bar.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon demo">
+                                <span class="material-symbols-rounded">play_circle</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Activation</div>
+                                <div class="feature-desc">Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> or click the Demo button to open the control panel.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon demo">
+                                <span class="material-symbols-rounded">dashboard</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Control Panel</div>
+                                <div class="feature-desc">Access scenarios, auto-generation settings, speed controls, and quick actions.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">theater_comedy</span>
+                        Demo Scenarios
+                    </h3>
+                    <p class="help-intro">
+                        Six pre-built scenarios simulate different mining situations.
+                    </p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">flash_on</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Blast Lockout</div>
+                                <div class="feature-desc">Simulates blasting operations with safety lockouts across multiple levels.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-high">
+                                <span class="material-symbols-rounded">air</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Gas Emergency</div>
+                                <div class="feature-desc">Hazardous gas detection triggering evacuation protocols.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-medium">
+                                <span class="material-symbols-rounded">build</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Equipment Failure</div>
+                                <div class="feature-desc">Critical equipment malfunction affecting operations.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-medium">
+                                <span class="material-symbols-rounded">radar</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Proximity Cascade</div>
+                                <div class="feature-desc">Multiple proximity warnings cascading across levels.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon risk-low">
+                                <span class="material-symbols-rounded">groups</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Shift Change</div>
+                                <div class="feature-desc">Normal shift transition with personnel movement tracking.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">psychology</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">AI Prediction</div>
+                                <div class="feature-desc">Demonstrates AI-generated risk predictions and recommendations.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">settings</span>
+                        Demo Controls
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon demo">
+                                <span class="material-symbols-rounded">autorenew</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Auto-Generate</div>
+                                <div class="feature-desc">Toggle automatic event generation for continuous demonstration.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon demo">
+                                <span class="material-symbols-rounded">speed</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Speed Control</div>
+                                <div class="feature-desc">Adjust how frequently demo events are generated.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon demo">
+                                <span class="material-symbols-rounded">bolt</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Quick Actions</div>
+                                <div class="feature-desc">Buttons to clear all alerts, reset risks, or trigger random events instantly.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    bindEvents() {
+        // Close button
+        const closeBtn = this.element.querySelector('.help-close');
+        closeBtn.addEventListener('click', () => this.hide());
+
+        // Tab clicks
+        const tabs = this.element.querySelectorAll('.help-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.switchTab(tab.dataset.tab);
+            });
+        });
+
+        // Click outside to close
+        this.element.addEventListener('click', (e) => {
+            if (e.target === this.element) {
+                this.hide();
+            }
+        });
+
+        // ESC to close
+        this.escHandler = (e) => {
+            if (e.key === 'Escape' && this.isVisible) {
+                this.hide();
+            }
+        };
+        document.addEventListener('keydown', this.escHandler);
+    }
+
+    setupKeyboardShortcut() {
+        this.keyHandler = (e) => {
+            // Don't trigger if user is typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
+            // ? key to toggle help (Shift + / on most keyboards)
+            if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+                e.preventDefault();
+                this.toggle();
+            }
+        };
+        document.addEventListener('keydown', this.keyHandler);
+    }
+
+    switchTab(tabId) {
+        this.activeTab = tabId;
+
+        // Update tab buttons
+        const tabs = this.element.querySelectorAll('.help-tab');
+        tabs.forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === tabId);
+        });
+
+        // Update content panels
+        const contents = this.element.querySelectorAll('.help-tab-content');
+        contents.forEach(content => {
+            content.classList.toggle('active', content.dataset.content === tabId);
+        });
+    }
+
+    show() {
+        this.isVisible = true;
+        this.element.classList.add('visible');
+    }
+
+    hide() {
+        this.isVisible = false;
+        this.element.classList.remove('visible');
+    }
+
+    toggle() {
+        if (this.isVisible) {
+            this.hide();
+        } else {
+            this.show();
+        }
+    }
+
+    destroy() {
+        document.removeEventListener('keydown', this.keyHandler);
+        document.removeEventListener('keydown', this.escHandler);
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    }
+}
