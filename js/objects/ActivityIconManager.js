@@ -37,6 +37,13 @@ const ICON_MAP = [
 
 const FALLBACK_ICON = 'warning';
 
+// CSS color strings for each risk level (baked into textures)
+const RISK_CSS = {
+    high: '#F44336',
+    medium: '#FFC107',
+    low: '#4CAF50'
+};
+
 function resolveIcon(activityName) {
     const lower = activityName.toLowerCase();
     for (const entry of ICON_MAP) {
@@ -45,17 +52,27 @@ function resolveIcon(activityName) {
     return FALLBACK_ICON;
 }
 
-function renderIconTexture(iconName) {
+function renderIconTexture(iconName, riskCSSColor) {
     const size = 128;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // Transparent background — only the icon glyph is visible
-    // The glyph is white; SpriteMaterial.color tints it to the risk color
-    ctx.font = '72px "Material Symbols Rounded"';
-    ctx.fillStyle = 'white';
+    // Dark circle background for contrast
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, 58, 0, Math.PI * 2);
+    ctx.fillStyle = '#222';
+    ctx.fill();
+
+    // Colored ring border matching risk
+    ctx.strokeStyle = riskCSSColor;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Icon glyph in risk color
+    ctx.font = '64px "Material Symbols Rounded"';
+    ctx.fillStyle = riskCSSColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(iconName, size / 2, size / 2);
@@ -72,15 +89,23 @@ export class ActivityIconManager {
 
     async loadTextures() {
         // Explicitly load the Material Symbols font before rendering to canvas
-        await document.fonts.load('72px "Material Symbols Rounded"');
+        await document.fonts.load('64px "Material Symbols Rounded"');
 
-        // Pre-render all icon textures
+        // Pre-render textures for every icon × risk combination
         const allIcons = ICON_MAP.map(e => e.icon).concat(FALLBACK_ICON);
         for (const icon of allIcons) {
-            if (!this.textureCache.has(icon)) {
-                this.textureCache.set(icon, renderIconTexture(icon));
+            for (const [risk, css] of Object.entries(RISK_CSS)) {
+                const key = `${icon}-${risk}`;
+                if (!this.textureCache.has(key)) {
+                    this.textureCache.set(key, renderIconTexture(icon, css));
+                }
             }
         }
+    }
+
+    _getTexture(iconName, risk) {
+        const key = `${iconName}-${risk || 'low'}`;
+        return this.textureCache.get(key) || this.textureCache.get(`${FALLBACK_ICON}-low`);
     }
 
     createActivityIcons(levelData, levelMesh) {
@@ -111,15 +136,15 @@ export class ActivityIconManager {
 
     createSprite(activity) {
         const iconName = resolveIcon(activity.name || '');
-        const texture = this.textureCache.get(iconName) || this.textureCache.get(FALLBACK_ICON);
-        const color = RiskResolver.getRiskColor(activity.risk);
+        const texture = this._getTexture(iconName, activity.risk);
 
         const material = new THREE.SpriteMaterial({
             map: texture,
-            color: color,
+            color: 0xffffff,
             transparent: true,
             depthTest: false,
-            depthWrite: false
+            depthWrite: false,
+            toneMapped: false
         });
 
         const sprite = new THREE.Sprite(material);
@@ -149,21 +174,21 @@ export class ActivityIconManager {
     updateActivityIcons(levelData, levelMesh) {
         const levelNumber = levelData.level;
 
-        // Get existing sprites for this level
         const existingSprites = this.sprites.filter(
             s => s.userData.levelNumber === levelNumber
         );
 
-        // Update colors based on new risk values
         levelData.activities.forEach((activity, index) => {
             const sprite = existingSprites[index];
             if (sprite) {
-                // Update color based on risk
                 const risk = activity.risk || this.scoreToRisk(activity.riskScore);
-                const color = RiskResolver.getRiskColor(risk);
-                sprite.material.color.setHex(color);
+                const iconName = resolveIcon(activity.name || '');
+                const texture = this._getTexture(iconName, risk);
 
-                // Update userData
+                // Swap texture to reflect new risk color
+                sprite.material.map = texture;
+                sprite.material.needsUpdate = true;
+
                 sprite.userData.activity = activity;
             }
         });
