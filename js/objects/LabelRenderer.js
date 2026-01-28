@@ -54,7 +54,7 @@ export class LabelRenderer {
 
         const label = new CSS2DObject(div);
         // Position above the structure (top level + offset)
-        label.position.set(0, topY + 80, 0);
+        label.position.set(0, topY + 120, 0);
 
         structureGroup.add(label);
         this.structureLabels.set(structureData.code, label);
