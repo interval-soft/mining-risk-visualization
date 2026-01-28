@@ -178,13 +178,12 @@ export class StructuralElements {
 
         const ramp = new THREE.Mesh(geometry, material);
 
-        // Position ramp at center X (away from pillars) and inside level bounds
-        // Ramp extends ~30 in Z after rotation, so center at LEVEL_DEPTH/2 - 30
+        // Position ramp at center of level (X=0, Z=0) for proper connection
         const midY = (upperY + lowerY) / 2;
         ramp.position.set(
-            0,  // Center X to avoid pillar overlap
+            0,  // Center X
             midY,
-            CONFIG.LEVEL_DEPTH / 2 - 30  // Inside level bounds
+            0   // Center Z - ramp will be fully inside level footprint
         );
 
         // Rotate to create slope
