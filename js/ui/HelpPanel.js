@@ -52,6 +52,10 @@ export class HelpPanel {
                         <span class="material-symbols-rounded">movie</span>
                         <span>Demo</span>
                     </button>
+                    <button class="help-tab" data-tab="whats-next">
+                        <span class="material-symbols-rounded">rocket</span>
+                        <span>What's Next</span>
+                    </button>
                 </div>
 
                 <div class="help-content">
@@ -60,6 +64,7 @@ export class HelpPanel {
                     ${this.getPanelsContent()}
                     ${this.get3DContent()}
                     ${this.getDemoContent()}
+                    ${this.getWhatsNextContent()}
                 </div>
 
                 <div class="help-footer">
@@ -934,6 +939,217 @@ export class HelpPanel {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getWhatsNextContent() {
+        return `
+            <div class="help-tab-content" data-content="whats-next">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">rocket</span>
+                        A Platform Built for Your Operations
+                    </h3>
+                    <p class="help-intro">
+                        What you are seeing is a fully functional prototype of a Digital Twin platform
+                        designed for mining operations. Every element you interact with — the 3D structures,
+                        real-time alerts, AI insights, and timeline playback — is built on a production-ready
+                        architecture that can be connected to your existing systems. Below is an overview of what
+                        becomes possible when this platform is deployed on a real site.
+                    </p>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">view_in_ar</span>
+                        Custom 3D Models of Your Actual Site
+                    </h3>
+                    <p class="help-prose">
+                        The schematic 3D structures you see in this demo can be replaced with
+                        high-fidelity models of your actual mine site. Using photogrammetry from drone
+                        surveys or professional 3D modeling, every open pit, decline, shaft, and surface
+                        facility can be recreated with realistic terrain and geometry. Operators would
+                        navigate a digital replica that mirrors what they see in the field, making it
+                        immediately intuitive to locate zones, identify levels, and understand spatial
+                        relationships between operations.
+                    </p>
+                    <p class="help-prose">
+                        The platform supports multiple structure types — open pits, underground declines,
+                        vertical shafts, and surface processing plants — each rendered with appropriate
+                        geometry and visual cues. As your mine develops and expands, the 3D model
+                        can be updated to reflect new excavation areas, additional levels, or
+                        infrastructure changes.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> Drone survey data or mine plans (DXF/DWG), or engagement with a 3D modeling specialist to produce optimized web-ready assets.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">sensors</span>
+                        Real-Time Sensor Integration
+                    </h3>
+                    <p class="help-prose">
+                        The platform is designed to ingest live data from the sensors and systems already
+                        operating on your site. Gas monitoring stations, proximity detection systems,
+                        ground vibration sensors, ventilation flow meters, and environmental monitors
+                        can all feed directly into the Digital Twin. Each data point is mapped to a
+                        specific level and structure, so the 3D visualization updates in real time as
+                        conditions change underground.
+                    </p>
+                    <p class="help-prose">
+                        Rather than checking separate screens for gas readings, ventilation status, and
+                        equipment alerts, operators see a single unified view where all data converges.
+                        When a gas sensor spikes on Level 4, the corresponding level in the 3D model
+                        immediately reflects the change in risk color, an alert appears in the panel,
+                        and the AI engine begins evaluating the situation for cascading risks.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> Access to sensor APIs or SCADA system endpoints, data format documentation, and network access from the platform to your data sources.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">psychology</span>
+                        AI-Powered Risk Intelligence
+                    </h3>
+                    <p class="help-prose">
+                        The AI engine powering the insights panel is not limited to pattern detection. When
+                        trained on your site's historical incident data, shift reports, and sensor logs,
+                        it can identify risk signatures specific to your geology, equipment fleet, and
+                        operational patterns. The system learns what a normal shift looks like at your
+                        mine, and flags deviations before they escalate into incidents.
+                    </p>
+                    <p class="help-prose">
+                        Predictive capabilities include forecasting equipment failures based on vibration
+                        and temperature trends, identifying high-risk time windows during shift changes
+                        or weather events, and recommending optimal timing for blasting operations based
+                        on personnel distribution and environmental conditions. Every insight includes
+                        contributing factors and recommended actions, turning data into decisions.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> Historical incident records, sensor data archives (12+ months recommended), and collaboration with your safety team to validate and calibrate the risk model.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">people</span>
+                        Personnel and Equipment Tracking
+                    </h3>
+                    <p class="help-prose">
+                        The Digital Twin can display the real-time position of every worker and vehicle
+                        underground. By integrating with your existing tracking infrastructure — whether
+                        RFID tag readers, UWB positioning systems, or GPS units on surface equipment —
+                        the platform shows who is on each level, which equipment is active, and how
+                        personnel are distributed across the mine at any given moment.
+                    </p>
+                    <p class="help-prose">
+                        This capability transforms emergency response. In an evacuation scenario, control
+                        room operators can instantly see how many people are on each level, identify the
+                        nearest refuge chambers, and track movement toward exits. During normal operations,
+                        it provides visibility into crew distribution, ensures exclusion zones are respected,
+                        and supports compliance with maximum occupancy requirements.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> Personnel tracking system with API access (e.g., MineTrax, Strata Proximity, Newtrax), or RFID/UWB infrastructure data feeds.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">integration_instructions</span>
+                        Integration with Your Existing Systems
+                    </h3>
+                    <p class="help-prose">
+                        The platform connects to the systems your teams already use. Fleet management
+                        software like Caterpillar MineStar or Wenco can feed equipment status and location
+                        data. ERP systems like SAP or Pronto can provide maintenance schedules and work
+                        orders. Shift management tools can supply crew rosters and task assignments.
+                        The Digital Twin becomes the central interface that ties these disparate systems
+                        into a coherent operational picture.
+                    </p>
+                    <p class="help-prose">
+                        Rather than replacing any existing tools, the platform sits on top as an
+                        intelligent visualization layer. It reads data from your systems, enriches it with
+                        AI analysis, and presents it through an interface that makes complex multi-source
+                        information immediately understandable. Your teams continue using their familiar
+                        tools while gaining a new dimension of situational awareness.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> API documentation for your key operational systems, network architecture review, and identification of priority data sources for initial integration.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">devices</span>
+                        Multi-Platform Deployment
+                    </h3>
+                    <p class="help-prose">
+                        The Digital Twin runs in any modern web browser, which means it can be deployed
+                        across your entire operation without installing specialized software. Control
+                        rooms can display it on large wall-mounted screens for continuous monitoring.
+                        Supervisors can access it on tablets during underground inspections. Safety
+                        managers can review historical data from their office desktops. And with
+                        progressive web app capabilities, a mobile version can provide essential
+                        alerts and status information to field personnel.
+                    </p>
+                    <p class="help-prose">
+                        For sites with limited connectivity underground, the platform supports edge
+                        deployment with local data caching. Critical safety information remains accessible
+                        even during network interruptions, and data synchronizes automatically when
+                        connectivity is restored. The system is designed for the realities of mining
+                        environments, not just office networks.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> Assessment of network infrastructure (above and below ground), identification of deployment endpoints, and definition of access roles and permissions.
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">verified_user</span>
+                        Compliance and Reporting
+                    </h3>
+                    <p class="help-prose">
+                        Every data point, alert, and AI insight captured by the platform is stored with
+                        full traceability. This creates a comprehensive audit trail that supports
+                        regulatory compliance and incident investigation. Shift handover reports can
+                        be generated automatically from the platform's historical timeline, ensuring
+                        that nothing is lost between crews. When an incident occurs, the playback
+                        feature allows investigators to reconstruct exactly what data was available
+                        and what actions were taken, minute by minute.
+                    </p>
+                    <div class="help-requirements">
+                        <span class="material-symbols-rounded">checklist</span>
+                        <strong>What's needed:</strong> Regulatory reporting requirements for your jurisdiction, existing report templates, and compliance team input on data retention policies.
+                    </div>
+                </div>
+
+                <div class="help-section help-cta">
+                    <h3>
+                        <span class="material-symbols-rounded">handshake</span>
+                        Let's Talk About Your Site
+                    </h3>
+                    <p class="help-prose">
+                        Every mining operation is unique. The geology, equipment fleet, sensor infrastructure,
+                        and operational workflows at your site will shape how this platform is configured
+                        and what data sources are connected first. The best starting point is a conversation
+                        about your current challenges, the systems you already have in place, and what
+                        visibility you wish you had in your control room. From there, we can define
+                        what a tailored deployment would look like for your operation.
+                    </p>
                 </div>
             </div>
         `;

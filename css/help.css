@@ -540,6 +540,85 @@ kbd {
     }
 }
 
+/* ============================================
+   WHAT'S NEXT TAB STYLES
+   ============================================ */
+
+.help-prose {
+    font-size: 14px;
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0 0 12px;
+}
+
+.help-prose:last-child {
+    margin-bottom: 0;
+}
+
+.help-requirements {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    background: rgba(100, 180, 255, 0.08);
+    border-left: 3px solid rgba(100, 180, 255, 0.4);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.help-requirements .material-symbols-rounded {
+    color: rgba(100, 180, 255, 0.7);
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.help-requirements strong {
+    color: rgba(100, 180, 255, 0.9);
+}
+
+.help-cta {
+    background: rgba(100, 180, 255, 0.06);
+    border: 1px solid rgba(100, 180, 255, 0.15);
+    border-radius: 12px;
+    padding: 24px !important;
+}
+
+.help-cta h3 {
+    color: rgba(100, 180, 255, 0.95);
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .help-prose {
+    color: rgba(0, 0, 0, 0.75);
+}
+
+[data-theme="light"] .help-requirements {
+    background: rgba(30, 100, 200, 0.06);
+    border-left-color: rgba(30, 100, 200, 0.3);
+    color: rgba(0, 0, 0, 0.65);
+}
+
+[data-theme="light"] .help-requirements .material-symbols-rounded {
+    color: rgba(30, 100, 200, 0.6);
+}
+
+[data-theme="light"] .help-requirements strong {
+    color: rgba(30, 100, 200, 0.8);
+}
+
+[data-theme="light"] .help-cta {
+    background: rgba(30, 100, 200, 0.04);
+    border-color: rgba(30, 100, 200, 0.12);
+}
+
+[data-theme="light"] .help-cta h3 {
+    color: rgba(30, 100, 200, 0.85);
+}
+
 @media (max-width: 480px) {
     .help-tab {
         padding: 10px;
