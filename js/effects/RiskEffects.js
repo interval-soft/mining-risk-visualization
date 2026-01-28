@@ -122,6 +122,7 @@ export class RiskEffects {
         });
 
         const warning = new THREE.Mesh(warningGeometry, warningMaterial);
+        warning.layers.enable(1); // bloom layer
         warning.position.copy(mesh.position);
         warning.position.y += 40;
         warning.position.z += 50;

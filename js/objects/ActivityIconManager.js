@@ -143,8 +143,7 @@ export class ActivityIconManager {
             color: 0xffffff,
             transparent: true,
             depthTest: false,
-            depthWrite: false,
-            toneMapped: false
+            depthWrite: false
         });
 
         const sprite = new THREE.Sprite(material);

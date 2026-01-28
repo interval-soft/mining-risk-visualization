@@ -8,16 +8,52 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /**
- * PostProcessing manager for visual effects.
- * Handles bloom (glow), anti-aliasing, and tone mapping.
+ * Selective bloom: only objects on BLOOM_LAYER (1) receive bloom.
+ * Everything else renders cleanly without glow artifacts.
+ *
+ * Pipeline:
+ *   1. bloomComposer: renders only bloom-layer objects → bloom texture
+ *   2. finalComposer: renders full scene + additively blends bloom on top
  */
+export const BLOOM_LAYER = 1;
+
+// Additive blending shader: base scene + bloom texture
+const AdditiveBlendShader = {
+    uniforms: {
+        tBase: { value: null },
+        tBloom: { value: null }
+    },
+    vertexShader: /* glsl */`
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: /* glsl */`
+        uniform sampler2D tBase;
+        uniform sampler2D tBloom;
+        varying vec2 vUv;
+        void main() {
+            gl_FragColor = texture2D(tBase, vUv) + texture2D(tBloom, vUv);
+        }
+    `
+};
+
 export class PostProcessing {
     constructor(renderer, scene, camera) {
         this.renderer = renderer;
         this.scene = scene;
         this.camera = camera;
-        
-        this.composer = new EffectComposer(renderer);
+
+        // Materials cache: object -> original material (for darkening non-bloom objects)
+        this._darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        this._materialsCache = new Map();
+
+        // Bloom layer mask
+        this.bloomLayer = new THREE.Layers();
+        this.bloomLayer.set(BLOOM_LAYER);
+
         this.setupPasses();
     }
 
@@ -25,18 +61,31 @@ export class PostProcessing {
         const width = this.renderer.domElement.clientWidth;
         const height = this.renderer.domElement.clientHeight;
 
-        // Base render pass
-        const renderPass = new RenderPass(this.scene, this.camera);
-        this.composer.addPass(renderPass);
+        // --- Bloom composer (renders only bloom-layer objects) ---
+        this.bloomComposer = new EffectComposer(this.renderer);
+        this.bloomComposer.renderToScreen = false;
 
-        // Bloom pass for glow effects on high-risk areas
+        const bloomRenderPass = new RenderPass(this.scene, this.camera);
+        this.bloomComposer.addPass(bloomRenderPass);
+
         this.bloomPass = new UnrealBloomPass(
             new THREE.Vector2(width, height),
-            0.6,    // strength - visible glow on risk areas
-            0.5,    // radius - spread of glow
-            0.4     // threshold - catch emissive materials
+            0.6,    // strength
+            0.5,    // radius
+            0.4     // threshold
         );
-        this.composer.addPass(this.bloomPass);
+        this.bloomComposer.addPass(this.bloomPass);
+
+        // --- Final composer (full scene + bloom overlay) ---
+        this.finalComposer = new EffectComposer(this.renderer);
+
+        const finalRenderPass = new RenderPass(this.scene, this.camera);
+        this.finalComposer.addPass(finalRenderPass);
+
+        // Blend bloom texture on top
+        this.blendPass = new ShaderPass(AdditiveBlendShader);
+        this.blendPass.uniforms.tBloom.value = this.bloomComposer.renderTarget2.texture;
+        this.finalComposer.addPass(this.blendPass);
 
         // FXAA anti-aliasing
         this.fxaaPass = new ShaderPass(FXAAShader);
@@ -44,20 +93,20 @@ export class PostProcessing {
             1 / width,
             1 / height
         );
-        this.composer.addPass(this.fxaaPass);
+        this.finalComposer.addPass(this.fxaaPass);
 
         // Output pass for correct color space
         const outputPass = new OutputPass();
-        this.composer.addPass(outputPass);
+        this.finalComposer.addPass(outputPass);
     }
 
     /**
      * Update composer size on window resize.
      */
     setSize(width, height) {
-        this.composer.setSize(width, height);
-        
-        // Update FXAA resolution uniform
+        this.bloomComposer.setSize(width, height);
+        this.finalComposer.setSize(width, height);
+
         this.fxaaPass.material.uniforms['resolution'].value.set(
             1 / width,
             1 / height
@@ -66,7 +115,6 @@ export class PostProcessing {
 
     /**
      * Adjust bloom intensity based on scene risk state.
-     * @param {number} intensity - Bloom strength (0.0 to 1.5)
      */
     setBloomIntensity(intensity) {
         this.bloomPass.strength = intensity;
@@ -74,14 +122,12 @@ export class PostProcessing {
 
     /**
      * Update bloom settings for theme.
-     * @param {boolean} isDark - Whether dark mode is active
      */
     setTheme(isDark) {
         if (isDark) {
             this.bloomPass.strength = 0.6;
             this.bloomPass.threshold = 0.4;
         } else {
-            // Reduce bloom in light mode to prevent washed-out appearance
             this.bloomPass.strength = 0.3;
             this.bloomPass.threshold = 0.6;
         }
@@ -99,16 +145,53 @@ export class PostProcessing {
     }
 
     /**
-     * Render the scene with all post-processing effects.
+     * Render with selective bloom.
+     * 1. Darken non-bloom objects, render bloom pass
+     * 2. Restore materials, render final scene with bloom overlay
      */
     render() {
-        this.composer.render();
+        // Step 1: hide non-bloom objects by swapping their materials to black
+        this._darkenNonBloom();
+        this.bloomComposer.render();
+        this._restoreMaterials();
+
+        // Step 2: render full scene and blend bloom on top
+        this.finalComposer.render();
+    }
+
+    /**
+     * Swap materials of objects NOT on the bloom layer to black,
+     * so only bloom-layer objects contribute to the bloom pass.
+     */
+    _darkenNonBloom() {
+        this._materialsCache.clear();
+
+        this.scene.traverse((obj) => {
+            if (obj.isMesh || obj.isSprite) {
+                if (!this.bloomLayer.test(obj.layers)) {
+                    this._materialsCache.set(obj, obj.material);
+                    obj.material = this._darkMaterial;
+                }
+            }
+        });
+    }
+
+    /**
+     * Restore original materials after bloom pass.
+     */
+    _restoreMaterials() {
+        this._materialsCache.forEach((material, obj) => {
+            obj.material = material;
+        });
+        this._materialsCache.clear();
     }
 
     /**
      * Dispose of all resources.
      */
     dispose() {
-        this.composer.dispose();
+        this.bloomComposer.dispose();
+        this.finalComposer.dispose();
+        this._darkMaterial.dispose();
     }
 }

@@ -85,6 +85,9 @@ export class LevelFactory {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
 
+        // Enable bloom layer so emissive risk glow is selectively bloomed
+        mesh.layers.enable(1);
+
         // Store level metadata including structure context
         mesh.userData = {
             type: 'level',
