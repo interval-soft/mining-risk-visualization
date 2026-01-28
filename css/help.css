@@ -145,6 +145,7 @@
 
 .help-tabs {
     display: flex;
+    flex-shrink: 0;
     border-bottom: 1px solid var(--border-color, #333344);
     background: var(--bg-secondary, #1e1e32);
     padding: 0 12px;
