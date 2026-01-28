@@ -4,7 +4,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+import { SSAOPass } from 'three/addons/postprocessing/SSAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /**
@@ -13,7 +14,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
  *
  * Pipeline:
  *   1. bloomComposer: renders only bloom-layer objects → bloom texture
- *   2. finalComposer: renders full scene + additively blends bloom on top
+ *   2. finalComposer: RenderPass → SSAO → bloom blend → SMAA → OutputPass
  */
 export const BLOOM_LAYER = 1;
 
@@ -46,7 +47,7 @@ export class PostProcessing {
         this.scene = scene;
         this.camera = camera;
 
-        // Materials cache: object -> original material (for darkening non-bloom objects)
+        // Materials cache for selective bloom
         this._darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         this._materialsCache = new Map();
 
@@ -76,24 +77,28 @@ export class PostProcessing {
         );
         this.bloomComposer.addPass(this.bloomPass);
 
-        // --- Final composer (full scene + bloom overlay) ---
+        // --- Final composer (full scene + effects) ---
         this.finalComposer = new EffectComposer(this.renderer);
 
         const finalRenderPass = new RenderPass(this.scene, this.camera);
         this.finalComposer.addPass(finalRenderPass);
+
+        // SSAO — ambient occlusion for contact shadows between levels/pillars
+        this.ssaoPass = new SSAOPass(this.scene, this.camera, width, height);
+        this.ssaoPass.kernelRadius = 16;
+        this.ssaoPass.minDistance = 0.005;
+        this.ssaoPass.maxDistance = 0.1;
+        this.ssaoPass.output = SSAOPass.OUTPUT.Default;
+        this.finalComposer.addPass(this.ssaoPass);
 
         // Blend bloom texture on top
         this.blendPass = new ShaderPass(AdditiveBlendShader);
         this.blendPass.uniforms.tBloom.value = this.bloomComposer.renderTarget2.texture;
         this.finalComposer.addPass(this.blendPass);
 
-        // FXAA anti-aliasing
-        this.fxaaPass = new ShaderPass(FXAAShader);
-        this.fxaaPass.material.uniforms['resolution'].value.set(
-            1 / width,
-            1 / height
-        );
-        this.finalComposer.addPass(this.fxaaPass);
+        // SMAA anti-aliasing (sharper than FXAA, preserves edges)
+        this.smaaPass = new SMAAPass(width, height);
+        this.finalComposer.addPass(this.smaaPass);
 
         // Output pass for correct color space
         const outputPass = new OutputPass();
@@ -106,11 +111,8 @@ export class PostProcessing {
     setSize(width, height) {
         this.bloomComposer.setSize(width, height);
         this.finalComposer.setSize(width, height);
-
-        this.fxaaPass.material.uniforms['resolution'].value.set(
-            1 / width,
-            1 / height
-        );
+        this.smaaPass.setSize(width, height);
+        this.ssaoPass.setSize(width, height);
     }
 
     /**
@@ -146,26 +148,19 @@ export class PostProcessing {
 
     /**
      * Render with selective bloom.
-     * 1. Darken non-bloom objects, render bloom pass
-     * 2. Restore materials, render final scene with bloom overlay
      */
     render() {
-        // Step 1: hide non-bloom objects by swapping their materials to black
+        // Step 1: bloom pass with non-bloom objects darkened
         this._darkenNonBloom();
         this.bloomComposer.render();
         this._restoreMaterials();
 
-        // Step 2: render full scene and blend bloom on top
+        // Step 2: full scene + SSAO + bloom blend + SMAA
         this.finalComposer.render();
     }
 
-    /**
-     * Swap materials of objects NOT on the bloom layer to black,
-     * so only bloom-layer objects contribute to the bloom pass.
-     */
     _darkenNonBloom() {
         this._materialsCache.clear();
-
         this.scene.traverse((obj) => {
             if (obj.isMesh || obj.isSprite) {
                 if (!this.bloomLayer.test(obj.layers)) {
@@ -176,9 +171,6 @@ export class PostProcessing {
         });
     }
 
-    /**
-     * Restore original materials after bloom pass.
-     */
     _restoreMaterials() {
         this._materialsCache.forEach((material, obj) => {
             obj.material = material;
@@ -186,9 +178,6 @@ export class PostProcessing {
         this._materialsCache.clear();
     }
 
-    /**
-     * Dispose of all resources.
-     */
     dispose() {
         this.bloomComposer.dispose();
         this.finalComposer.dispose();

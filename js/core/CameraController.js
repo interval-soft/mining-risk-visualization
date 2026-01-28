@@ -1,6 +1,7 @@
 // js/core/CameraController.js
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as THREE from 'three';
+import gsap from 'gsap';
 import { CONFIG } from '../config.js';
 
 export class CameraController {
@@ -25,7 +26,7 @@ export class CameraController {
 
         // Animation state
         this.isAnimating = false;
-        this.animationId = null;
+        this._tween = null;
     }
 
     reset() {
@@ -224,49 +225,47 @@ export class CameraController {
      */
     animateTo(newPosition, newTarget, duration = CONFIG.CAMERA_TRANSITION_DURATION || 1000) {
         // Cancel any ongoing animation
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
+        if (this._tween) {
+            this._tween.kill();
         }
-
-        const startPosition = this.camera.position.clone();
-        const startTarget = this.controls.target.clone();
-        const startTime = performance.now();
 
         this.isAnimating = true;
 
-        const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-
-            // Ease out cubic
-            const eased = 1 - Math.pow(1 - progress, 3);
-
-            // Interpolate position
-            this.camera.position.lerpVectors(startPosition, newPosition, eased);
-
-            // Interpolate target
-            this.controls.target.lerpVectors(startTarget, newTarget, eased);
-
-            this.controls.update();
-
-            if (progress < 1) {
-                this.animationId = requestAnimationFrame(animate);
-            } else {
+        // Animate camera position and orbit target simultaneously
+        const tl = gsap.timeline({
+            onUpdate: () => this.controls.update(),
+            onComplete: () => {
                 this.isAnimating = false;
-                this.animationId = null;
+                this._tween = null;
             }
-        };
+        });
 
-        this.animationId = requestAnimationFrame(animate);
+        tl.to(this.camera.position, {
+            x: newPosition.x,
+            y: newPosition.y,
+            z: newPosition.z,
+            duration: duration / 1000,
+            ease: 'power3.out'
+        }, 0);
+
+        tl.to(this.controls.target, {
+            x: newTarget.x,
+            y: newTarget.y,
+            z: newTarget.z,
+            duration: duration / 1000,
+            ease: 'power3.out'
+        }, 0);
+
+        this._tween = tl;
     }
 
     /**
      * Stop any ongoing camera animation.
      */
     stopAnimation() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
+        if (this._tween) {
+            this._tween.kill();
+            this._tween = null;
             this.isAnimating = false;
         }
     }

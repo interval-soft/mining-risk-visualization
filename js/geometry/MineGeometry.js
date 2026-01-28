@@ -73,62 +73,48 @@ export class MineGeometry {
      */
     static createPillars(levelWidth = CONFIG.LEVEL_WIDTH, levelDepth = CONFIG.LEVEL_DEPTH, pillarCount = 4, pillarHeight = CONFIG.LEVEL_SPACING - CONFIG.LEVEL_HEIGHT) {
         const group = new THREE.Group();
-        
+
         const pillarRadius = 8;
         const pillarGeometry = new THREE.CylinderGeometry(
-            pillarRadius,      // top radius
+            pillarRadius,       // top radius
             pillarRadius * 1.2, // bottom radius (slightly wider base)
             pillarHeight,
             8                   // radial segments
         );
-        
+
         const pillarMaterial = new THREE.MeshStandardMaterial({
             color: 0x3a3a3a,
             roughness: 0.85,
             metalness: 0.15
         });
-        
-        // Calculate pillar positions
+
+        // Collect all pillar positions
+        const positions = [];
         const marginX = levelWidth * 0.15;
         const marginZ = levelDepth * 0.15;
         const spacingX = (levelWidth - 2 * marginX) / (pillarCount - 1);
-        const spacingZ = (levelDepth - 2 * marginZ) / (pillarCount - 1);
-        
-        // Create pillars on front and back edges
-        // Pillars extend UPWARD to connect current level to the level above
+
         for (let i = 0; i < pillarCount; i++) {
             const x = -levelWidth / 2 + marginX + i * spacingX;
-
-            // Front edge pillar
-            const frontPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-            frontPillar.position.set(x, pillarHeight / 2, levelDepth / 2 - marginZ / 2);
-            frontPillar.castShadow = true;
-            frontPillar.receiveShadow = true;
-            group.add(frontPillar);
-
-            // Back edge pillar (skip corners, they're covered by front)
-            if (i > 0 && i < pillarCount - 1) {
-                const backPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
-                backPillar.position.set(x, pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
-                backPillar.castShadow = true;
-                backPillar.receiveShadow = true;
-                group.add(backPillar);
-            }
+            // Front edge
+            positions.push(new THREE.Vector3(x, pillarHeight / 2, levelDepth / 2 - marginZ / 2));
+            // Back edge
+            positions.push(new THREE.Vector3(x, pillarHeight / 2, -levelDepth / 2 + marginZ / 2));
         }
 
-        // Add corner pillars on back edge
-        const cornerPillarLeft = new THREE.Mesh(pillarGeometry, pillarMaterial);
-        cornerPillarLeft.position.set(-levelWidth / 2 + marginX, pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
-        cornerPillarLeft.castShadow = true;
-        cornerPillarLeft.receiveShadow = true;
-        group.add(cornerPillarLeft);
+        // Single InstancedMesh for all pillars
+        const instancedMesh = new THREE.InstancedMesh(pillarGeometry, pillarMaterial, positions.length);
+        instancedMesh.castShadow = true;
+        instancedMesh.receiveShadow = true;
 
-        const cornerPillarRight = new THREE.Mesh(pillarGeometry, pillarMaterial);
-        cornerPillarRight.position.set(levelWidth / 2 - marginX, pillarHeight / 2, -levelDepth / 2 + marginZ / 2);
-        cornerPillarRight.castShadow = true;
-        cornerPillarRight.receiveShadow = true;
-        group.add(cornerPillarRight);
-        
+        const matrix = new THREE.Matrix4();
+        positions.forEach((pos, i) => {
+            matrix.makeTranslation(pos.x, pos.y, pos.z);
+            instancedMesh.setMatrixAt(i, matrix);
+        });
+        instancedMesh.instanceMatrix.needsUpdate = true;
+
+        group.add(instancedMesh);
         return group;
     }
 
