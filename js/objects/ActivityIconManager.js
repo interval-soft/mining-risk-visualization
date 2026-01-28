@@ -59,20 +59,20 @@ function renderIconTexture(iconName, riskCSSColor) {
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // White circle background for maximum contrast
+    // Dark circle background for contrast
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, 58, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#222';
     ctx.fill();
 
     // Colored ring border matching risk
     ctx.strokeStyle = riskCSSColor;
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Icon glyph in dark color for readability on white
+    // Icon glyph in risk color
     ctx.font = '64px "Material Symbols Rounded"';
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = riskCSSColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(iconName, size / 2, size / 2);
