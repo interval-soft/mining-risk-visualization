@@ -3,29 +3,89 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { RiskResolver } from '../data/RiskResolver.js';
 
+const ICON_MAP = [
+    { keywords: ['truck', 'haul'], icon: 'local_shipping' },
+    { keywords: ['crusher', 'jaw'], icon: 'settings' },
+    { keywords: ['workshop', 'vehicle'], icon: 'build' },
+    { keywords: ['fuel'], icon: 'local_gas_station' },
+    { keywords: ['drill'], icon: 'hardware' },
+    { keywords: ['blast', 'shot', 'firing', 'explosive'], icon: 'bomb' },
+    { keywords: ['inspect', 'sump'], icon: 'search' },
+    { keywords: ['lhd', 'mucking', 'loader'], icon: 'front_loader' },
+    { keywords: ['grader', 'road'], icon: 'road' },
+    { keywords: ['water', 'dust', 'dewater'], icon: 'water_drop' },
+    { keywords: ['sample', 'geological', 'assay'], icon: 'science' },
+    { keywords: ['survey'], icon: 'straighten' },
+    { keywords: ['drainage', 'channel'], icon: 'waves' },
+    { keywords: ['stope'], icon: 'construction' },
+    { keywords: ['decline', 'development'], icon: 'trending_down' },
+    { keywords: ['ground', 'support', 'shotcrete', 'scaling'], icon: 'foundation' },
+    { keywords: ['bogger', 'extraction'], icon: 'precision_manufacturing' },
+    { keywords: ['ore pass'], icon: 'diamond' },
+    { keywords: ['confined', 'space'], icon: 'meeting_room' },
+    { keywords: ['ventilation', 'fan', 'air'], icon: 'air' },
+    { keywords: ['refuge', 'emergency'], icon: 'emergency' },
+    { keywords: ['escape'], icon: 'exit_to_app' },
+    { keywords: ['electrical', 'substation'], icon: 'bolt' },
+    { keywords: ['screen', 'grizzly'], icon: 'filter_alt' },
+    { keywords: ['feeder', 'apron'], icon: 'input' },
+    { keywords: ['conveyor'], icon: 'sync_alt' },
+    { keywords: ['stacker'], icon: 'layers' },
+    { keywords: ['reclaimer'], icon: 'unarchive' },
+    { keywords: ['train', 'loadout'], icon: 'train' },
+];
+
+const FALLBACK_ICON = 'warning';
+
+function resolveIcon(activityName) {
+    const lower = activityName.toLowerCase();
+    for (const entry of ICON_MAP) {
+        if (entry.keywords.some(k => lower.includes(k))) return entry.icon;
+    }
+    return FALLBACK_ICON;
+}
+
+function renderIconTexture(iconName) {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // White filled circle background
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, 60, 0, Math.PI * 2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+
+    // Dark icon glyph
+    ctx.font = '72px "Material Symbols Rounded"';
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(iconName, size / 2, size / 2);
+
+    return new THREE.CanvasTexture(canvas);
+}
+
 export class ActivityIconManager {
     constructor(scene) {
         this.scene = scene;
         this.sprites = [];
-        this.textureLoader = new THREE.TextureLoader();
-        this.defaultTexture = null;
+        this.textureCache = new Map();
     }
 
     async loadTextures() {
-        // Create a simple colored circle texture as fallback
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.arc(32, 32, 28, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        // Wait for Material Symbols font to be ready
+        await document.fonts.ready;
 
-        this.defaultTexture = new THREE.CanvasTexture(canvas);
+        // Pre-render all icon textures
+        const allIcons = ICON_MAP.map(e => e.icon).concat(FALLBACK_ICON);
+        for (const icon of allIcons) {
+            if (!this.textureCache.has(icon)) {
+                this.textureCache.set(icon, renderIconTexture(icon));
+            }
+        }
     }
 
     createActivityIcons(levelData, levelMesh) {
@@ -55,10 +115,12 @@ export class ActivityIconManager {
     }
 
     createSprite(activity) {
+        const iconName = resolveIcon(activity.name || '');
+        const texture = this.textureCache.get(iconName) || this.textureCache.get(FALLBACK_ICON);
         const color = RiskResolver.getRiskColor(activity.risk);
 
         const material = new THREE.SpriteMaterial({
-            map: this.defaultTexture,
+            map: texture,
             color: color,
             transparent: true,
             depthTest: true,
