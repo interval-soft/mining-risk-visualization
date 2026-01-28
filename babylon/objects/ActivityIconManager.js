@@ -196,6 +196,9 @@ export class ActivityIconManager {
             // Use the texture directly
             manager.texture = texture;
 
+            // Enable sprite picking for click detection
+            manager.isPickable = true;
+
             this.spriteManagers.set(managerKey, manager);
         }
 

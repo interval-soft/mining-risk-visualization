@@ -196,7 +196,8 @@ export class StructuralElements {
             const ramp = BABYLON.MeshBuilder.CreateBox(`ramp${i}`, {
                 width: 30,
                 height: 3,
-                depth: rampLength
+                depth: rampLength,
+                sideOrientation: BABYLON.Mesh.DOUBLESIDE
             }, this.scene);
 
             // Position ramp at center X to avoid pillar overlap
