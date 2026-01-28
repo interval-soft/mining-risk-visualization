@@ -179,32 +179,25 @@ export class StructureManager {
 
         // Site view (focusCode is null): show all structures at full opacity
         if (focusCode === null) {
-            this.structures.forEach(({ group, levelFactory }, code) => {
-                // Make group visible
+            this.structures.forEach(({ group, levelFactory }) => {
                 group.visible = true;
-
-                // Reset each level to fully opaque (MUST set transparent=false)
                 levelFactory.getAllLevels().forEach(mesh => {
                     mesh.material.opacity = 1.0;
-                    mesh.material.transparent = false;
-                    mesh.material.needsUpdate = true;
                     mesh.visible = true;
                 });
             });
             return;
         }
 
-        // Structure focus mode: hide other structures
+        // Structure focus mode: hide other structures, reset focused structure's opacity
         this.structures.forEach(({ group, levelFactory }, code) => {
             const isFocused = code === focusCode;
             group.visible = isFocused;
 
-            if (isFocused) {
-                levelFactory.getAllLevels().forEach(mesh => {
-                    mesh.material.opacity = 1.0;
-                    mesh.material.needsUpdate = true;
-                });
-            }
+            // Reset all levels to full opacity (even hidden ones)
+            levelFactory.getAllLevels().forEach(mesh => {
+                mesh.material.opacity = 1.0;
+            });
         });
     }
 
