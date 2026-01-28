@@ -19,16 +19,10 @@ export class StructuralElements {
     createStructure(levels) {
         if (levels.length < 2) return;
 
-        // Create main vertical shaft
-        this.createMainShaft(levels);
-
         // Create ramps between adjacent levels
         for (let i = 0; i < levels.length - 1; i++) {
             this.createRamp(levels[i], levels[i + 1], i);
         }
-
-        // Create secondary shaft (ventilation/service)
-        this.createSecondaryShaft(levels);
     }
 
     /**
