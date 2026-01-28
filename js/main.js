@@ -212,12 +212,16 @@ class MineVisualizationApp {
                 this.cameraControlsPanel.setPanelToggleCallback((isVisible) => {
                     const leftSidebar = document.getElementById('left-sidebar');
                     const queryContainer = document.getElementById('query-container');
+                    const aiInsights = document.getElementById('ai-insights-container');
 
                     if (leftSidebar) {
                         leftSidebar.style.display = isVisible ? '' : 'none';
                     }
                     if (queryContainer) {
                         queryContainer.style.display = isVisible ? '' : 'none';
+                    }
+                    if (aiInsights) {
+                        aiInsights.style.display = isVisible ? '' : 'none';
                     }
                 });
             }
