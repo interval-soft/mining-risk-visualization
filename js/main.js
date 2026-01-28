@@ -489,9 +489,14 @@ class MineVisualizationApp {
      * Focus on a specific structure.
      */
     focusOnStructure(structureCode) {
-        // Clear any level isolation first (prevents canvas click interference)
+        // Clear any level isolation first
         if (this.clickHandler) {
             this.clickHandler.clearSelection();
+            // Temporarily disable click handler to prevent canvas click interference
+            this.clickHandler.disabled = true;
+            setTimeout(() => {
+                if (this.clickHandler) this.clickHandler.disabled = false;
+            }, 100);
         }
 
         this.stateManager.setFocusedStructure(structureCode);
@@ -525,6 +530,11 @@ class MineVisualizationApp {
         // Clear any level isolation first
         if (this.clickHandler) {
             this.clickHandler.clearSelection();
+            // Temporarily disable click handler to prevent canvas click interference
+            this.clickHandler.disabled = true;
+            setTimeout(() => {
+                if (this.clickHandler) this.clickHandler.disabled = false;
+            }, 100);
         }
 
         this.stateManager.setFocusedStructure(null);

@@ -66,6 +66,11 @@ export class ClickHandler {
      * @param {HTMLCanvasElement} canvas - Canvas element
      */
     onClick(event, canvas) {
+        // Skip if temporarily disabled (during structure focus changes)
+        if (this.disabled) {
+            return;
+        }
+
         this.raycaster.updateMousePosition(event, canvas);
         const intersected = this.raycaster.getIntersectedObject();
 
