@@ -201,6 +201,11 @@ class MineVisualizationApp {
                     cameraControlsContainer,
                     this.cameraController
                 );
+
+                // Connect label toggle to labelRenderer
+                this.cameraControlsPanel.setLabelToggleCallback((isVisible) => {
+                    this.labelRenderer.setAllLabelsVisible(isVisible);
+                });
             }
 
             // Setup keyboard navigation
@@ -249,16 +254,6 @@ class MineVisualizationApp {
                     } else {
                         this.cameraController.reset();
                     }
-                });
-            }
-
-            // Labels toggle button
-            const labelsBtn = document.getElementById('toggle-labels');
-            if (labelsBtn) {
-                labelsBtn.addEventListener('click', () => {
-                    const isVisible = this.labelRenderer.areLabelsVisible();
-                    this.labelRenderer.setAllLabelsVisible(!isVisible);
-                    labelsBtn.classList.toggle('active', !isVisible);
                 });
             }
 

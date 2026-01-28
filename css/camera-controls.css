@@ -185,6 +185,35 @@
     font-size: 11px;
 }
 
+/* Display controls (toggle buttons) */
+.display-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.ctrl-btn-toggle {
+    flex: 1;
+    height: 36px;
+    gap: 6px;
+    opacity: 0.5;
+    transition: all 0.15s;
+}
+
+.ctrl-btn-toggle.active {
+    opacity: 1;
+    background: rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.4);
+}
+
+.ctrl-btn-toggle:hover {
+    opacity: 1;
+}
+
+.ctrl-icon-material {
+    font-size: 18px;
+    line-height: 1;
+}
+
 /* Keyboard hint */
 .keyboard-hint {
     display: flex;

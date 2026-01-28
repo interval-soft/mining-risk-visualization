@@ -6,10 +6,20 @@ export class CameraControlsPanel {
         this.container = container;
         this.cameraController = cameraController;
         this.isCollapsed = false;
+        this.labelsVisible = true;
+        this.onLabelToggle = null;
 
         this.render();
         this.bindEvents();
         this.setupKeyboardShortcuts();
+    }
+
+    /**
+     * Set callback for label visibility toggle.
+     * @param {Function} callback - Receives (isVisible) boolean
+     */
+    setLabelToggleCallback(callback) {
+        this.onLabelToggle = callback;
     }
 
     render() {
@@ -77,6 +87,17 @@ export class CameraControlsPanel {
                             <span class="ctrl-icon">⟲</span>
                             <span class="ctrl-text">Reset</span>
                         </button>
+                    </div>
+
+                    <!-- Display options -->
+                    <div class="controls-section">
+                        <div class="controls-label">Display</div>
+                        <div class="display-controls">
+                            <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-labels" title="Toggle Labels (L)">
+                                <span class="material-symbols-rounded ctrl-icon-material">label</span>
+                                <span class="ctrl-text">Labels</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Keyboard hint -->
@@ -183,6 +204,11 @@ export class CameraControlsPanel {
                     this.handleAction('reset');
                     break;
 
+                // Toggle labels
+                case 'l':
+                    this.handleAction('toggle-labels');
+                    break;
+
                 default:
                     handled = false;
             }
@@ -230,6 +256,24 @@ export class CameraControlsPanel {
             case 'reset':
                 this.cameraController.reset();
                 break;
+            case 'toggle-labels':
+                this.toggleLabels();
+                break;
+        }
+    }
+
+    toggleLabels() {
+        this.labelsVisible = !this.labelsVisible;
+
+        // Update button state
+        const btn = this.container.querySelector('[data-action="toggle-labels"]');
+        if (btn) {
+            btn.classList.toggle('active', this.labelsVisible);
+        }
+
+        // Call the callback if set
+        if (this.onLabelToggle) {
+            this.onLabelToggle(this.labelsVisible);
         }
     }
 
