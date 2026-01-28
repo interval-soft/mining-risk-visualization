@@ -66,8 +66,10 @@ export class ClickHandler {
      * @param {HTMLCanvasElement} canvas - Canvas element
      */
     onClick(event, canvas) {
+        console.log('[ClickHandler] onClick triggered');
         this.raycaster.updateMousePosition(event, canvas);
         const intersected = this.raycaster.getIntersectedObject();
+        console.log('[ClickHandler] intersected:', intersected?.userData?.type, 'isolatedLevel:', !!this.isolatedLevel);
 
         // Check for double-click
         const now = performance.now();
