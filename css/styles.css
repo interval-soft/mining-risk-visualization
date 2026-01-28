@@ -811,32 +811,15 @@ body {
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
-/* RevDev Logo (bottom-right) */
-#revdev-logo {
-    position: absolute;
-    bottom: 90px;
-    right: 20px;
-    z-index: 150;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-}
-
-#revdev-logo:hover {
-    opacity: 1;
-}
-
-#revdev-logo img {
-    height: 36px;
-    width: auto;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-}
-
 /* Branding (bottom-right) */
 #branding {
     position: absolute;
-    bottom: 130px;
+    bottom: 90px;
     right: 20px;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 14px;
     font-family: 'Roboto Mono', monospace;
     font-size: 16px;
     font-weight: 500;
@@ -850,6 +833,13 @@ body {
 #branding span {
     font-size: 13px;
     opacity: 0.85;
+}
+
+#revdev-logo {
+    height: 40px;
+    width: auto;
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
 }
 
 [data-theme="light"] #branding {
