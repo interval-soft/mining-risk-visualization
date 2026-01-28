@@ -317,6 +317,18 @@ body {
     flex-direction: column;
 }
 
+#right-sidebar {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    width: 280px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: calc(100vh - 160px);
+}
+
 #ai-insights-container {
     flex: 0 0 auto;
     min-height: 200px;
@@ -526,10 +538,6 @@ body {
 
     #alerts-container {
         max-height: 150px;
-    }
-
-    #ai-insights-container {
-        display: none; /* Hide on mobile to save space */
     }
 
     #detail-container {

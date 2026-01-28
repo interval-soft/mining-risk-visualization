@@ -1,11 +1,7 @@
 /* Camera Controls Panel Styles */
 
 #camera-controls-container {
-    position: absolute;
-    top: 70px;
-    right: 20px;
-    width: 140px;
-    z-index: 100;
+    width: 100%;
 }
 
 .camera-controls-panel {
@@ -239,8 +235,8 @@
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
-    #camera-controls-container {
-        width: 120px;
+    #right-sidebar {
+        width: 240px;
     }
 
     .rotation-grid .ctrl-btn {
@@ -254,7 +250,7 @@
 }
 
 @media (max-width: 768px) {
-    #camera-controls-container {
+    #right-sidebar {
         display: none;
     }
 }
