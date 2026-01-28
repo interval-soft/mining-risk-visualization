@@ -489,6 +489,8 @@ class MineVisualizationApp {
      * Focus on a specific structure.
      */
     focusOnStructure(structureCode) {
+        console.log('[main] focusOnStructure:', structureCode);
+
         // Clear any level isolation first
         if (this.clickHandler) {
             this.clickHandler.clearSelection();
@@ -527,6 +529,8 @@ class MineVisualizationApp {
      * Return to site overview (unfocus all structures).
      */
     showSiteOverview() {
+        console.log('[main] showSiteOverview');
+
         // Clear any level isolation first
         if (this.clickHandler) {
             this.clickHandler.clearSelection();

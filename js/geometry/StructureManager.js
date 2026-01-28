@@ -173,19 +173,42 @@ export class StructureManager {
     setFocusMode(focusCode) {
         // Prevent duplicate calls
         if (this.focusedStructure === focusCode) {
+            console.log('[setFocusMode] SKIP duplicate:', focusCode);
             return;
         }
+        console.log('[setFocusMode] Processing:', focusCode);
         this.focusedStructure = focusCode;
 
         // Site view (focusCode is null): show all structures at full opacity
         if (focusCode === null) {
-            this.structures.forEach(({ group, levelFactory }) => {
+            // Reset ALL materials in ALL structures
+            this.structures.forEach(({ group, levelFactory, structuralElements }) => {
+                // Show group
                 group.visible = true;
+
+                // Reset level materials
                 levelFactory.getAllLevels().forEach(mesh => {
                     mesh.material.opacity = 1.0;
+                    mesh.material.transparent = true;
                     mesh.visible = true;
                 });
+
+                // Reset structural elements if they exist
+                if (structuralElements) {
+                    structuralElements.getAllElements().forEach(el => {
+                        if (el.material) {
+                            // Reset to original opacity values
+                            el.visible = true;
+                        }
+                    });
+                }
             });
+
+            // Also call materialSystem to ensure clean state
+            if (this.materialSystem) {
+                const allLevels = this.getAllLevelMeshes();
+                this.materialSystem.setIsolationMode(allLevels, null);
+            }
             return;
         }
 
