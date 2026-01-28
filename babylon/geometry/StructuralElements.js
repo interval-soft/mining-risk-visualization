@@ -175,6 +175,7 @@ export class StructuralElements {
         rampMaterial.albedoColor = new BABYLON.Color3(0.25, 0.22, 0.2);
         rampMaterial.roughness = 0.9;
         rampMaterial.metallic = 0.1;
+        rampMaterial.backFaceCulling = false; // Render both sides to prevent disappearing
 
         // Sort levels by Y position (top to bottom)
         const sortedLevels = [...levelMeshes].sort((a, b) => b.position.y - a.position.y);
@@ -198,10 +199,10 @@ export class StructuralElements {
                 depth: rampLength
             }, this.scene);
 
-            // Position ramp at the back edge of the level
-            // The ramp extends ±50 in Z after rotation, so center at LEVEL_DEPTH/2 - 50
-            // to keep the top end at the level edge (z = LEVEL_DEPTH/2)
-            const x = CONFIG.LEVEL_WIDTH / 2 - 50;
+            // Position ramp at center X to avoid pillar overlap
+            // Pillars are at X margins (~±140, ±47), so X=0 is clear
+            // Z: ramp extends ±50 after rotation, center at LEVEL_DEPTH/2 - 50
+            const x = 0;
             const z = CONFIG.LEVEL_DEPTH / 2 - 50;
             const midY = (upperLevelBottom + lowerLevelTop) / 2;
 
