@@ -87,9 +87,16 @@ export class HelpPanel {
                         What is Digital Twin?
                     </h3>
                     <p class="help-intro">
-                        Digital Twin is a real-time 3D visualization platform for mining operations.
-                        It displays mine structures, risk levels, active alerts, and AI-powered insights
-                        to help operators monitor safety conditions across multiple underground levels.
+                        This is a proof of concept developed for Worley, demonstrating how a Digital Twin
+                        platform could transform the monitoring of mining operations. It displays mine
+                        structures, risk levels, active alerts, and AI-powered insights to help operators
+                        monitor safety conditions across multiple underground levels.
+                    </p>
+                    <p class="help-intro">
+                        The 3D structures shown here are simplified representations. In a production
+                        deployment, they can be replaced with highly detailed, realistic models of the
+                        actual site — created by professional 3D designers from drone surveys or mine plans
+                        — to give operators an immediately recognizable view of their environment.
                     </p>
                 </div>
 
