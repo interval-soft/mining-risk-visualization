@@ -76,8 +76,8 @@ export class ActivityIconManager {
     }
 
     async loadTextures() {
-        // Wait for Material Symbols font to be ready
-        await document.fonts.ready;
+        // Explicitly load the Material Symbols font before rendering to canvas
+        await document.fonts.load('72px "Material Symbols Rounded"');
 
         // Pre-render all icon textures
         const allIcons = ICON_MAP.map(e => e.icon).concat(FALLBACK_ICON);
@@ -123,7 +123,7 @@ export class ActivityIconManager {
             map: texture,
             color: color,
             transparent: true,
-            depthTest: true,
+            depthTest: false,
             depthWrite: false
         });
 
