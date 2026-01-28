@@ -46,8 +46,9 @@ export class LevelFactory {
                 );
 
                 // Position pillar group at the top surface of current level
-                // Pillars extend upward to connect to the level above
-                pillars.position.set(0, mesh.position.y + CONFIG.LEVEL_HEIGHT / 2, 0);
+                // The ExtrudeGeometry places geometry from y=0 to y=LEVEL_HEIGHT,
+                // so the top surface is at mesh.y + LEVEL_HEIGHT (not LEVEL_HEIGHT/2)
+                pillars.position.set(0, mesh.position.y + CONFIG.LEVEL_HEIGHT, 0);
                 pillars.userData = {
                     type: 'pillars',
                     structureCode: structureCode
