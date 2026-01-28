@@ -299,7 +299,7 @@ body {
 /* Layout: Sidebar */
 .sidebar {
     position: absolute;
-    top: 70px;
+    top: 80px;
     left: 20px;
     width: 280px;
     max-height: calc(100vh - 160px);
@@ -312,14 +312,14 @@ body {
 #alerts-container {
     flex: 1;
     min-height: 450px;
-    max-height: 750px;
+    max-height: 700px;
     display: flex;
     flex-direction: column;
 }
 
 #right-sidebar {
     position: absolute;
-    top: 70px;
+    top: 80px;
     right: 20px;
     width: 280px;
     z-index: 100;

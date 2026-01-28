@@ -45,6 +45,12 @@ export class QueryInterface {
         this.bodyEl = this.container.querySelector('.query-body');
         this.toggleBtn = this.container.querySelector('.query-toggle');
 
+        // Start collapsed
+        this.isVisible = false;
+        this.bodyEl.style.display = 'none';
+        this.toggleBtn.textContent = '+';
+        this.toggleBtn.title = 'Expand';
+
         // Show initial suggestions
         this.renderSuggestions([
             'What is the current mine status?',
