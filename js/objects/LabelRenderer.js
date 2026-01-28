@@ -183,6 +183,37 @@ export class LabelRenderer {
         }
     }
 
+    /**
+     * Toggle visibility of all labels (structure and level labels).
+     * @param {boolean} visible - Whether labels should be visible
+     */
+    setAllLabelsVisible(visible) {
+        // Toggle structure labels
+        this.structureLabels.forEach((label) => {
+            label.visible = visible;
+            if (label.element) {
+                label.element.style.display = visible ? 'block' : 'none';
+            }
+        });
+
+        // Toggle level labels
+        this.labels.forEach((label) => {
+            label.visible = visible;
+            if (label.element) {
+                label.element.style.display = visible ? 'block' : 'none';
+            }
+        });
+
+        this.labelsVisible = visible;
+    }
+
+    /**
+     * Check if labels are currently visible.
+     */
+    areLabelsVisible() {
+        return this.labelsVisible !== false;
+    }
+
     render(scene, camera) {
         this.renderer.render(scene, camera);
     }

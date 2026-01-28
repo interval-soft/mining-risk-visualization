@@ -93,6 +93,17 @@ body {
     background: var(--btn-bg-hover);
 }
 
+.control-btn.active {
+    background: #4a4a6a;
+    border-color: #6a6a8a;
+}
+
+#toggle-labels {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+}
+
 .theme-btn {
     padding: 0;
     width: 40px;

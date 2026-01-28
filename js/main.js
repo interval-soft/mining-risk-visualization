@@ -252,6 +252,16 @@ class MineVisualizationApp {
                 });
             }
 
+            // Labels toggle button
+            const labelsBtn = document.getElementById('toggle-labels');
+            if (labelsBtn) {
+                labelsBtn.addEventListener('click', () => {
+                    const isVisible = this.labelRenderer.areLabelsVisible();
+                    this.labelRenderer.setAllLabelsVisible(!isVisible);
+                    labelsBtn.classList.toggle('active', !isVisible);
+                });
+            }
+
             // Start render loop
             this.animationLoop = new AnimationLoop(
                 this.sceneManager,
