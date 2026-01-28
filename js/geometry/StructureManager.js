@@ -173,31 +173,20 @@ export class StructureManager {
     setFocusMode(focusCode) {
         // Prevent duplicate calls
         if (this.focusedStructure === focusCode) {
-            console.log('[setFocusMode] SKIP duplicate:', focusCode);
             return;
         }
-        console.log('[setFocusMode] Processing:', focusCode);
         this.focusedStructure = focusCode;
 
         // Site view (focusCode is null): show all structures at full opacity
         if (focusCode === null) {
-            console.log('[setFocusMode] Resetting to site view...');
-
-            // Reset ALL materials in ALL structures
-            this.structures.forEach(({ group, levelFactory, structuralElements }, code) => {
-                // Show group
+            this.structures.forEach(({ group, levelFactory, structuralElements }) => {
                 group.visible = true;
 
-                // Reset level materials
                 levelFactory.getAllLevels().forEach(mesh => {
-                    const before = mesh.material.opacity;
                     mesh.material.opacity = 1.0;
-                    mesh.material.transparent = true;
                     mesh.visible = true;
-                    console.log(`[setFocusMode] ${code} L${mesh.userData.levelNumber}: ${before} -> ${mesh.material.opacity}`);
                 });
 
-                // Reset structural elements if they exist
                 if (structuralElements) {
                     structuralElements.getAllElements().forEach(el => {
                         if (el.material) {
@@ -207,21 +196,11 @@ export class StructureManager {
                 }
             });
 
-            // Also call materialSystem to ensure clean state
+            // Clear any level isolation
             if (this.materialSystem) {
                 const allLevels = this.getAllLevelMeshes();
                 this.materialSystem.setIsolationMode(allLevels, null);
             }
-
-            // Verify after a short delay
-            setTimeout(() => {
-                console.log('[setFocusMode] Verification after 50ms:');
-                this.structures.forEach(({ levelFactory }, code) => {
-                    levelFactory.getAllLevels().forEach(mesh => {
-                        console.log(`  ${code} L${mesh.userData.levelNumber}: opacity=${mesh.material.opacity}`);
-                    });
-                });
-            }, 50);
             return;
         }
 

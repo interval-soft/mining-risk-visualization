@@ -68,13 +68,11 @@ export class ClickHandler {
     onClick(event, canvas) {
         // Skip if temporarily disabled (during structure focus changes)
         if (this.disabled) {
-            console.log('[ClickHandler] BLOCKED - disabled');
             return;
         }
 
         this.raycaster.updateMousePosition(event, canvas);
         const intersected = this.raycaster.getIntersectedObject();
-        console.log('[ClickHandler] Click:', intersected?.userData?.type || 'background');
 
         // Check for double-click
         const now = performance.now();

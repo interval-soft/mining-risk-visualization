@@ -240,6 +240,9 @@ class MineVisualizationApp {
             // Show keyboard shortcuts hint briefly
             if (hasMultipleStructures) {
                 this.keyboardNavigation.showHintBriefly(4000);
+
+                // Set initial camera to site overview position for multi-structure
+                this.cameraController.showSiteOverview();
             }
 
             // Check AI status and update indicator
@@ -489,8 +492,6 @@ class MineVisualizationApp {
      * Focus on a specific structure.
      */
     focusOnStructure(structureCode) {
-        console.log('[main] focusOnStructure:', structureCode);
-
         // Clear any level isolation first
         if (this.clickHandler) {
             this.clickHandler.clearSelection();
@@ -529,8 +530,6 @@ class MineVisualizationApp {
      * Return to site overview (unfocus all structures).
      */
     showSiteOverview() {
-        console.log('[main] showSiteOverview');
-
         // Clear any level isolation first
         if (this.clickHandler) {
             this.clickHandler.clearSelection();
