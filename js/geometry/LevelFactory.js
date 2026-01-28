@@ -26,9 +26,13 @@ export class LevelFactory {
      * Create all levels from level data.
      * @param {Array} levelData - Array of level objects
      * @param {string} structureCode - Optional structure code to associate with levels
+     * @param {string} structureType - Optional structure type for different geometry
      */
-    createLevels(levelData, structureCode = null) {
+    createLevels(levelData, structureCode = null, structureType = null) {
         this.structureCode = structureCode;
+        this.structureType = structureType;
+
+        const isSurfacePlant = structureType === 'surface_plant';
 
         levelData.forEach((level, index) => {
             const mesh = this.createLevelMesh(level, index, structureCode);
@@ -37,7 +41,8 @@ export class LevelFactory {
 
             // Add support pillars connecting this level to the one above
             // Skip for first level (index 0) as there's nothing above it
-            if (index > 0) {
+            // Skip for surface plants (they're buildings, not excavations)
+            if (index > 0 && !isSurfacePlant) {
                 const pillars = MineGeometry.createPillars(
                     CONFIG.LEVEL_WIDTH,
                     CONFIG.LEVEL_DEPTH,
@@ -67,19 +72,28 @@ export class LevelFactory {
      * @returns {THREE.Mesh}
      */
     createLevelMesh(levelData, index, structureCode = null) {
-        // Use beveled geometry for polished look
-        const geometry = MineGeometry.createLevel(
-            CONFIG.LEVEL_WIDTH,
-            CONFIG.LEVEL_HEIGHT,
-            CONFIG.LEVEL_DEPTH,
-            3 // bevel size
-        );
+        // Use different geometry based on structure type
+        const isSurfacePlant = this.structureType === 'surface_plant';
+        const geometry = isSurfacePlant
+            ? MineGeometry.createSurfaceLevel()
+            : MineGeometry.createLevel(
+                CONFIG.LEVEL_WIDTH,
+                CONFIG.LEVEL_HEIGHT,
+                CONFIG.LEVEL_DEPTH,
+                3 // bevel size
+            );
 
         const risk = RiskResolver.resolveLevelRisk(levelData.activities);
         const material = this.materialSystem.createLevelMaterial(risk);
 
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.y = -index * CONFIG.LEVEL_SPACING;
+
+        // Surface plants have tighter spacing and start at ground level
+        if (isSurfacePlant) {
+            mesh.position.y = index * CONFIG.LEVEL_SPACING * 0.6; // Stack upward, closer together
+        } else {
+            mesh.position.y = -index * CONFIG.LEVEL_SPACING; // Underground: stack downward
+        }
 
         // Enable shadow casting and receiving
         mesh.castShadow = true;

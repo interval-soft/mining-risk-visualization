@@ -48,7 +48,7 @@ function getMockStructures() {
             id: '00000000-0000-0000-0000-000000000003',
             code: 'PROCESSING',
             name: 'Processing Plant',
-            type: 'processing',
+            type: 'surface_plant',
             position: { x: -500, z: 300 },
             rotation: 0,
             enabled: true,

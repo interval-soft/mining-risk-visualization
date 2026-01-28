@@ -174,6 +174,33 @@ export class MineGeometry {
     }
 
     /**
+     * Create a surface building/plant geometry (for processing facilities).
+     * Wider, shorter levels that look like industrial buildings.
+     * @param {number} width - Building width
+     * @param {number} height - Building height
+     * @param {number} depth - Building depth
+     * @returns {THREE.BufferGeometry}
+     */
+    static createSurfaceLevel(width = CONFIG.LEVEL_WIDTH * 1.3, height = CONFIG.LEVEL_HEIGHT * 1.5, depth = CONFIG.LEVEL_DEPTH * 0.7) {
+        // Create a more industrial shape - wider and flatter
+        const shape = this.createRoundedRectShape(width, depth, 5);
+
+        const extrudeSettings = {
+            depth: height,
+            bevelEnabled: true,
+            bevelThickness: 2,
+            bevelSize: 2,
+            bevelOffset: 0,
+            bevelSegments: 1
+        };
+
+        const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        geometry.rotateX(-Math.PI / 2);
+        geometry.computeVertexNormals();
+        return geometry;
+    }
+
+    /**
      * Create ore deposit visual markers.
      * @param {number} count - Number of ore deposits
      * @param {number} levelWidth - Width area to distribute in

@@ -71,11 +71,15 @@ export class StructureManager {
 
         // Create level factory for this structure (uses group as parent)
         const levelFactory = new LevelFactory(group, this.materialSystem);
-        levelFactory.createLevels(levels, code);
+        levelFactory.createLevels(levels, code, type);
 
-        // Create structural elements (shafts, ramps, elevator) for this structure
-        const structuralElements = new StructuralElements(group);
-        structuralElements.createStructure(levelFactory.getAllLevels());
+        // Create structural elements (shafts, ramps, elevator) for underground structures only
+        // Surface plants don't have mine shafts and ramps
+        let structuralElements = null;
+        if (type !== 'surface_plant') {
+            structuralElements = new StructuralElements(group);
+            structuralElements.createStructure(levelFactory.getAllLevels());
+        }
 
         // Add structure group to scene
         this.scene.add(group);

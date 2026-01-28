@@ -312,7 +312,7 @@ function getMockStructures(timestamp) {
         {
             code: 'PROCESSING',
             name: 'Processing Plant',
-            type: 'processing',
+            type: 'surface_plant',
             position: { x: -500, z: 300 },
             rotation: 0,
             riskScore: processingRisk,
