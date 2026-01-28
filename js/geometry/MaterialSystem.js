@@ -55,11 +55,15 @@ export class MaterialSystem {
         allLevels.forEach(mesh => {
             if (isolatedMesh === null) {
                 mesh.material.opacity = 1.0;
+                mesh.material.transparent = false;
             } else if (mesh === isolatedMesh) {
                 mesh.material.opacity = 1.0;
+                mesh.material.transparent = false;
             } else {
                 mesh.material.opacity = CONFIG.ISOLATION_FADE_OPACITY;
+                mesh.material.transparent = true;
             }
+            mesh.material.needsUpdate = true;
         });
     }
 }
