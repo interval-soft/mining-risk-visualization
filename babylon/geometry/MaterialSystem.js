@@ -4,14 +4,13 @@ import { CONFIG } from '../../js/config.js';
 import { RiskResolver } from '../../js/data/RiskResolver.js';
 
 /**
- * Material system for Babylon.js using PBRMaterial.
- * Creates risk-colored materials with procedural textures.
+ * Material system for Babylon.js.
+ * Creates risk-colored materials for level visualization.
  */
 export class MaterialSystem {
     constructor(scene) {
         this.scene = scene;
         this.baseMaterials = new Map();
-        this.textureCache = new Map();
         this.createBaseMaterials();
     }
 
@@ -20,102 +19,38 @@ export class MaterialSystem {
      */
     createBaseMaterials() {
         ['high', 'medium', 'low'].forEach(risk => {
-            const material = this.createPBRMaterial(risk);
+            const material = this.createMaterial(risk);
             this.baseMaterials.set(risk, material);
         });
     }
 
     /**
-     * Create a PBRMaterial with risk-appropriate color and rock texture.
+     * Create a StandardMaterial with risk-appropriate color.
      */
-    createPBRMaterial(risk) {
+    createMaterial(risk) {
         const riskColor = RiskResolver.getRiskColor(risk);
-        const color = BABYLON.Color3.FromHexString('#' + riskColor.toString(16).padStart(6, '0'));
+        const hexStr = '#' + riskColor.toString(16).padStart(6, '0');
+        const color = BABYLON.Color3.FromHexString(hexStr);
 
-        const material = new BABYLON.PBRMaterial(`levelMat_${risk}`, this.scene);
+        const material = new BABYLON.StandardMaterial(`levelMat_${risk}`, this.scene);
 
-        // Base color with risk tint
-        material.albedoColor = color;
+        // Set the diffuse color (main visible color)
+        material.diffuseColor = color;
 
-        // Create procedural rock texture
-        const rockTexture = this.createRockTexture(risk, color);
-        if (rockTexture) {
-            material.albedoTexture = rockTexture;
-        }
+        // Slight specular highlight
+        material.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+        material.specularPower = 32;
 
-        // PBR properties
-        material.roughness = 0.75;
-        material.metallic = 0.2;
-
-        // Enable transparency for isolation mode
-        material.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
-        material.alpha = 1.0;
-
-        // Emissive for hover state and bloom
+        // Emissive for glow effect (start at zero)
         material.emissiveColor = new BABYLON.Color3(0, 0, 0);
 
-        // Enable backface culling
+        // Enable transparency for isolation mode
+        material.alpha = 1.0;
+
+        // Backface culling
         material.backFaceCulling = true;
 
-        // Two-sided lighting for better appearance
-        material.twoSidedLighting = true;
-
         return material;
-    }
-
-    /**
-     * Create a procedural rock texture using DynamicTexture.
-     */
-    createRockTexture(risk, baseColor) {
-        const cacheKey = risk;
-        if (this.textureCache.has(cacheKey)) {
-            return this.textureCache.get(cacheKey);
-        }
-
-        const size = 256;
-        const texture = new BABYLON.DynamicTexture(`rockTexture_${risk}`, size, this.scene, false);
-        const ctx = texture.getContext();
-
-        // Fill with base color
-        const r = Math.floor(baseColor.r * 255);
-        const g = Math.floor(baseColor.g * 255);
-        const b = Math.floor(baseColor.b * 255);
-        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-        ctx.fillRect(0, 0, size, size);
-
-        // Add rock-like noise pattern
-        const imageData = ctx.getImageData(0, 0, size, size);
-        const data = imageData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-            // Random noise for rock texture
-            const noise = (Math.random() - 0.5) * 40;
-
-            data[i] = Math.max(0, Math.min(255, data[i] + noise));     // R
-            data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise)); // G
-            data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)); // B
-        }
-
-        // Add some larger variations for rock-like appearance
-        for (let y = 0; y < size; y += 16) {
-            for (let x = 0; x < size; x += 16) {
-                const variation = (Math.random() - 0.5) * 20;
-                for (let dy = 0; dy < 16 && y + dy < size; dy++) {
-                    for (let dx = 0; dx < 16 && x + dx < size; dx++) {
-                        const idx = ((y + dy) * size + (x + dx)) * 4;
-                        data[idx] = Math.max(0, Math.min(255, data[idx] + variation));
-                        data[idx + 1] = Math.max(0, Math.min(255, data[idx + 1] + variation));
-                        data[idx + 2] = Math.max(0, Math.min(255, data[idx + 2] + variation));
-                    }
-                }
-            }
-        }
-
-        ctx.putImageData(imageData, 0, 0);
-        texture.update();
-
-        this.textureCache.set(cacheKey, texture);
-        return texture;
     }
 
     /**
@@ -139,7 +74,7 @@ export class MaterialSystem {
 
         if (isHovered) {
             // Set emissive for highlight
-            mesh.material.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            mesh.material.emissiveColor = new BABYLON.Color3(0.15, 0.15, 0.15);
         } else {
             // Reset emissive
             mesh.material.emissiveColor = new BABYLON.Color3(0, 0, 0);
@@ -174,12 +109,10 @@ export class MaterialSystem {
     }
 
     /**
-     * Dispose all materials and textures.
+     * Dispose all materials.
      */
     dispose() {
         this.baseMaterials.forEach(material => material.dispose());
-        this.textureCache.forEach(texture => texture.dispose());
         this.baseMaterials.clear();
-        this.textureCache.clear();
     }
 }
