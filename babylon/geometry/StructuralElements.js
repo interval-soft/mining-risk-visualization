@@ -181,10 +181,11 @@ export class StructuralElements {
 
         // Create ramps between consecutive levels
         for (let i = 0; i < sortedLevels.length - 1; i++) {
-            const upperY = sortedLevels[i].position.y;
-            const lowerY = sortedLevels[i + 1].position.y + CONFIG.LEVEL_HEIGHT;
+            // Calculate actual surface positions (boxes are centered)
+            const upperLevelBottom = sortedLevels[i].position.y - CONFIG.LEVEL_HEIGHT / 2;
+            const lowerLevelTop = sortedLevels[i + 1].position.y + CONFIG.LEVEL_HEIGHT / 2;
 
-            const rampHeight = upperY - lowerY;
+            const rampHeight = upperLevelBottom - lowerLevelTop;
             if (rampHeight <= 0) continue;
 
             // Diagonal ramp
@@ -200,7 +201,7 @@ export class StructuralElements {
             // Position at edge of level
             const x = CONFIG.LEVEL_WIDTH / 2 - 50;
             const z = CONFIG.LEVEL_DEPTH / 2 + 15;
-            const midY = (upperY + lowerY) / 2;
+            const midY = (upperLevelBottom + lowerLevelTop) / 2;
 
             ramp.position.set(x, midY, z);
             ramp.rotation.x = -rampAngle;
