@@ -479,6 +479,15 @@ class MineVisualizationApp {
             // Could return to site view or just deselect
         });
 
+        // Wire up level label clicks to trigger same isolation as clicking the level mesh
+        this.labelRenderer.onLevelLabelClick = (levelMesh) => {
+            if (this.clickHandler.isolatedLevel === levelMesh) {
+                this.clickHandler.exitIsolation();
+            } else {
+                this.clickHandler.enterIsolation(levelMesh);
+            }
+        };
+
         canvas.addEventListener('mousemove', (e) => {
             this.hoverHandler.onMouseMove(e, canvas);
         });

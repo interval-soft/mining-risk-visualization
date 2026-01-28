@@ -132,6 +132,15 @@ export class LabelRenderer {
             </div>
         `;
 
+        // Click on label triggers level isolation (same as clicking the level mesh)
+        div.style.cursor = 'pointer';
+        div.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (this.onLevelLabelClick) {
+                this.onLevelLabelClick(levelMesh);
+            }
+        });
+
         const label = new CSS2DObject(div);
         // Store structure code directly on the label object
         label.structureCode = structureCode || '';
