@@ -181,21 +181,16 @@ export class StructureManager {
 
             // Reset opacity to full for visible structures
             if (isFocused) {
-                levelFactory.getAllLevels().forEach(mesh => {
-                    if (mesh.material) {
-                        mesh.material.transparent = false;
-                        mesh.material.opacity = 1.0;
-                        mesh.material.needsUpdate = true;
-                    }
-                });
-
+                // Reset all meshes in the group to full opacity
                 group.traverse(child => {
-                    if (child.isMesh && child.userData.type !== 'level') {
-                        if (child.material) {
-                            child.material.transparent = false;
-                            child.material.opacity = 1.0;
-                            child.material.needsUpdate = true;
-                        }
+                    if (child.isMesh && child.material) {
+                        // Handle both single materials and material arrays
+                        const materials = Array.isArray(child.material) ? child.material : [child.material];
+                        materials.forEach(mat => {
+                            mat.transparent = false;
+                            mat.opacity = 1.0;
+                            mat.needsUpdate = true;
+                        });
                     }
                 });
             }
