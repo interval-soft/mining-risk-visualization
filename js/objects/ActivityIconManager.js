@@ -110,16 +110,20 @@ export class ActivityIconManager {
 
     createActivityIcons(levelData, levelMesh) {
         const activities = levelData.activities;
-        const levelY = levelMesh.position.y;
+
+        // Get world position of level mesh (accounts for structure group offset)
+        const worldPos = new THREE.Vector3();
+        levelMesh.getWorldPosition(worldPos);
+
         const spacing = CONFIG.LEVEL_WIDTH / (activities.length + 1);
 
         activities.forEach((activity, index) => {
             const sprite = this.createSprite(activity);
 
             sprite.position.set(
-                -CONFIG.LEVEL_WIDTH / 2 + spacing * (index + 1),
-                levelY + CONFIG.ICON_OFFSET_Y,
-                0
+                worldPos.x - CONFIG.LEVEL_WIDTH / 2 + spacing * (index + 1),
+                worldPos.y + CONFIG.ICON_OFFSET_Y,
+                worldPos.z
             );
 
             sprite.userData = {
