@@ -172,20 +172,19 @@ export class StructuralElements {
             transparent: true,
             opacity: 0.5,
             roughness: 0.85,
-            metalness: 0.15
+            metalness: 0.15,
+            side: THREE.DoubleSide  // Render both sides
         });
 
         const ramp = new THREE.Mesh(geometry, material);
 
-        // Alternate ramp positions (zigzag pattern)
-        const xOffset = (index % 2 === 0) ? 40 : -40;
-
-        // Position at midpoint between levels
+        // Position ramp at center X (away from pillars) and inside level bounds
+        // Ramp extends ~30 in Z after rotation, so center at LEVEL_DEPTH/2 - 30
         const midY = (upperY + lowerY) / 2;
         ramp.position.set(
-            CONFIG.LEVEL_WIDTH / 2 + xOffset,
+            0,  // Center X to avoid pillar overlap
             midY,
-            CONFIG.LEVEL_DEPTH / 2 + 15
+            CONFIG.LEVEL_DEPTH / 2 - 30  // Inside level bounds
         );
 
         // Rotate to create slope
