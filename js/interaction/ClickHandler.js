@@ -128,6 +128,11 @@ export class ClickHandler {
             this.levelSource.setFocusMode(this.isolatedStructure);
         }
 
+        // Hide other structure labels
+        if (this.labels && typeof this.labels.setStructureFocus === 'function') {
+            this.labels.setStructureFocus(this.isolatedStructure);
+        }
+
         this.materials.setIsolationMode(allLevels, levelMesh);
 
         // Hide all icons first, then show only the isolated level's icons
@@ -167,6 +172,11 @@ export class ClickHandler {
         // Restore all structures visibility if we hid them
         if (wasIsolatedStructure && typeof this.levelSource.setFocusMode === 'function') {
             this.levelSource.setFocusMode(null);
+        }
+
+        // Restore all structure labels
+        if (this.labels && typeof this.labels.setStructureFocus === 'function') {
+            this.labels.setStructureFocus(null);
         }
 
         const allLevels = this.getAllLevels();
