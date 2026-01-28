@@ -149,6 +149,7 @@ export class ActivityIconManager {
 
         const sprite = new THREE.Sprite(material);
         sprite.scale.set(32, 32, 1);
+        sprite.renderOrder = 999;
         return sprite;
     }
 
