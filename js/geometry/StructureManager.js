@@ -186,14 +186,26 @@ export class StructureManager {
                 // First make visible
                 group.visible = true;
 
-                // Then reset each level's opacity (keep transparent:true to avoid render issues)
+                // Then reset each level's opacity
                 levelFactory.getAllLevels().forEach(mesh => {
+                    const beforeOpacity = mesh.material.opacity;
                     mesh.material.opacity = 1.0;
                     mesh.material.needsUpdate = true;
                     mesh.visible = true;
+                    console.log('[setFocusMode] Reset', code, 'L' + mesh.userData.levelNumber,
+                        'opacity:', beforeOpacity, '->', mesh.material.opacity);
                 });
-                console.log('[setFocusMode] Reset structure:', code);
             });
+
+            // Schedule a check after render to see if opacity stuck
+            setTimeout(() => {
+                this.structures.forEach(({ levelFactory }, code) => {
+                    levelFactory.getAllLevels().forEach(mesh => {
+                        console.log('[AFTER RENDER]', code, 'L' + mesh.userData.levelNumber,
+                            'opacity:', mesh.material.opacity, 'transparent:', mesh.material.transparent);
+                    });
+                });
+            }, 100);
             return;
         }
 
