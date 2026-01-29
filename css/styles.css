@@ -257,6 +257,10 @@ body {
     transition: background-color 0.3s;
 }
 
+.filter-section {
+    margin-top: 5px;
+}
+
 .filter-section h3 {
     color: var(--text-muted);
     font-size: 11px;
