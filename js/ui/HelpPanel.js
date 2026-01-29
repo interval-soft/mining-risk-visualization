@@ -179,6 +179,7 @@ export class HelpPanel {
                     </h3>
                     <div class="shortcuts-quick">
                         <div class="shortcut-item"><kbd>WASD</kbd><span>Rotate camera</span></div>
+                        <div class="shortcut-item"><kbd>Shift+WASD</kbd><span>Pan camera</span></div>
                         <div class="shortcut-item"><kbd>+</kbd> <kbd>-</kbd><span>Zoom</span></div>
                         <div class="shortcut-item"><kbd>1-4</kbd><span>Preset views</span></div>
                         <div class="shortcut-item"><kbd>R</kbd><span>Reset view</span></div>
@@ -209,7 +210,16 @@ export class HelpPanel {
                             </div>
                             <div class="feature-info">
                                 <div class="feature-title">Rotation</div>
-                                <div class="feature-desc">Arrow buttons or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / Arrow keys to orbit the camera.</div>
+                                <div class="feature-desc">Arrow buttons or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / Arrow keys to orbit the camera around the target.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">pan_tool</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Pan</div>
+                                <div class="feature-desc">Pan buttons or <kbd>Shift</kbd>+<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to slide the camera without rotating.</div>
                             </div>
                         </div>
                         <div class="feature-card">
@@ -364,6 +374,7 @@ export class HelpPanel {
                         </thead>
                         <tbody>
                             <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / Arrows</td><td>Rotate camera</td></tr>
+                            <tr><td><kbd>Shift</kbd>+<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Pan camera</td></tr>
                             <tr><td><kbd>+</kbd> / <kbd>-</kbd></td><td>Zoom in/out</td></tr>
                             <tr><td><kbd>1</kbd></td><td>Isometric view</td></tr>
                             <tr><td><kbd>2</kbd></td><td>Top view</td></tr>
@@ -401,6 +412,15 @@ export class HelpPanel {
                             <div class="feature-info">
                                 <div class="feature-title">Risk Level Toggles</div>
                                 <div class="feature-desc">Click High, Medium, or Low to show/hide levels by risk. Active filters are highlighted.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">category</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Activity Type Filter</div>
+                                <div class="feature-desc">Toggle activity types (drilling, blasting, hauling, etc.) to show or hide specific icon categories across all levels.</div>
                             </div>
                         </div>
                         <div class="feature-card">
