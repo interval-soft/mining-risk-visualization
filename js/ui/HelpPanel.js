@@ -184,7 +184,7 @@ export class HelpPanel {
                     </h3>
                     <div class="shortcuts-quick">
                         <div class="shortcut-item"><kbd>WASD</kbd><span>Rotate camera</span></div>
-                        <div class="shortcut-item"><kbd>Shift+WASD</kbd><span>Pan camera</span></div>
+                        <div class="shortcut-item"><kbd>Shift</kbd>+<kbd>WASD</kbd><span>Pan</span></div>
                         <div class="shortcut-item"><kbd>+</kbd> <kbd>-</kbd><span>Zoom</span></div>
                         <div class="shortcut-item"><kbd>1-4</kbd><span>Preset views</span></div>
                         <div class="shortcut-item"><kbd>R</kbd><span>Reset view</span></div>
