@@ -42,7 +42,7 @@ export class CameraControlsPanel {
                 <div class="camera-controls-body">
                     <!-- Row 1: Rotation + Pan + Zoom -->
                     <div class="controls-row">
-                        <div class="controls-col">
+                        <div class="controls-group controls-group-rotate">
                             <div class="controls-label">Rotate</div>
                             <div class="rotation-grid">
                                 <button class="ctrl-btn" data-action="rotate-up" title="Rotate Up (W)">
@@ -59,7 +59,7 @@ export class CameraControlsPanel {
                                 </button>
                             </div>
                         </div>
-                        <div class="controls-col">
+                        <div class="controls-group controls-group-pan">
                             <div class="controls-label">Pan</div>
                             <div class="rotation-grid">
                                 <button class="ctrl-btn" data-action="pan-up" title="Pan Up (Shift+W)">
@@ -76,43 +76,54 @@ export class CameraControlsPanel {
                                 </button>
                             </div>
                         </div>
-                        <div class="zoom-column">
-                            <button class="ctrl-btn" data-action="zoom-in" title="Zoom In (+)">
-                                <span class="ctrl-icon">+</span>
+                        <div class="controls-group controls-group-zoom">
+                            <div class="controls-label">Zoom</div>
+                            <div class="zoom-column">
+                                <button class="ctrl-btn" data-action="zoom-in" title="Zoom In (+)">
+                                    <span class="ctrl-icon">+</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="zoom-out" title="Zoom Out (-)">
+                                    <span class="ctrl-icon">−</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Presets -->
+                    <div class="controls-group controls-group-presets">
+                        <div class="controls-row-presets">
+                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-isometric" title="Isometric (1)">
+                                <span class="ctrl-text">ISO</span>
                             </button>
-                            <button class="ctrl-btn" data-action="zoom-out" title="Zoom Out (-)">
-                                <span class="ctrl-icon">−</span>
+                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-top" title="Top (2)">
+                                <span class="ctrl-text">TOP</span>
+                            </button>
+                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-front" title="Front (3)">
+                                <span class="ctrl-text">FRT</span>
+                            </button>
+                            <button class="ctrl-btn ctrl-btn-preset" data-action="view-side" title="Side (4)">
+                                <span class="ctrl-text">SIDE</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Row 2: Presets + Reset -->
-                    <div class="controls-row-presets">
-                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-isometric" title="Isometric (1)">
-                            <span class="ctrl-text">ISO</span>
-                        </button>
-                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-top" title="Top (2)">
-                            <span class="ctrl-text">TOP</span>
-                        </button>
-                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-front" title="Front (3)">
-                            <span class="ctrl-text">FRT</span>
-                        </button>
-                        <button class="ctrl-btn ctrl-btn-preset" data-action="view-side" title="Side (4)">
-                            <span class="ctrl-text">SIDE</span>
-                        </button>
-                        <button class="ctrl-btn ctrl-btn-preset" data-action="reset" title="Reset (R)">
+                    <!-- Row 3: Reset -->
+                    <div class="controls-group controls-group-reset">
+                        <button class="ctrl-btn ctrl-btn-preset" data-action="reset" title="Reset (R)" style="flex:1;">
                             <span class="ctrl-icon">⟲</span>
                         </button>
                     </div>
 
-                    <!-- Row 3: Display toggles -->
-                    <div class="controls-row-display">
-                        <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-labels" title="Toggle Labels (L)">
-                            <span class="material-symbols-rounded ctrl-icon-material">label</span>
-                        </button>
-                        <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-panels" title="Toggle Panels (P)">
-                            <span class="material-symbols-rounded ctrl-icon-material">dashboard</span>
-                        </button>
+                    <!-- Row 4: Display toggles -->
+                    <div class="controls-group controls-group-toggles">
+                        <div class="controls-row-display">
+                            <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-labels" title="Toggle Labels (L)">
+                                <span class="material-symbols-rounded ctrl-icon-material">label</span>
+                            </button>
+                            <button class="ctrl-btn ctrl-btn-toggle active" data-action="toggle-panels" title="Toggle Panels (P)">
+                                <span class="material-symbols-rounded ctrl-icon-material">dashboard</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
