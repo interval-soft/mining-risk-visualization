@@ -18,6 +18,7 @@ export class FilterPanel {
         this.stateManager = stateManager;
 
         this.activeFilters = new Set(['high', 'medium', 'low']);
+        this.activeTypes = null; // null = all types active
         this.selectedStructure = 'all'; // 'all' or structure code
 
         // Callbacks
@@ -59,6 +60,12 @@ export class FilterPanel {
                     <button class="filter-btn active" data-risk="low" style="--filter-color: #4CAF50;">
                         <span class="indicator"></span>Low
                     </button>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3>Filter by Type</h3>
+                <div class="filter-type-buttons">
+                    ${this.renderTypeButtons()}
                 </div>
             </div>
         `;
@@ -128,12 +135,37 @@ export class FilterPanel {
         `;
     }
 
+    renderTypeButtons() {
+        const types = this.iconManager.getActivityTypes();
+        if (!types.length) return '<span style="color:var(--text-muted);font-size:11px;">No activities</span>';
+
+        // Initialize activeTypes with all types if not set
+        if (!this.activeTypes) {
+            this.activeTypes = new Set(types.map(t => t.icon));
+        }
+
+        return types.map(t => `
+            <button class="filter-btn filter-type-btn active" data-type-icon="${t.icon}" title="${t.label}">
+                <span class="material-symbols-rounded filter-type-icon">${t.icon}</span>
+                <span class="filter-type-label">${t.label}</span>
+            </button>
+        `).join('');
+    }
+
     attachListeners() {
         // Risk filter buttons
         this.element.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const risk = e.currentTarget.dataset.risk;
                 this.toggleFilter(risk, e.currentTarget);
+            });
+        });
+
+        // Type filter buttons
+        this.element.querySelectorAll('.filter-type-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const icon = e.currentTarget.dataset.typeIcon;
+                this.toggleTypeFilter(icon, e.currentTarget);
             });
         });
 
@@ -175,6 +207,17 @@ export class FilterPanel {
         }
     }
 
+    toggleTypeFilter(icon, button) {
+        if (this.activeTypes.has(icon)) {
+            this.activeTypes.delete(icon);
+            button.classList.remove('active');
+        } else {
+            this.activeTypes.add(icon);
+            button.classList.add('active');
+        }
+        this.applyFilters();
+    }
+
     toggleFilter(risk, button) {
         if (this.activeFilters.has(risk)) {
             this.activeFilters.delete(risk);
@@ -202,10 +245,23 @@ export class FilterPanel {
                                    structureCode === this.selectedStructure ||
                                    structureCode === null; // Legacy single-structure
 
-            const visible = riskMatch && structureMatch;
+            const levelVisible = riskMatch && structureMatch;
+            mesh.visible = levelVisible;
 
-            mesh.visible = visible;
-            this.iconManager.setVisibilityForLevel(mesh.userData.levelNumber, visible);
+            // For icons, also apply type filter per-sprite
+            const levelNum = mesh.userData.levelNumber;
+            const sprites = this.iconManager.getAllSprites().filter(s => {
+                const sameLevel = s.userData.levelNumber === levelNum;
+                if (structureCode !== null) {
+                    return sameLevel && s.userData.structureCode === structureCode;
+                }
+                return sameLevel;
+            });
+
+            sprites.forEach(s => {
+                const typeMatch = !this.activeTypes || this.activeTypes.has(s.userData.activityIcon);
+                s.visible = levelVisible && typeMatch;
+            });
         });
     }
 
@@ -259,7 +315,20 @@ export class FilterPanel {
      * Re-render when structures change.
      */
     refresh() {
+        // Preserve active types across refresh
+        const prevTypes = this.activeTypes;
         this.render();
         this.attachListeners();
+
+        // Restore type filter state
+        if (prevTypes && this.activeTypes) {
+            this.activeTypes = new Set(
+                [...this.activeTypes].filter(t => prevTypes.has(t))
+            );
+            this.element.querySelectorAll('.filter-type-btn').forEach(btn => {
+                const icon = btn.dataset.typeIcon;
+                btn.classList.toggle('active', this.activeTypes.has(icon));
+            });
+        }
     }
 }

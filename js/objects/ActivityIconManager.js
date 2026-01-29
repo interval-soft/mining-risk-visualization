@@ -129,6 +129,7 @@ export class ActivityIconManager {
             sprite.userData = {
                 type: 'activity',
                 activity: activity,
+                activityIcon: resolveIcon(activity.name || ''),
                 levelNumber: levelData.level,
                 structureCode: levelMesh.userData.structureCode || null,
                 activityIndex: index
@@ -195,6 +196,44 @@ export class ActivityIconManager {
                 s.visible = s.userData.structureCode === focusCode;
             }
         });
+    }
+
+    /**
+     * Get unique activity types (icon names) present in the scene.
+     * Returns array of { icon, label } sorted by label.
+     */
+    getActivityTypes() {
+        const types = new Map();
+        for (const s of this.sprites) {
+            const icon = s.userData.activityIcon;
+            if (icon && !types.has(icon)) {
+                // Derive a readable label from the ICON_MAP keywords
+                const entry = ICON_MAP.find(e => e.icon === icon);
+                const label = entry
+                    ? entry.keywords[0].charAt(0).toUpperCase() + entry.keywords[0].slice(1)
+                    : 'Other';
+                types.set(icon, { icon, label });
+            }
+        }
+        return Array.from(types.values()).sort((a, b) => a.label.localeCompare(b.label));
+    }
+
+    /**
+     * Set visibility of sprites by activity icon type.
+     * @param {Set<string>} activeTypes - Set of icon names to show
+     */
+    applyTypeFilter(activeTypes) {
+        this._activeTypeFilter = activeTypes;
+    }
+
+    /**
+     * Check if a sprite passes the current type filter.
+     * @param {THREE.Sprite} sprite
+     * @returns {boolean}
+     */
+    passesTypeFilter(sprite) {
+        if (!this._activeTypeFilter) return true;
+        return this._activeTypeFilter.has(sprite.userData.activityIcon);
     }
 
     setAllVisible(visible) {

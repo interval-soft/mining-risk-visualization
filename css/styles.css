@@ -296,6 +296,38 @@ body {
     background: var(--filter-color);
 }
 
+/* Type filter buttons */
+.filter-type-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.filter-type-btn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px 3px 4px;
+    font-size: 10px;
+    border-radius: 12px;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+}
+
+.filter-type-btn.active {
+    opacity: 1;
+}
+
+.filter-type-icon {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-secondary);
+}
+
+.filter-type-label {
+    white-space: nowrap;
+}
+
 /* Layout: Sidebar */
 .sidebar {
     position: absolute;
