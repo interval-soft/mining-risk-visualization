@@ -301,6 +301,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-top: 8px;
 }
 
 .filter-type-header h3 {
