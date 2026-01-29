@@ -29,6 +29,7 @@ export class ClickHandler {
         this.onLevelSelect = null;      // (levelNumber, structureCode) => void
         this.onStructureSelect = null;  // (structureCode) => void
         this.onBackgroundClick = null;  // () => void
+        this.onExitIsolation = null;    // () => void
 
         // Double-click detection for structure focus
         this.lastClickTime = 0;
@@ -221,6 +222,10 @@ export class ClickHandler {
         allLevels.forEach(mesh => {
             this.labels.setLabelVisibility(mesh.userData.levelNumber, true);
         });
+
+        if (this.onExitIsolation) {
+            this.onExitIsolation();
+        }
     }
 
     /**

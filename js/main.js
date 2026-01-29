@@ -206,6 +206,10 @@ class MineVisualizationApp {
                 // Connect label toggle to labelRenderer
                 this.cameraControlsPanel.setLabelToggleCallback((isVisible) => {
                     this.labelRenderer.setAllLabelsVisible(isVisible);
+                    // Re-apply focus filter so only relevant labels show
+                    if (isVisible && this.stateManager.focusedStructure) {
+                        this.labelRenderer.setStructureFocus(this.stateManager.focusedStructure);
+                    }
                 });
 
                 // Connect panel toggle to UI elements
@@ -270,11 +274,15 @@ class MineVisualizationApp {
             if (resetBtn) {
                 resetBtn.addEventListener('click', () => {
                     if (this.stateManager.focusedStructure) {
-                        // If focused on structure, return to site view
                         this.showSiteOverview();
                     } else {
                         this.cameraController.reset();
                     }
+                    // Reset background color to default
+                    localStorage.removeItem('bgColor');
+                    const picker = document.getElementById('bg-color-picker');
+                    if (picker) picker.value = '#1a1a2e';
+                    window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: '#1a1a2e' } }));
                 });
             }
 
@@ -482,6 +490,11 @@ class MineVisualizationApp {
         this.clickHandler.setBackgroundClickHandler(() => {
             // Could return to site view or just deselect
         });
+
+        // Hide detail panel when exiting isolation
+        this.clickHandler.onExitIsolation = () => {
+            this.detailPanel.hide();
+        };
 
         // Wire up level label clicks to trigger same isolation as clicking the level mesh
         this.labelRenderer.onLevelLabelClick = (levelMesh) => {

@@ -252,6 +252,11 @@ export class CameraControlsPanel {
                 break;
             case 'reset':
                 this.cameraController.reset();
+                // Reset background color to default
+                localStorage.removeItem('bgColor');
+                const picker = document.getElementById('bg-color-picker');
+                if (picker) picker.value = '#1a1a2e';
+                window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: '#1a1a2e' } }));
                 break;
             case 'toggle-labels':
                 this.toggleLabels();
