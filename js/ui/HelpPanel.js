@@ -52,6 +52,10 @@ export class HelpPanel {
                         <span class="material-symbols-rounded">movie</span>
                         <span>Demo</span>
                     </button>
+                    <button class="help-tab" data-tab="tech-stack">
+                        <span class="material-symbols-rounded">code</span>
+                        <span>Tech Stack</span>
+                    </button>
                     <button class="help-tab" data-tab="whats-next">
                         <span class="material-symbols-rounded">rocket</span>
                         <span>What's Next</span>
@@ -64,6 +68,7 @@ export class HelpPanel {
                     ${this.getPanelsContent()}
                     ${this.get3DContent()}
                     ${this.getDemoContent()}
+                    ${this.getTechStackContent()}
                     ${this.getWhatsNextContent()}
                 </div>
 
@@ -957,6 +962,189 @@ export class HelpPanel {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        `;
+    }
+
+    getTechStackContent() {
+        return `
+            <div class="help-tab-content" data-content="tech-stack">
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">architecture</span>
+                        Architecture Overview
+                    </h3>
+                    <p class="help-prose">
+                        The Digital Twin is built as a modern web application with a clear separation
+                        between the 3D front-end and a serverless API back-end. The entire application
+                        runs in the browser — no plugins, no desktop installation required. The back-end
+                        handles data processing, AI inference, and database access via serverless functions.
+                    </p>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">view_in_ar</span>
+                        3D Rendering
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">deployed_code</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Three.js (r160)</div>
+                                <div class="feature-desc">WebGL-based 3D engine powering all scene rendering, camera controls, raycasting, sprite icons, and post-processing effects (bloom via UnrealBloomPass).</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">orbit</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">OrbitControls</div>
+                                <div class="feature-desc">Three.js addon providing mouse/touch camera interaction — orbit, pan, and zoom with damping for smooth movement.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">label</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">CSS2DRenderer</div>
+                                <div class="feature-desc">Renders HTML labels (level names, depth markers) as overlays on the 3D scene, keeping text crisp at any zoom level.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">animation</span>
+                        Animation & UI
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">motion_photos_on</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">GSAP (v3.12)</div>
+                                <div class="feature-desc">GreenSock Animation Platform for smooth camera transitions between views, with timeline sequencing and easing curves.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">format_paint</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Material Symbols</div>
+                                <div class="feature-desc">Google's variable icon font used throughout the UI and rendered as canvas textures for 3D activity sprites.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">css</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Vanilla CSS + Custom Properties</div>
+                                <div class="feature-desc">No CSS framework — custom stylesheets with CSS variables for consistent theming across all panels and controls.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">javascript</span>
+                        Front-End Architecture
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">package_2</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">ES Modules (No Bundler)</div>
+                                <div class="feature-desc">Native browser ES modules with import maps — no Webpack, Vite, or build step. Dependencies loaded directly from CDN via importmap.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">account_tree</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Component-Based Classes</div>
+                                <div class="feature-desc">Each UI panel (Alerts, Filters, Detail, AI Insights, Help) and 3D system (Scene, Camera, Materials, Icons) is an independent ES6 class.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">sync_alt</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">State Management</div>
+                                <div class="feature-desc">Custom StateManager with event-driven architecture for coordinating multi-structure views, focus modes, and timeline synchronization.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">cloud</span>
+                        Back-End & Infrastructure
+                    </h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">bolt</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">Vercel Serverless Functions</div>
+                                <div class="feature-desc">Node.js API routes deployed as serverless functions — handling alerts, AI inference, site data, and authentication with zero server management.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">storage</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">PostgreSQL</div>
+                                <div class="feature-desc">Relational database (via pg driver) for persistent storage of alerts, AI insights, baselines, and historical timeline data.</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <span class="material-symbols-rounded">psychology</span>
+                            </div>
+                            <div class="feature-info">
+                                <div class="feature-title">AI Engine</div>
+                                <div class="feature-desc">Server-side AI module for risk analysis, predictive insights, and natural language query processing — accessible via dedicated API endpoints.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">data_object</span>
+                        Data Flow
+                    </h3>
+                    <p class="help-prose">
+                        Mine data (structures, levels, activities, risk scores) is loaded at startup from
+                        the API or from a static JSON file for offline/demo use. The DataLoader normalizes
+                        both formats into a unified structure. Real-time updates flow through periodic API
+                        polling, with the timeline system coordinating state changes across all panels
+                        and the 3D scene simultaneously.
+                    </p>
+                    <p class="help-prose">
+                        The rendering pipeline follows a clear path: raw data enters through the DataLoader,
+                        gets processed into level meshes and activity sprites by the StructureManager and
+                        ActivityIconManager, then rendered by Three.js with post-processing (bloom, fog).
+                        UI panels observe state changes and update independently.
+                    </p>
                 </div>
             </div>
         `;
