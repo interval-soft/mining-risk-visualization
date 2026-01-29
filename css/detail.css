@@ -2,11 +2,11 @@
 
 #detail-container {
     position: absolute;
-    top: 70px;
-    right: 180px; /* Leave room for camera controls (140px + 20px gap + 20px margin) */
+    top: 80px;
+    right: 310px; /* Leave room for right sidebar (280px + 20px gap + 10px) */
     width: 320px;
     max-height: calc(100vh - 160px);
-    z-index: 100;
+    z-index: 110;
     display: none;
 }
 

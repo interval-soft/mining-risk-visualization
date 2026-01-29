@@ -138,8 +138,11 @@ export class CameraControlsPanel {
 
     setupKeyboardShortcuts() {
         this.keydownHandler = (e) => {
-            // Don't trigger if user is typing in an input
+            // Don't trigger if user is typing in an input or using modifier keys (Cmd/Ctrl/Alt)
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+            if (e.metaKey || e.ctrlKey || e.altKey) {
                 return;
             }
 
