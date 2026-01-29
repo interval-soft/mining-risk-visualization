@@ -89,7 +89,7 @@
 
 /* Control groups with subtle backgrounds */
 .controls-group {
-    padding: 8px;
+    padding: 10px;
     border-radius: 6px;
     display: flex;
     flex-direction: column;
@@ -158,8 +158,8 @@
 }
 
 .rotation-grid .ctrl-btn {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
 }
 
 .rotation-grid .ctrl-btn[data-action="rotate-up"] {
@@ -210,8 +210,8 @@
 }
 
 .zoom-column .ctrl-btn {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
 }
 
 /* Row 2: Presets + Reset in one row */
