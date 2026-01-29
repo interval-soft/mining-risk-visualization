@@ -1178,10 +1178,16 @@ export class HelpPanel {
                             View City-Wow demo — an example of SimCity-style 3D interface
                         </span>
                     </a>
+                    <div class="help-preview-gallery">
+                        <img src="assets/3d-city-overview.png" alt="3D city overview with labeled buildings and streets" class="help-preview-img" />
+                        <img src="assets/3d-building-detail.png" alt="Detailed 3D building close-up view" class="help-preview-img" />
+                    </div>
                     <p class="help-prose">
-                        This is just one possible direction. Other ideas can be explored — from realistic
-                        terrain rendering to augmented-reality overlays, dashboard-first layouts, or entirely
-                        custom visual paradigms designed around your operation's specific needs.
+                        These examples show how 3D environments can represent infrastructure at different
+                        zoom levels — from a site-wide overview down to individual building detail. This is
+                        just one possible direction. Other ideas can be explored — from realistic terrain
+                        rendering to augmented-reality overlays, dashboard-first layouts, or entirely custom
+                        visual paradigms designed around your operation's specific needs.
                     </p>
                 </div>
 
