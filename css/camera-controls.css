@@ -99,14 +99,19 @@
 
 .controls-group-rotate {
     background: rgba(102, 126, 234, 0.08);
+    flex: 1;
+    min-width: 0;
 }
 
 .controls-group-pan {
     background: rgba(78, 205, 196, 0.08);
+    flex: 1;
+    min-width: 0;
 }
 
 .controls-group-zoom {
     background: rgba(255, 193, 7, 0.08);
+    justify-content: center;
 }
 
 .controls-group-presets {
@@ -141,7 +146,8 @@
 .controls-row {
     display: flex;
     gap: 6px;
-    align-items: flex-end;
+    align-items: stretch;
+    flex-wrap: wrap;
 }
 
 .rotation-grid {
@@ -149,7 +155,6 @@
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     gap: 3px;
-    flex: 1;
 }
 
 .rotation-grid .ctrl-btn {
