@@ -198,8 +198,8 @@ export class CameraController {
      */
     focusOnStructure(structurePosition, options = {}) {
         const {
-            distance = 750,
-            height = 200,
+            distance = 1200,
+            height = 300,
             duration = CONFIG.CAMERA_TRANSITION_DURATION || 1000
         } = options;
 
