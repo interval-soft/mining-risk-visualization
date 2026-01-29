@@ -1159,6 +1159,32 @@ export class HelpPanel {
                     </div>
                 </div>
 
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">sports_esports</span>
+                        Exploring New Visual Approaches
+                    </h3>
+                    <p class="help-prose">
+                        Beyond the current 3D schematic view, we could evolve the interface toward a
+                        SimCity-style isometric visualization where mine infrastructure, equipment, and
+                        personnel are represented as interactive objects on a detailed terrain map. This
+                        approach would make the Digital Twin feel more intuitive and engaging, turning
+                        complex operational data into a visual language that anyone can understand at a glance.
+                    </p>
+                    <a href="https://city-wow.netlify.app" target="_blank" rel="noopener noreferrer" class="help-preview-link">
+                        <img src="assets/city-wow-preview.png" alt="City-Wow SimCity-style 3D interface example" class="help-preview-img" />
+                        <span class="help-preview-caption">
+                            <span class="material-symbols-rounded">open_in_new</span>
+                            View City-Wow demo — an example of SimCity-style 3D interface
+                        </span>
+                    </a>
+                    <p class="help-prose">
+                        This is just one possible direction. Other ideas can be explored — from realistic
+                        terrain rendering to augmented-reality overlays, dashboard-first layouts, or entirely
+                        custom visual paradigms designed around your operation's specific needs.
+                    </p>
+                </div>
+
                 <div class="help-section help-cta">
                     <h3>
                         <span class="material-symbols-rounded">handshake</span>

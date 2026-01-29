@@ -553,6 +553,40 @@ kbd {
     color: rgba(100, 180, 255, 0.9);
 }
 
+.help-preview-link {
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 16px 0;
+    text-decoration: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.help-preview-link:hover {
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.help-preview-img {
+    width: 100%;
+    display: block;
+}
+
+.help-preview-caption {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(100, 180, 255, 0.9);
+    font-size: 13px;
+}
+
+.help-preview-caption .material-symbols-rounded {
+    font-size: 16px;
+}
+
 .help-cta {
     background: rgba(100, 180, 255, 0.06);
     border: 1px solid rgba(100, 180, 255, 0.15);
