@@ -281,8 +281,8 @@ class MineVisualizationApp {
                     // Reset background color to default
                     localStorage.removeItem('bgColor');
                     const picker = document.getElementById('bg-color-picker');
-                    if (picker) picker.value = '#1a1a2e';
-                    window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: '#1a1a2e' } }));
+                    if (picker) picker.value = '#3d3d3d';
+                    window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: '#3d3d3d' } }));
                 });
             }
 

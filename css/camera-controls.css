@@ -87,11 +87,27 @@
     letter-spacing: 0.5px;
 }
 
-/* Row 1: Rotation grid + Zoom column side by side */
+/* Column labels */
+.controls-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.controls-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+/* Row 1: Rotation grid + Pan grid + Zoom column side by side */
 .controls-row {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    gap: 6px;
+    align-items: flex-end;
 }
 
 .rotation-grid {
@@ -123,6 +139,26 @@
 }
 
 .rotation-grid .ctrl-btn[data-action="rotate-down"] {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.rotation-grid .ctrl-btn[data-action="pan-up"] {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.rotation-grid .ctrl-btn[data-action="pan-left"] {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.rotation-grid .ctrl-btn[data-action="pan-right"] {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.rotation-grid .ctrl-btn[data-action="pan-down"] {
     grid-column: 2;
     grid-row: 3;
 }

@@ -40,21 +40,41 @@ export class CameraControlsPanel {
                     <button class="camera-controls-toggle" title="Toggle panel">−</button>
                 </div>
                 <div class="camera-controls-body">
-                    <!-- Row 1: Rotation + Zoom -->
+                    <!-- Row 1: Rotation + Pan + Zoom -->
                     <div class="controls-row">
-                        <div class="rotation-grid">
-                            <button class="ctrl-btn" data-action="rotate-up" title="Rotate Up (W)">
-                                <span class="ctrl-icon">↑</span>
-                            </button>
-                            <button class="ctrl-btn" data-action="rotate-left" title="Rotate Left (A)">
-                                <span class="ctrl-icon">←</span>
-                            </button>
-                            <button class="ctrl-btn" data-action="rotate-right" title="Rotate Right (D)">
-                                <span class="ctrl-icon">→</span>
-                            </button>
-                            <button class="ctrl-btn" data-action="rotate-down" title="Rotate Down (S)">
-                                <span class="ctrl-icon">↓</span>
-                            </button>
+                        <div class="controls-col">
+                            <div class="controls-label">Rotate</div>
+                            <div class="rotation-grid">
+                                <button class="ctrl-btn" data-action="rotate-up" title="Rotate Up (W)">
+                                    <span class="ctrl-icon">↑</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="rotate-left" title="Rotate Left (A)">
+                                    <span class="ctrl-icon">←</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="rotate-right" title="Rotate Right (D)">
+                                    <span class="ctrl-icon">→</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="rotate-down" title="Rotate Down (S)">
+                                    <span class="ctrl-icon">↓</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="controls-col">
+                            <div class="controls-label">Pan</div>
+                            <div class="rotation-grid">
+                                <button class="ctrl-btn" data-action="pan-up" title="Pan Up (Shift+W)">
+                                    <span class="ctrl-icon">↑</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="pan-left" title="Pan Left (Shift+A)">
+                                    <span class="ctrl-icon">←</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="pan-right" title="Pan Right (Shift+D)">
+                                    <span class="ctrl-icon">→</span>
+                                </button>
+                                <button class="ctrl-btn" data-action="pan-down" title="Pan Down (Shift+S)">
+                                    <span class="ctrl-icon">↓</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="zoom-column">
                             <button class="ctrl-btn" data-action="zoom-in" title="Zoom In (+)">
@@ -147,8 +167,21 @@ export class CameraControlsPanel {
             }
 
             let handled = true;
+            const key = e.key.toLowerCase();
 
-            switch (e.key.toLowerCase()) {
+            // Shift+WASD = Pan
+            if (e.shiftKey) {
+                switch (key) {
+                    case 'w': case 'arrowup': this.handleAction('pan-up'); break;
+                    case 's': case 'arrowdown': this.handleAction('pan-down'); break;
+                    case 'a': case 'arrowleft': this.handleAction('pan-left'); break;
+                    case 'd': case 'arrowright': this.handleAction('pan-right'); break;
+                    default: handled = false;
+                }
+                if (handled) { e.preventDefault(); return; }
+            }
+
+            switch (key) {
                 // Rotation - WASD
                 case 'w':
                 case 'arrowup':
@@ -238,6 +271,18 @@ export class CameraControlsPanel {
             case 'zoom-out':
                 this.cameraController.zoom(-1);
                 break;
+            case 'pan-up':
+                this.cameraController.pan(0, 1);
+                break;
+            case 'pan-down':
+                this.cameraController.pan(0, -1);
+                break;
+            case 'pan-left':
+                this.cameraController.pan(-1, 0);
+                break;
+            case 'pan-right':
+                this.cameraController.pan(1, 0);
+                break;
             case 'view-isometric':
                 this.cameraController.setPresetView('isometric');
                 break;
@@ -255,8 +300,8 @@ export class CameraControlsPanel {
                 // Reset background color to default
                 localStorage.removeItem('bgColor');
                 const picker = document.getElementById('bg-color-picker');
-                if (picker) picker.value = '#1a1a2e';
-                window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: '#1a1a2e' } }));
+                if (picker) picker.value = '#3d3d3d';
+                window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: '#3d3d3d' } }));
                 break;
             case 'toggle-labels':
                 this.toggleLabels();
@@ -298,7 +343,7 @@ export class CameraControlsPanel {
     }
 
     isContinuousAction(action) {
-        return ['rotate-up', 'rotate-down', 'rotate-left', 'rotate-right', 'zoom-in', 'zoom-out'].includes(action);
+        return ['rotate-up', 'rotate-down', 'rotate-left', 'rotate-right', 'zoom-in', 'zoom-out', 'pan-up', 'pan-down', 'pan-left', 'pan-right'].includes(action);
     }
 
     toggleCollapse() {

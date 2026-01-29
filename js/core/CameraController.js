@@ -111,6 +111,28 @@ export class CameraController {
     }
 
     /**
+     * Pan camera (move camera and target together)
+     * @param {number} dx - horizontal direction (positive = right)
+     * @param {number} dy - vertical direction (positive = up)
+     */
+    pan(dx, dy) {
+        const offset = this.camera.position.clone().sub(this.controls.target);
+        const distance = offset.length();
+        const panSpeed = distance * 0.05;
+
+        // Get camera's local axes
+        const forward = offset.clone().normalize().negate();
+        const right = new THREE.Vector3().crossVectors(this.camera.up, forward).normalize();
+        const up = new THREE.Vector3().crossVectors(forward, right).normalize();
+
+        const delta = right.multiplyScalar(dx * panSpeed).add(up.multiplyScalar(dy * panSpeed));
+
+        this.camera.position.add(delta);
+        this.controls.target.add(delta);
+        this.controls.update();
+    }
+
+    /**
      * Set camera to a preset view
      * @param {string} view - 'top', 'front', 'side', 'isometric', 'site', 'structure'
      */

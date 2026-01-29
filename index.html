@@ -55,7 +55,7 @@
             </div>
             <button id="reset-camera" class="control-btn">Reset View</button>
             <div class="bg-color-picker-wrapper" title="Change background color">
-                <input type="color" id="bg-color-picker" class="bg-color-picker" value="#1a1a2e">
+                <input type="color" id="bg-color-picker" class="bg-color-picker" value="#3d3d3d">
                 <span class="bg-color-label">BG</span>
             </div>
             <button id="help-button" class="control-btn help-btn" title="Help (?)">
@@ -95,7 +95,7 @@
             if (savedBgColor) {
                 bgColorPicker.value = savedBgColor;
             } else {
-                bgColorPicker.value = '#1a1a2e';
+                bgColorPicker.value = '#3d3d3d';
             }
 
             bgColorPicker.addEventListener('input', function(e) {

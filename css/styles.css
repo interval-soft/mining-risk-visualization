@@ -2,7 +2,7 @@
 
 /* Theme variables - Dark mode (default) */
 :root, [data-theme="dark"] {
-    --bg-primary: #1a1a2e;
+    --bg-primary: #3d3d3d;
     --bg-secondary: #1e1e32;
     --bg-panel: #14141e;
     --text-primary: #ffffff;
