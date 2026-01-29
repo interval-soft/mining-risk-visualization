@@ -722,27 +722,13 @@ class MineVisualizationApp {
 
         if (structureCode && this.structureManager) {
             mesh = this.structureManager.getLevelMesh(structureCode, levelNumber);
-
-            // Also focus on the structure
-            this.focusOnStructure(structureCode);
         } else if (this.levelFactory) {
             mesh = this.levelFactory.getLevelMesh(levelNumber);
         }
 
-        if (mesh) {
-            // Focus camera on the level
-            this.cameraController.focusOn(mesh.position.clone());
-
-            // Briefly highlight the level (flash effect)
-            const originalEmissive = mesh.material.emissive.getHex();
-            mesh.material.emissive.setHex(0x444444);
-
-            setTimeout(() => {
-                mesh.material.emissive.setHex(originalEmissive);
-            }, 500);
-
-            // Show detail panel for this level
-            this.showLevelDetail(levelNumber, structureCode);
+        if (mesh && this.clickHandler) {
+            // Isolate the level (same as clicking it in 3D)
+            this.clickHandler.enterIsolation(mesh);
         }
     }
 
