@@ -63,7 +63,11 @@ export class FilterPanel {
                 </div>
             </div>
             <div class="filter-section">
-                <h3>Filter by Type</h3>
+                <div class="filter-type-header">
+                    <h3>Filter by Type</h3>
+                    <button class="filter-type-toggle-all" data-select="all">All</button>
+                    <button class="filter-type-toggle-all" data-select="none">None</button>
+                </div>
                 <div class="filter-type-buttons">
                     ${this.renderTypeButtons()}
                 </div>
@@ -169,6 +173,14 @@ export class FilterPanel {
             });
         });
 
+        // Select All / None buttons
+        this.element.querySelectorAll('.filter-type-toggle-all').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const selectAll = e.currentTarget.dataset.select === 'all';
+                this.setAllTypes(selectAll);
+            });
+        });
+
         // Structure selector
         if (this.structureSelect) {
             this.structureSelect.addEventListener('change', (e) => {
@@ -205,6 +217,19 @@ export class FilterPanel {
                 this.selectedStructure = focusedStructure;
             }
         }
+    }
+
+    setAllTypes(selectAll) {
+        const types = this.iconManager.getActivityTypes();
+        if (selectAll) {
+            this.activeTypes = new Set(types.map(t => t.icon));
+        } else {
+            this.activeTypes = new Set();
+        }
+        this.element.querySelectorAll('.filter-type-btn').forEach(btn => {
+            btn.classList.toggle('active', selectAll);
+        });
+        this.applyFilters();
     }
 
     toggleTypeFilter(icon, button) {

@@ -296,6 +296,33 @@ body {
     background: var(--filter-color);
 }
 
+/* Type filter header */
+.filter-type-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-type-header h3 {
+    flex: 1;
+}
+
+.filter-type-toggle-all {
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.filter-type-toggle-all:hover {
+    color: var(--text-primary);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
 /* Type filter buttons */
 .filter-type-buttons {
     display: flex;
