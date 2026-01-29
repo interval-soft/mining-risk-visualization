@@ -1099,11 +1099,11 @@ export class HelpPanel {
                     <div class="feature-grid">
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <span class="material-symbols-rounded">bolt</span>
+                                <span class="material-symbols-rounded">dns</span>
                             </div>
                             <div class="feature-info">
-                                <div class="feature-title">Vercel Serverless Functions</div>
-                                <div class="feature-desc">Node.js API routes deployed as serverless functions — handling alerts, AI inference, site data, and authentication with zero server management.</div>
+                                <div class="feature-title">Node.js Serverless API</div>
+                                <div class="feature-desc">API routes handling alerts, AI inference, site data, and authentication — deployable on any hosting platform or on-premise server.</div>
                             </div>
                         </div>
                         <div class="feature-card">
@@ -1112,7 +1112,7 @@ export class HelpPanel {
                             </div>
                             <div class="feature-info">
                                 <div class="feature-title">PostgreSQL</div>
-                                <div class="feature-desc">Relational database (via pg driver) for persistent storage of alerts, AI insights, baselines, and historical timeline data.</div>
+                                <div class="feature-desc">Relational database for persistent storage of alerts, AI insights, baselines, and historical timeline data.</div>
                             </div>
                         </div>
                         <div class="feature-card">
@@ -1120,11 +1120,39 @@ export class HelpPanel {
                                 <span class="material-symbols-rounded">psychology</span>
                             </div>
                             <div class="feature-info">
-                                <div class="feature-title">AI Engine</div>
-                                <div class="feature-desc">Server-side AI module for risk analysis, predictive insights, and natural language query processing — accessible via dedicated API endpoints.</div>
+                                <div class="feature-title">AI Engine (OpenRouter → Local)</div>
+                                <div class="feature-desc">Currently using OpenRouter for AI inference during development. In production, a fully self-contained local AI will be deployed for security and data privacy.</div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>
+                        <span class="material-symbols-rounded">security</span>
+                        Production AI Architecture
+                    </h3>
+                    <p class="help-prose">
+                        For production deployment, the AI system will run entirely on-premise using a
+                        self-contained local architecture. This ensures that sensitive operational data
+                        never leaves the site network — a critical requirement for mining operations
+                        where security and privacy are paramount.
+                    </p>
+                    <div class="help-preview-link" style="cursor:default;">
+                        <img src="assets/local-ai-architecture.png" alt="Local AI architecture diagram" class="help-preview-img" />
+                        <span class="help-preview-caption">
+                            <span class="material-symbols-rounded">schema</span>
+                            Self-contained local AI architecture for production deployment
+                        </span>
+                    </div>
+                    <p class="help-prose">
+                        The architecture runs on a Mac Studio with Docker containers, featuring Ollama
+                        for local AI model inference, AI Agents with RAG (Retrieval-Augmented Generation)
+                        for context-aware responses, N8N for workflow automation, and OpenWebUI as the
+                        management interface. VPN tunnels provide secure remote access, while cloud sync
+                        remains optional for updates and backups. All operations are governed by access
+                        controls, audit logs, and a monitoring dashboard.
+                    </p>
                 </div>
 
                 <div class="help-section">
