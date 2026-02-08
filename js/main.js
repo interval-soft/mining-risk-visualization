@@ -619,6 +619,13 @@ class MineVisualizationApp {
         // Multi-structure update
         if (state.structures && this.structureManager) {
             this.structureManager.updateFromState(state.structures);
+
+            // Update labels for each structure's levels
+            state.structures.forEach(structure => {
+                structure.levels.forEach(levelData => {
+                    this.labelRenderer.updateLevelLabel(levelData, structure.code);
+                });
+            });
         }
 
         // Legacy single-structure update

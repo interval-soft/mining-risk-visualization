@@ -125,11 +125,20 @@ export class LabelRenderer {
     createLevelLabel(levelData, levelMesh, structureCode = null) {
         const div = document.createElement('div');
         div.className = 'level-label';
+
+        // Build risk score HTML if available at creation time
+        let riskHtml = '';
+        if (levelData.riskScore !== undefined) {
+            const riskBand = levelData.riskBand || 'low';
+            riskHtml = `<div class="level-risk-score risk-${riskBand}">Risk: ${levelData.riskScore}</div>`;
+        }
+
         div.innerHTML = `
             <div class="level-header">
                 <span class="level-number">L${levelData.level}</span>
                 <span class="level-depth">${CONFIG.DEPTHS[levelData.level]}</span>
             </div>
+            ${riskHtml}
         `;
 
         // Enable pointer events (CSS2DRenderer container has pointerEvents: none)
@@ -169,8 +178,15 @@ export class LabelRenderer {
      * Update a level's label with new data.
      * @param {Object} levelData - Level data with name, riskScore, etc.
      */
-    updateLevelLabel(levelData) {
-        const label = this.labels.get(levelData.level);
+    updateLevelLabel(levelData, structureCode = null) {
+        // Support both simple key (level number) and composite key (structureCode:level)
+        let label = null;
+        if (structureCode) {
+            label = this.labels.get(`${structureCode}:${levelData.level}`);
+        }
+        if (!label) {
+            label = this.labels.get(levelData.level);
+        }
         if (!label) return;
 
         const div = label.element;

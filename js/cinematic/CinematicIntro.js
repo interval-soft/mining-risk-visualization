@@ -144,23 +144,37 @@ export class CinematicIntro {
         const titleMain = overlay?.querySelector('.cinematic-title-main');
         const titleSub = overlay?.querySelector('.cinematic-title-sub');
         const titleSite = overlay?.querySelector('.cinematic-title-site');
+        const clientLogo = overlay?.querySelector('.cinematic-logo-client');
+        const credits = overlay?.querySelector('.cinematic-credits');
         const skipBtn = document.getElementById('cinematic-skip');
 
-        // ── Phase 1: Title fade in (0 – 1.5s) ──
+        // ── Phase 1: Title card fade in (0 – 1.8s) ──
+        // Client logo fades in first
+        if (clientLogo) {
+            tl.to(clientLogo, {
+                opacity: 1, duration: 1.0, ease: 'power2.out'
+            }, 0.1);
+        }
         if (titleMain) {
             tl.to(titleMain, {
                 opacity: 1, duration: 1.2, ease: 'power2.out'
-            }, 0.2);
+            }, 0.3);
         }
         if (titleSub) {
             tl.to(titleSub, {
                 opacity: 1, duration: 1.0, ease: 'power2.out'
-            }, 0.6);
+            }, 0.7);
         }
         if (titleSite) {
             tl.to(titleSite, {
                 opacity: 1, duration: 0.8, ease: 'power2.out'
             }, 1.0);
+        }
+        // Credits (RevDev) fade in last
+        if (credits) {
+            tl.to(credits, {
+                opacity: 1, duration: 0.8, ease: 'power2.out'
+            }, 1.2);
         }
         // Show skip button
         if (skipBtn) {
@@ -169,11 +183,11 @@ export class CinematicIntro {
             }, 1.0);
         }
 
-        // ── Phase 2: Title hold (1.5 – 3.5s) ──
+        // ── Phase 2: Title hold (1.8 – 3.5s) ──
         // (nothing — titles remain visible)
 
         // ── Phase 3: Title fade out (3.5 – 4.5s) ──
-        const titleEls = [titleMain, titleSub, titleSite].filter(Boolean);
+        const titleEls = [clientLogo, titleMain, titleSub, titleSite, credits].filter(Boolean);
         titleEls.forEach((el) => {
             tl.to(el, { opacity: 0, duration: 0.8, ease: 'power2.in' }, 3.5);
         });

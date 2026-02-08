@@ -49,6 +49,37 @@
     opacity: 0;
 }
 
+/* ─── Logos ────────────────────────────────────── */
+.cinematic-logo-client {
+    height: 60px;
+    margin-bottom: 40px;
+    opacity: 0;
+    object-fit: contain;
+}
+
+.cinematic-credits {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 48px;
+    gap: 16px;
+    opacity: 0;
+}
+
+.cinematic-credits-text {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 2px;
+}
+
+.cinematic-logo-revdev {
+    height: 36px;
+    opacity: 0.5;
+    object-fit: contain;
+}
+
 /* ─── Skip button ─────────────────────────────── */
 #cinematic-skip {
     position: fixed;
@@ -132,6 +163,10 @@ body.cinematic-active #query-container {
 
 /* ─── Responsive ──────────────────────────────── */
 @media (max-width: 768px) {
+    .cinematic-logo-client {
+        height: 40px;
+        margin-bottom: 24px;
+    }
     .cinematic-title-main {
         font-size: 36px;
         letter-spacing: 3px;
@@ -141,5 +176,11 @@ body.cinematic-active #query-container {
     }
     .cinematic-title-site {
         font-size: 13px;
+    }
+    .cinematic-credits {
+        margin-top: 32px;
+    }
+    .cinematic-logo-revdev {
+        height: 28px;
     }
 }
