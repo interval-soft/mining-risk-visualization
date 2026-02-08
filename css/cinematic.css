@@ -1,0 +1,145 @@
+/* css/cinematic.css — Cinematic opening sequence styles */
+
+/* ─── Overlay ─────────────────────────────────── */
+#cinematic-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+#cinematic-overlay.hidden {
+    display: none;
+}
+
+/* ─── Title card ──────────────────────────────── */
+.cinematic-title-main {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 64px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    opacity: 0;
+    margin: 0;
+}
+
+.cinematic-title-sub {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 22px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 3px;
+    margin-top: 12px;
+    opacity: 0;
+}
+
+.cinematic-title-site {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+    margin-top: 24px;
+    opacity: 0;
+}
+
+/* ─── Skip button ─────────────────────────────── */
+#cinematic-skip {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 10001;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    opacity: 0;
+}
+
+#cinematic-skip:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ─── UI panel hidden states during cinematic ─── */
+body.cinematic-active #top-bar {
+    opacity: 0;
+    transform: translateY(-60px);
+}
+
+body.cinematic-active #left-sidebar {
+    opacity: 0;
+    transform: translateX(-80px);
+}
+
+body.cinematic-active #right-sidebar {
+    opacity: 0;
+    transform: translateX(80px);
+}
+
+body.cinematic-active #detail-container {
+    opacity: 0;
+    transform: translateX(80px);
+}
+
+body.cinematic-active #timeline-container {
+    opacity: 0;
+    transform: translateY(60px);
+}
+
+body.cinematic-active #branding {
+    opacity: 0;
+    transform: translateY(40px);
+}
+
+body.cinematic-active #client-logo {
+    opacity: 0;
+    transform: translateY(-40px);
+}
+
+body.cinematic-active #query-container {
+    opacity: 0;
+    transform: translateY(60px);
+}
+
+/* Ensure smooth transitions for UI panels */
+body.cinematic-active #top-bar,
+body.cinematic-active #left-sidebar,
+body.cinematic-active #right-sidebar,
+body.cinematic-active #detail-container,
+body.cinematic-active #timeline-container,
+body.cinematic-active #branding,
+body.cinematic-active #client-logo,
+body.cinematic-active #query-container {
+    pointer-events: none;
+}
+
+/* ─── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+    .cinematic-title-main {
+        font-size: 36px;
+        letter-spacing: 3px;
+    }
+    .cinematic-title-sub {
+        font-size: 16px;
+    }
+    .cinematic-title-site {
+        font-size: 13px;
+    }
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin - Mining Risk Visualization</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/timeline.css">
+    <link rel="stylesheet" href="css/alerts.css">
+    <link rel="stylesheet" href="css/detail.css">
+    <link rel="stylesheet" href="css/ai.css">
+    <link rel="stylesheet" href="css/camera-controls.css">
+    <link rel="stylesheet" href="css/demo.css">
+    <link rel="stylesheet" href="css/help.css">
+    <link rel="stylesheet" href="css/cinematic.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Cinematic overlay (V2 addition) -->
+        <div id="cinematic-overlay">
+            <h1 class="cinematic-title-main">Digital Twin</h1>
+            <p class="cinematic-title-sub">Mining Risk Visualization</p>
+            <p class="cinematic-title-site">Newman Iron Operations</p>
+        </div>
+        <button id="cinematic-skip">Skip Intro &nbsp;[ESC]</button>
+
+        <div id="canvas-container"></div>
+
+        <!-- Client Logo (top-left) -->
+        <div id="client-logo">
+            <img src="assets/client-logo.png" alt="Client Logo">
+        </div>
+
+        <!-- Branding (bottom-right) -->
+        <div id="branding">
+            <div id="branding-text">
+                Digital Twin<br>
+                Mining Risk Visualization Demo<br>
+                <span>prepared by RevDev Asia</span>
+            </div>
+            <img src="assets/revdev-logo.png" alt="RevDev" id="revdev-logo">
+        </div>
+
+        <!-- Left sidebar: Filters + Alerts -->
+        <div id="left-sidebar" class="sidebar">
+            <div id="filter-panel"></div>
+            <div id="alerts-container"></div>
+        </div>
+
+        <!-- Top bar with mode indicator and controls -->
+        <div id="top-bar">
+            <div id="mode-indicator" class="mode-indicator live">LIVE</div>
+            <button id="demo-mode-toggle" class="demo-mode-toggle" title="Toggle Demo Mode (Ctrl+Shift+D)">
+                <span class="demo-toggle-icon">&#127916;</span>
+                <span class="demo-toggle-label">Demo</span>
+            </button>
+            <div id="ai-status" class="ai-status-indicator">
+                <span class="ai-badge">AI</span>
+                <span class="ai-status-text">Checking...</span>
+            </div>
+            <button id="reset-camera" class="control-btn">Reset View</button>
+            <div class="bg-color-picker-wrapper" title="Change background color">
+                <input type="color" id="bg-color-picker" class="bg-color-picker" value="#3d3d3d">
+                <span class="bg-color-label">BG</span>
+            </div>
+            <button id="help-button" class="control-btn help-btn" title="Help (?)">
+                <span class="material-symbols-rounded">help</span>
+            </button>
+        </div>
+
+        <!-- Right sidebar: Detail Panel -->
+        <div id="detail-container"></div>
+
+        <!-- Right sidebar: AI Insights + Camera Controls -->
+        <div id="right-sidebar">
+            <div id="ai-insights-container"></div>
+            <div id="camera-controls-container"></div>
+        </div>
+
+        <!-- Timeline at bottom -->
+        <div id="timeline-container"></div>
+
+        <!-- AI Query Interface -->
+        <div id="query-container" class="query-panel"></div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <script src="js/env.js"></script>
+    <script>
+        // Dark theme only
+        document.documentElement.setAttribute('data-theme', 'dark');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Background color picker
+            const bgColorPicker = document.getElementById('bg-color-picker');
+
+            const savedBgColor = localStorage.getItem('bgColor');
+            if (savedBgColor) {
+                bgColorPicker.value = savedBgColor;
+            } else {
+                bgColorPicker.value = '#3d3d3d';
+            }
+
+            bgColorPicker.addEventListener('input', function(e) {
+                const color = e.target.value;
+                localStorage.setItem('bgColor', color);
+                window.dispatchEvent(new CustomEvent('bgcolorchange', { detail: { color: color } }));
+            });
+        });
+    </script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+            "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"
+        }
+    }
+    </script>
+    <script type="module" src="js/main-v2.js?v=20260208"></script>
+</body>
+</html>
