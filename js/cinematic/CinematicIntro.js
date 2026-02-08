@@ -327,8 +327,7 @@ export class CinematicIntro {
                 opacity: 1,
                 x: 0, y: 0,
                 duration: 0.7,
-                ease: 'power3.out',
-                clearProps: 'transform,opacity'  // remove inline styles when done
+                ease: 'power3.out'
             }, 20.5 + i * 0.15);
         });
 

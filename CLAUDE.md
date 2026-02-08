@@ -30,6 +30,9 @@ Three.js and GSAP loaded via CDN import maps in index.html, NOT npm.
 - `js/main.js` - App entry, MineVisualizationApp class
 - `js/main-v2.js` - Cinematic variant, MineVisualizationAppV2 class
 - `js/cinematic/CinematicIntro.js` - GSAP-driven 27s opening sequence
+- `js/geometry/StructureManager.js` - Multi-structure orchestrator (creates per-structure groups)
+- `js/geometry/StructuralElements.js` - Shafts, ramps, connectors between levels
+- `js/geometry/LevelFactory.js` - Level mesh creation, pillars, risk coloring
 - `js/core/StateManager.js` - Central state, event-driven
 - `js/core/SceneManager.js` - Three.js scene setup
 - `js/config.js` - All constants (geometry, camera, colors)
@@ -86,6 +89,10 @@ Frontend has no test suite - manual testing only.
 - API endpoints exist in TWO places: api/ (Vercel) and
   backend/src/api/ (Express). Keep them in sync.
 - Node >= 20 required for backend.
+- Level meshes use ExtrudeGeometry + rotateX(-π/2). After rotation, geometry
+  spans local Y from 0 to LEVEL_HEIGHT (not centered at origin). When
+  positioning objects relative to levels, use `position.y` as the bottom face
+  and `position.y + LEVEL_HEIGHT` as the top face.
 
 ## Project Phases
 
