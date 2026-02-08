@@ -16,16 +16,20 @@ Backend:
 
 Vanilla JS + Three.js 3D visualization with dual API backends:
 - `index.html` → `js/main.js` entry point (ES modules, no bundler)
+- `index-v2.html` → `js/main-v2.js` cinematic intro variant (same app + opening sequence)
 - `api/` → Vercel serverless functions (production API)
 - `backend/` → TypeScript Express server (local dev API)
 - `css/` → Modular stylesheets (one per UI panel)
 - `data/mine-data.json` → Static fallback data
+- `js/` subdirectories: core/, geometry/, effects/, objects/, interaction/, ui/, demo/, cinematic/
 
 Three.js and GSAP loaded via CDN import maps in index.html, NOT npm.
 
 ## Key Files
 
 - `js/main.js` - App entry, MineVisualizationApp class
+- `js/main-v2.js` - Cinematic variant, MineVisualizationAppV2 class
+- `js/cinematic/CinematicIntro.js` - GSAP-driven 27s opening sequence
 - `js/core/StateManager.js` - Central state, event-driven
 - `js/core/SceneManager.js` - Three.js scene setup
 - `js/config.js` - All constants (geometry, camera, colors)
@@ -63,8 +67,13 @@ Frontend has no test suite - manual testing only.
 
 ## Gotchas
 
+- Production Vercel API returns multi-structure data (3 structures).
+  Local backend/static JSON returns single-structure. Code paths differ
+  (structureManager vs levelFactory) — test both modes.
+- `index-v2.html` supports `?skip-intro=true` to bypass cinematic.
 - `index.html` loads `js/main.js?v=YYYYMMDD`. Bump the `?v=` cache-buster
   query param when deploying frontend changes, or changes may not appear.
+  Same applies to `index-v2.html` loading `js/main-v2.js?v=YYYYMMDD`.
 - Fonts (Roboto Mono) and icons (Material Symbols Rounded) load from
   Google Fonts CDN. No local fallback.
 - Frontend has NO build step. Don't add webpack/vite to root.
