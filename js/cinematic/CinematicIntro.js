@@ -65,8 +65,6 @@ export class CinematicIntro {
         const {
             sceneManager,
             cameraController,
-            levelFactory,
-            structuralElements,
             iconManager,
             labelRenderer,
             riskEffects
@@ -107,15 +105,13 @@ export class CinematicIntro {
         });
 
         // --- Structural elements (shafts, ramps): hide ---
-        if (structuralElements) {
-            structuralElements.getAllElements().forEach((el) => {
-                el.visible = false;
-                if (el.material) {
-                    el.material.transparent = true;
-                    el.material.opacity = 0;
-                }
-            });
-        }
+        this._getStructuralElements().forEach((el) => {
+            el.visible = false;
+            if (el.material) {
+                el.material.transparent = true;
+                el.material.opacity = 0;
+            }
+        });
 
         // --- Icons (sprites): scale to 0, transparent ---
         iconManager.getAllSprites().forEach((sprite) => {
@@ -225,19 +221,17 @@ export class CinematicIntro {
         });
 
         // ── Phase 7: Ramps / structural elements fade in (9 – 11s) ──
-        if (this.refs.structuralElements) {
-            const elements = this.refs.structuralElements.getAllElements();
-            elements.forEach((el, i) => {
-                tl.call(() => { el.visible = true; }, [], 9.0 + i * 0.15);
-                if (el.material) {
-                    tl.to(el.material, {
-                        opacity: 0.5,
-                        duration: 1.0,
-                        ease: 'power2.out'
-                    }, 9.0 + i * 0.15);
-                }
-            });
-        }
+        const structElements = this._getStructuralElements();
+        structElements.forEach((el, i) => {
+            tl.call(() => { el.visible = true; }, [], 9.0 + i * 0.15);
+            if (el.material) {
+                tl.to(el.material, {
+                    opacity: 0.5,
+                    duration: 1.0,
+                    ease: 'power2.out'
+                }, 9.0 + i * 0.15);
+            }
+        });
 
         // ── Phase 8: Icons pop in (11 – 14s) ──
         const sprites = this.refs.iconManager.getAllSprites();
@@ -401,14 +395,12 @@ export class CinematicIntro {
         this._getPillars().forEach((p) => p.scale.set(1, 1, 1));
 
         // Ensure structural elements visible
-        if (this.refs.structuralElements) {
-            this.refs.structuralElements.getAllElements().forEach((el) => {
-                el.visible = true;
-                if (el.material) {
-                    el.material.opacity = 0.5;
-                }
-            });
-        }
+        this._getStructuralElements().forEach((el) => {
+            el.visible = true;
+            if (el.material) {
+                el.material.opacity = 0.5;
+            }
+        });
 
         // Ensure icons are visible at correct scale
         this.refs.iconManager.getAllSprites().forEach((sprite) => {
@@ -499,6 +491,26 @@ export class CinematicIntro {
             return levelFactory.getAllLevels();
         }
         return [];
+    }
+
+    _getStructuralElements() {
+        const { structuralElements, structureManager } = this.refs;
+
+        let elements = [];
+
+        if (structureManager && typeof structureManager.getAllStructures === 'function') {
+            // Multi-structure: each structure has its own StructuralElements
+            const structures = structureManager.getAllStructures();
+            structures.forEach((s) => {
+                if (s.structuralElements) {
+                    elements.push(...s.structuralElements.getAllElements());
+                }
+            });
+        } else if (structuralElements) {
+            elements = structuralElements.getAllElements();
+        }
+
+        return elements;
     }
 
     _getPillars() {

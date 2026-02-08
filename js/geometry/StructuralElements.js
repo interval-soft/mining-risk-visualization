@@ -147,8 +147,10 @@ export class StructuralElements {
      * Create a ramp between two adjacent levels.
      */
     createRamp(upperLevel, lowerLevel, index) {
-        const upperY = upperLevel.position.y - CONFIG.LEVEL_HEIGHT / 2;
-        const lowerY = lowerLevel.position.y + CONFIG.LEVEL_HEIGHT / 2;
+        // Level geometry (ExtrudeGeometry + rotateX) spans local Y from 0 to LEVEL_HEIGHT,
+        // NOT centered at ±LEVEL_HEIGHT/2. Connect ramp to the flat faces.
+        const upperY = upperLevel.position.y;                    // flat bottom face of upper level
+        const lowerY = lowerLevel.position.y + CONFIG.LEVEL_HEIGHT; // flat top face of lower level
         const verticalDrop = upperY - lowerY;
 
         // Ramp dimensions
