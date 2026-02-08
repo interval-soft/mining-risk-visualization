@@ -27,6 +27,7 @@ import { QueryInterface } from './ui/QueryInterface.js';
 import { CameraControlsPanel } from './ui/CameraControlsPanel.js';
 import { HelpPanel } from './ui/HelpPanel.js';
 import { DemoMode } from './demo/index.js';
+import { CinematicIntro } from './cinematic/CinematicIntro.js';
 
 class MineVisualizationApp {
     constructor() {
@@ -300,6 +301,27 @@ class MineVisualizationApp {
                 this.riskEffects.update(deltaTime || 0.016);
             });
             this.animationLoop.start();
+
+            // ─── Cinematic intro ──────────────────────────────────
+            const skipIntro = new URLSearchParams(window.location.search).get('skip-intro') === 'true';
+
+            if (!skipIntro && document.getElementById('cinematic-overlay')) {
+                document.body.classList.add('cinematic-active');
+                this.cinematicIntro = new CinematicIntro({
+                    sceneManager: this.sceneManager,
+                    cameraController: this.cameraController,
+                    levelFactory: this.levelFactory || null,
+                    structureManager: this.structureManager || null,
+                    structuralElements: this.structuralElements || null,
+                    iconManager: this.iconManager,
+                    labelRenderer: this.labelRenderer,
+                    riskEffects: this.riskEffects,
+                    materialSystem: this.materialSystem,
+                    stateManager: this.stateManager
+                });
+                await this.cinematicIntro.play();
+            }
+            // ─── End cinematic intro ──────────────────────────────
 
             // Handle resize
             window.addEventListener('resize', () => this.onResize());

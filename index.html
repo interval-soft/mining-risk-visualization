@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/camera-controls.css">
     <link rel="stylesheet" href="css/demo.css">
     <link rel="stylesheet" href="css/help.css">
+    <link rel="stylesheet" href="css/cinematic.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -19,6 +20,19 @@
 </head>
 <body>
     <div id="app">
+        <!-- Cinematic overlay -->
+        <div id="cinematic-overlay">
+            <img src="assets/client-logo.png" alt="Worley" class="cinematic-logo-client">
+            <h1 class="cinematic-title-main">Digital Twin</h1>
+            <p class="cinematic-title-sub">Mining Risk Visualization</p>
+            <p class="cinematic-title-site">Newman Iron Operations</p>
+            <div class="cinematic-credits">
+                <span class="cinematic-credits-text">prepared by RevDev Asia</span>
+                <img src="assets/revdev-logo.png" alt="RevDev Asia" class="cinematic-logo-revdev">
+            </div>
+        </div>
+        <button id="cinematic-skip">Skip Intro &nbsp;[ESC]</button>
+
         <div id="canvas-container"></div>
 
         <!-- Client Logo (top-left) -->
@@ -114,6 +128,6 @@
         }
     }
     </script>
-    <script type="module" src="js/main.js?v=20260208b"></script>
+    <script type="module" src="js/main.js?v=20260208c"></script>
 </body>
 </html>
