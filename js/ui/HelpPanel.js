@@ -52,10 +52,12 @@ export class HelpPanel {
                         <span class="material-symbols-rounded">movie</span>
                         <span>Demo</span>
                     </button>
+                    <!-- Hidden: Tech Stack tab
                     <button class="help-tab" data-tab="tech-stack">
                         <span class="material-symbols-rounded">code</span>
                         <span>Tech Stack</span>
                     </button>
+                    -->
                     <button class="help-tab" data-tab="whats-next">
                         <span class="material-symbols-rounded">rocket</span>
                         <span>What's Next</span>
@@ -68,7 +70,7 @@ export class HelpPanel {
                     ${this.getPanelsContent()}
                     ${this.get3DContent()}
                     ${this.getDemoContent()}
-                    ${this.getTechStackContent()}
+                    ${ /* Hidden: Tech Stack */ '' /* this.getTechStackContent() */}
                     ${this.getWhatsNextContent()}
                 </div>
 
