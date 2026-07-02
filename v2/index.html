@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2316181b'/%3E%3Cpath d='M16 7 L26 25 L16 21 L6 25 Z' fill='%23c8cfd6'/%3E%3C/svg%3E">
     <title>Oyu Tolgoi — Operations Console</title>
 
     <!-- Fonts & icons -->
@@ -27,7 +27,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="/v2/css/main.css?v=20260702">
+    <link rel="stylesheet" href="/v2/css/main.css?v=20260702b">
 </head>
 <body>
     <div id="app">
@@ -65,6 +65,10 @@
         <!-- Map canvas -->
         <main id="map-container">
             <div id="map"></div>
+            <div id="map-veil">
+                <span class="veil-brand">OT OPS</span>
+                <span class="veil-sub">OYU TOLGOI · ÖMNÖGOVI · INITIALISING</span>
+            </div>
             <div class="map-toolbar">
                 <button id="btn-terrain" class="map-btn">
                     <i class="ph-duotone ph-mountains"></i>3D terrain
@@ -107,6 +111,11 @@
                     <div id="ask-answer-body"></div>
                     <div id="ask-answer-meta"></div>
                 </div>
+                <div id="ask-chips">
+                    <button class="ask-chip" data-q="Where is HT-103 right now?">Where is HT-103?</button>
+                    <button class="ask-chip" data-q="Which units are not operating right now, and why?">Units not operating?</button>
+                    <button class="ask-chip" data-q="Summarise the current site status for a shift handover.">Shift handover summary</button>
+                </div>
                 <form id="ask-form" autocomplete="off">
                     <i class="ph-duotone ph-sparkle"></i>
                     <input id="ask-input" type="text" maxlength="300"
@@ -126,6 +135,6 @@
         </footer>
     </div>
 
-    <script type="module" src="/v2/js/main.js?v=20260702"></script>
+    <script type="module" src="/v2/js/main.js?v=20260702b"></script>
 </body>
 </html>

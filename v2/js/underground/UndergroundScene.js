@@ -24,11 +24,11 @@ function toLocal([lng, lat]) {
 /** Surveyed + approximated shaft collars (3 & 4 cluster near #2, unmapped in OSM).
  *  Only #1/#2/#5 get labels — the cluster would collide at overview distance. */
 const SHAFTS = [
-    { name: 'Shaft #1', lngLat: [106.8558, 43.0342], depth: 1385, dia: 6.7, label: true },
-    { name: 'Shaft #2', lngLat: [106.8458, 43.0380], depth: 1284, dia: 10, label: true },
+    { name: 'Shaft #1', lngLat: [106.8558, 43.0342], depth: 1385, dia: 6.7, label: true, labelDy: 80 },
+    { name: 'Shaft #2', lngLat: [106.8458, 43.0380], depth: 1284, dia: 10, label: true, labelDy: 170 },
     { name: 'Shaft #3', lngLat: [106.8447, 43.0372], depth: 1148, dia: 10 },
     { name: 'Shaft #4', lngLat: [106.8468, 43.0390], depth: 1209, dia: 11 },
-    { name: 'Shaft #5', lngLat: [106.8472, 43.0357], depth: 1178, dia: 6.7, label: true }
+    { name: 'Shaft #5', lngLat: [106.8472, 43.0357], depth: 1178, dia: 6.7, label: true, labelDy: 40 }
 ];
 
 const LEVELS = [
@@ -144,7 +144,7 @@ export class UndergroundScene {
             );
             head.position.set(x, 22, z);
             this.scene.add(head);
-            if (s.label) this._label(`${s.name} · ${s.depth} m`, [x, 80, z]);
+            if (s.label) this._label(`${s.name} · ${s.depth} m`, [x, s.labelDy ?? 80, z]);
         }
     }
 
@@ -217,7 +217,7 @@ export class UndergroundScene {
         this.scene.add(group);
         this.caveGroup = group;
 
-        this._label('EXTRACTION LEVEL — 2,231 DRAWPOINTS · 52 DRIFTS', [CX, -1240, CZ], 'ug-label-title');
+        this._label('EXTRACTION — 2,231 DRAWPOINTS · 52 DRIFTS', [CX, -1210, CZ + 320], 'ug-label-title');
     }
 
     /** Conveyor decline: haulage level → surface (13.2 km total, shown schematically). */

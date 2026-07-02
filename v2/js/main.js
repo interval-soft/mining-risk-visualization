@@ -120,7 +120,7 @@ class OperationsConsole {
             row.innerHTML = `
                 <i class="ph-duotone ${asset.icon}"></i>
                 <span class="asset-id">${asset.id}</span>
-                <span class="asset-name">${asset.name}</span>
+                <span class="asset-name" title="${asset.name}">${asset.name}</span>
                 <span class="status-dot status-none" title="No telemetry yet"></span>`;
             row.addEventListener('click', () => this.selectAsset(asset));
             rail.appendChild(row);
@@ -184,7 +184,7 @@ class OperationsConsole {
             row.innerHTML = `
                 <i class="ph-duotone ${unit.type === 'haul' ? 'ph-truck' : unit.type === 'bus' ? 'ph-van' : unit.type === 'lhd' ? 'ph-stack' : 'ph-truck-trailer'}"></i>
                 <span class="asset-id">${unit.id}</span>
-                <span class="asset-name fleet-phase">${unit.phase}</span>
+                <span class="asset-name fleet-phase" title="${unit.model}">${unit.phase}</span>
                 <span class="status-dot status-${unit.status}"></span>`;
             row.addEventListener('click', () => {
                 if (unit.underground) { this.enterUnderground(); this.selectUnit(unit.id, { flyTo: false }); }
@@ -233,7 +233,7 @@ class OperationsConsole {
             <div class="detail-row"><span>Phase</span><span data-live="phase">${unit.phase}</span></div>
             <div class="detail-row"><span>Speed</span><span data-live="speed">${unit.speedKmh} km/h</span></div>
             <div class="detail-row"><span>Payload</span><span data-live="payload">${unit.payloadT} t</span></div>
-            <div class="detail-row"><span>Route progress</span><span data-live="progress">${Math.round(unit.distAlongM / unit.routeLengthM * 100)}%</span></div>`;
+            <div class="detail-row"><span>${unit.type === 'lhd' ? 'Cycle progress' : 'Route progress'}</span><span data-live="progress">${Math.round(unit.distAlongM / unit.routeLengthM * 100)}%</span></div>`;
         panel.classList.add('open');
         panel.querySelector('.detail-close').addEventListener('click', () => {
             panel.classList.remove('open');
@@ -355,6 +355,13 @@ class OperationsConsole {
             answerBox.hidden = true;
         });
 
+        // Suggested questions — the built-in demo script
+        document.querySelectorAll('.ask-chip').forEach(chip =>
+            chip.addEventListener('click', () => {
+                input.value = chip.dataset.q;
+                form.requestSubmit();
+            }));
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const query = input.value.trim();
@@ -373,7 +380,10 @@ class OperationsConsole {
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                body.textContent = data.answer;
+                // minimal safe rendering: escape HTML, then **bold** only
+                const escaped = data.answer
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                body.innerHTML = escaped.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
                 meta.textContent = `${data.model || 'AI'} · ${((data.latencyMs || 0) / 1000).toFixed(1)}s`;
             } catch (err) {
                 body.textContent = 'AI unavailable. The query API is a serverless function — '
@@ -401,7 +411,7 @@ class OperationsConsole {
         // Lazy-load Three.js + scene on first entry only
         if (!this.underground) {
             try {
-                const { UndergroundScene } = await import('./underground/UndergroundScene.js?v=20260702');
+                const { UndergroundScene } = await import('./underground/UndergroundScene.js?v=20260702b');
                 this.underground = new UndergroundScene(document.getElementById('underground-canvas'));
             } catch (err) {
                 console.error('Underground scene failed to load:', err);

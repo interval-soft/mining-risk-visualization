@@ -17,11 +17,15 @@ export class MapManager {
         this.onFeatureClick = onFeatureClick;
         this.terrainEnabled = false;
 
+        // Sober intro: single fly-in from a country-scale view (v1 convention:
+        // ?skip-intro=true bypasses it).
+        const skipIntro = new URLSearchParams(location.search).has('skip-intro');
+
         this.map = new maplibregl.Map({
             container: containerId,
-            center: SITE.center,
-            zoom: SITE.defaultZoom,
-            minZoom: SITE.minZoom,
+            center: skipIntro ? SITE.center : [103.5, 46.5],
+            zoom: skipIntro ? SITE.defaultZoom : 4.2,
+            minZoom: 3,
             maxZoom: SITE.maxZoom,
             pitch: 0,
             bearing: 0,
@@ -43,7 +47,20 @@ export class MapManager {
         this.map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
         this.map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-right');
 
-        this.map.on('load', () => this._addSiteLayers());
+        this.map.on('load', () => {
+            this._addSiteLayers();
+            document.getElementById('map-veil')?.classList.add('lifted');
+            if (!skipIntro) {
+                this.map.flyTo({
+                    center: SITE.center,
+                    zoom: SITE.defaultZoom,
+                    duration: 3500,
+                    essential: true
+                });
+            }
+            // restore the operational zoom floor once the intro has landed
+            setTimeout(() => this.map.setMinZoom(SITE.minZoom), skipIntro ? 0 : 3600);
+        });
     }
 
     _addSiteLayers() {
