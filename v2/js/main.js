@@ -411,7 +411,7 @@ class OperationsConsole {
         // Lazy-load Three.js + scene on first entry only
         if (!this.underground) {
             try {
-                const { UndergroundScene } = await import('./underground/UndergroundScene.js?v=20260702b');
+                const { UndergroundScene } = await import('./underground/UndergroundScene.js?v=20260703');
                 this.underground = new UndergroundScene(document.getElementById('underground-canvas'));
             } catch (err) {
                 console.error('Underground scene failed to load:', err);

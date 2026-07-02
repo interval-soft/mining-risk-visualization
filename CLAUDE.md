@@ -91,6 +91,25 @@ Frontend has no test suite - manual testing only.
   positioning objects relative to levels, use `position.y` as the bottom face
   and `position.y + LEVEL_HEIGHT` as the top face.
 
+## V2 — Oyu Tolgoi Operations Console (/v2/)
+
+Standalone page, POC for Worley. Does NOT touch v1 code paths.
+- `v2/` static files: MapLibre v5 + deck.gl v9 (UMD script tags) + Three.js
+  (import map) — no build step, same as v1.
+- TWIN deterministic simulators: `v2/js/sim/FleetSimulator.js` (browser) and
+  `api/_lib/v2/fleetSim.js` (serverless). State = pure f(clock). KEEP CONSTANTS
+  IN SYNC — cycle math must use the integer lengthM from v2/data/routes.json
+  (a 0.1 s cycle drift fully desyncs phases via t % cycle).
+- AI: POST /api/v2/query grounds the LLM on the server sim + site facts.
+  Audit trail self-provisions table v2_ai_queries when DATABASE_URL exists;
+  silently skipped otherwise (demo must never break on DB).
+- /v2 is gated by the same site_auth cookie (middleware.js matcher).
+- All v2 asset URLs are ABSOLUTE (/v2/...) — Vercel serves /v2 without a
+  trailing slash, so relative paths would resolve into v1 files.
+- OPENROUTER_API_KEY is marked Sensitive in Vercel (unreadable) and only set
+  for Production — the AI cannot be tested on preview deployments.
+- Bump the ?v= cache-busters in v2/index.html when deploying v2 changes.
+
 ## Project Phases
 
 Phase 1 (done): 3D visualization POC

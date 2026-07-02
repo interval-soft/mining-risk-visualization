@@ -8,6 +8,7 @@
 
 import { callOpenRouter } from '../_lib/openrouter.js';
 import { getFleetState, getKPIs } from '../_lib/v2/fleetSim.js';
+import { logAIQuery } from '../_lib/v2/audit.js';
 
 /** Compact site-asset facts (mirrors v2/js/config.js KEY_ASSETS). */
 const SITE_ASSETS = [
@@ -79,6 +80,16 @@ Answer the question from this data.`;
             { role: 'user', content: userPrompt }
         ], { temperature: 0.2, maxTokens: 500 });
 
+        // Audit trail (self-provisioning, no-op without DATABASE_URL).
+        // Awaited before responding — serverless may freeze afterwards.
+        await logAIQuery({
+            question: query.trim(),
+            answer: response.content,
+            model: response.model,
+            latencyMs: response.latencyMs,
+            ok: true
+        });
+
         return res.status(200).json({
             answer: response.content,
             model: response.model,
@@ -87,6 +98,11 @@ Answer the question from this data.`;
         });
     } catch (error) {
         console.error('V2 query failed:', error);
+        await logAIQuery({
+            question: query.trim(),
+            ok: false,
+            error: error.message
+        });
         return res.status(500).json({
             error: 'AI query failed',
             message: error.message

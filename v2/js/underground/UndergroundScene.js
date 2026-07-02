@@ -77,6 +77,7 @@ export class UndergroundScene {
         this.controls.maxDistance = 8000;
         this.controls.enableDamping = true;
 
+        this.labels = [];
         this.scene.add(new THREE.AmbientLight(0xffffff, 0.75));
         const sun = new THREE.DirectionalLight(0xffffff, 0.9);
         sun.position.set(1500, 2000, 800);
@@ -92,14 +93,26 @@ export class UndergroundScene {
         window.addEventListener('resize', () => this._onResize());
     }
 
-    _label(text, pos, cls = '') {
+    /**
+     * @param {number|null} maxDist - hide the label beyond this camera
+     *   distance (m); declutters overlapping text at overview range.
+     */
+    _label(text, pos, cls = '', maxDist = null) {
         const el = document.createElement('div');
         el.className = 'ug-label ' + cls;
         el.textContent = text;
         const obj = new CSS2DObject(el);
         obj.position.set(...pos);
         this.scene.add(obj);
+        if (maxDist) this.labels.push({ obj, el, maxDist });
         return obj;
+    }
+
+    /** Distance-based label culling — runs throttled from the render loop. */
+    _cullLabels() {
+        for (const { obj, el, maxDist } of this.labels) {
+            el.classList.toggle('ug-hidden', this.camera.position.distanceTo(obj.position) > maxDist);
+        }
     }
 
     /** Translucent surface plane + grid + pit marker for orientation. */
@@ -123,7 +136,7 @@ export class UndergroundScene {
         pit.rotation.x = Math.PI;
         pit.position.set(px, -233, pz);
         this.scene.add(pit);
-        this._label('OPEN PIT (−466 m)', [px, 40, pz], 'ug-label-dim');
+        this._label('OPEN PIT (−466 m)', [px, 40, pz], 'ug-label-dim', 7000);
         this._label('SURFACE 0 m', [-2400, 30, 0], 'ug-label-dim');
     }
 
@@ -158,7 +171,7 @@ export class UndergroundScene {
         ore.rotation.y = -0.35; // NNE strike
         ore.position.set(-750, -1120, -650);
         this.scene.add(ore);
-        this._label('HUGO NORTH DEPOSIT', [-750, -930, -650], 'ug-label-dim');
+        this._label('HUGO NORTH DEPOSIT', [-750, -930, -650], 'ug-label-dim', 6500);
     }
 
     /**
@@ -181,7 +194,7 @@ export class UndergroundScene {
             group.add(slab);
             // labels fan out to the left of the cave, staggered to avoid collisions
             const p = new THREE.Vector3(-FOOT_W / 2 - 220, lv.y, FOOT_L / 2).applyAxisAngle(new THREE.Vector3(0, 1, 0), ROT);
-            this._label(lv.name, [CX + p.x, lv.y + lv.labelDy, CZ + p.z], 'ug-label-dim');
+            this._label(lv.name, [CX + p.x, lv.y + lv.labelDy, CZ + p.z], 'ug-label-dim', 5200);
         }
 
         // 52 extraction drifts, ~19 m apart
@@ -217,7 +230,7 @@ export class UndergroundScene {
         this.scene.add(group);
         this.caveGroup = group;
 
-        this._label('EXTRACTION — 2,231 DRAWPOINTS · 52 DRIFTS', [CX, -1210, CZ + 320], 'ug-label-title');
+        this._label('EXTRACTION — 2,231 DRAWPOINTS · 52 DRIFTS', [CX, -1210, CZ + 320], 'ug-label-title', 5800);
     }
 
     /** Conveyor decline: haulage level → surface (13.2 km total, shown schematically). */
@@ -232,7 +245,7 @@ export class UndergroundScene {
         conveyor.position.copy(from.clone().add(dir.clone().multiplyScalar(0.5)));
         conveyor.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
         this.scene.add(conveyor);
-        this._label('CONVEYOR TO SURFACE · 13.2 km', [800, -600, 700], 'ug-label-dim');
+        this._label('CONVEYOR TO SURFACE · 13.2 km', [800, -600, 700], 'ug-label-dim', 7000);
     }
 
     /** 4 Sandvik LHDs tramming on extraction drifts — deterministic, status-coloured. */
@@ -244,7 +257,7 @@ export class UndergroundScene {
                 new THREE.MeshStandardMaterial({ color: STATUS.operating, roughness: 0.4 })
             );
             this.scene.add(mesh);
-            const label = this._label(u.id, [0, 0, 0], 'ug-label-unit');
+            const label = this._label(u.id, [0, 0, 0], 'ug-label-unit', 3000);
             this.lhds.push({ ...u, mesh, label });
         }
     }
@@ -283,9 +296,11 @@ export class UndergroundScene {
         // oblique framing: shafts + full cave depth fill the viewport
         this.camera.position.set(1300, 250, 1600);
         this.controls.target.set(-550, -1050, -450);
+        let frame = 0;
         const loop = () => {
             if (!this.running) return;
             this._updateLHDs(Date.now());
+            if (frame++ % 15 === 0) this._cullLabels();
             this.controls.update();
             this.renderer.render(this.scene, this.camera);
             this.labelRenderer.render(this.scene, this.camera);

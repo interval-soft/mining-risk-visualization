@@ -483,6 +483,9 @@ html, body {
     font-size: 11px;
     letter-spacing: 0.12em;
     color: var(--text-secondary);
+    background: rgba(14, 16, 18, 0.85);
+    padding: 6px 10px;
+    border-radius: 3px;
 }
 .ug-label {
     font-family: var(--font-mono);
@@ -490,7 +493,9 @@ html, body {
     color: var(--text-primary);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     white-space: nowrap;
+    transition: opacity 0.35s ease;
 }
+.ug-label.ug-hidden { opacity: 0; }
 .ug-label-dim { color: var(--text-secondary); font-size: 10px; }
 .ug-label-title { color: var(--text-primary); font-size: 12px; letter-spacing: 0.08em; }
 .ug-label-unit { color: var(--text-primary); font-size: 10px; }
