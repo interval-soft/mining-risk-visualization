@@ -10,6 +10,7 @@
 
 import { query } from './db.js';
 import { callOpenRouter, parseJSONResponse } from './openrouter.js';
+import { buildMockQueryContext } from './mockData.js';
 
 /**
  * Process a natural language query about the mine state.
@@ -163,6 +164,16 @@ async function gatherQueryContext(queryText) {
         } catch {
             predictions = [];
         }
+    }
+
+    // Fallback: when no database is configured the queries above all return
+    // empty arrays, which would leave the LLM ungrounded ("no data available").
+    // Reuse the same procedural mock mine state that the visualization renders
+    // so the assistant answers about exactly what is on screen.
+    if (levels.length === 0) {
+        const mock = buildMockQueryContext(new Date());
+        levels = mock.levels;
+        if (alerts.length === 0) alerts = mock.alerts;
     }
 
     return {
