@@ -26,3 +26,5 @@ backend/dist/
 # Serena cache
 .serena/
 .vercel
+.gstack/
+Digitaltwin/.obsidian/

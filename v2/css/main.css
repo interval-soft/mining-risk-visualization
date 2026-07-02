@@ -1,0 +1,320 @@
+/* DigitalTwin v2 — Operations console shell.
+   ISA-101 control-room: desaturated greys carry structure,
+   colour is reserved for semantic status. */
+
+:root {
+    /* Structural greys */
+    --bg-page: #16181b;
+    --bg-panel: #1e2226;
+    --bg-panel-raised: #24292e;
+    --border: #2e343a;
+    --text-primary: #c8cfd6;
+    --text-secondary: #8b949c;
+    --text-faint: #5c646b;
+
+    /* Semantic status (GMG time model) — the ONLY colour in the UI */
+    --status-operating: #4caf7d;
+    --status-standby: #d9a441;
+    --status-down: #d95757;
+    --status-maintenance: #5b8dbe;
+
+    --font-mono: 'Roboto Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow: hidden;
+}
+
+#app {
+    display: grid;
+    height: 100vh;
+    grid-template:
+        "kpi kpi kpi" 46px
+        "rail map feed" 1fr
+        "timeline timeline timeline" 52px
+        / 264px 1fr 300px;
+}
+
+/* ---------- KPI band ---------- */
+#kpi-band {
+    grid-area: kpi;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 12px;
+}
+.brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-right: 16px;
+    border-right: 1px solid var(--border);
+}
+.brand-name { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; }
+.brand-site { font-size: 11px; color: var(--text-secondary); }
+.kpi {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
+    border-right: 1px solid var(--border);
+    height: 100%;
+}
+.kpi-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+}
+.kpi-value { font-size: 15px; color: var(--text-primary); }
+.kpi-value .unit { font-size: 10px; color: var(--text-secondary); margin-left: 2px; }
+.kpi-placeholder .kpi-value { color: var(--text-faint); }
+#site-clock {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+}
+
+/* ---------- Asset rail ---------- */
+#asset-rail {
+    grid-area: rail;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding-bottom: 12px;
+}
+.rail-title {
+    padding: 10px 12px 6px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-faint);
+    border-bottom: 1px solid var(--border);
+}
+.rail-group {
+    padding: 12px 12px 4px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-faint);
+}
+.asset-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 12px;
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+}
+.asset-row:hover { background: var(--bg-panel-raised); }
+.asset-row.selected {
+    background: var(--bg-panel-raised);
+    border-left-color: var(--text-secondary);
+}
+.asset-row i { font-size: 16px; color: var(--text-secondary); }
+.asset-id {
+    font-size: 10px;
+    color: var(--text-secondary);
+    min-width: 44px;
+    letter-spacing: 0.04em;
+}
+.asset-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.status-none { background: var(--text-faint); opacity: 0.5; }
+.status-operating { background: var(--status-operating); }
+.status-standby { background: var(--status-standby); }
+.status-down { background: var(--status-down); }
+.status-maintenance { background: var(--status-maintenance); }
+
+/* ---------- Map canvas ---------- */
+#map-container { grid-area: map; position: relative; }
+#map { width: 100%; height: 100%; background: #0e1012; }
+
+.map-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+.map-error i { font-size: 28px; color: var(--status-standby); }
+.map-error-hint { color: var(--text-faint); font-size: 11px; }
+
+.map-toolbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 6px;
+    z-index: 5;
+}
+.map-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+.map-btn:hover { background: var(--bg-panel-raised); }
+.map-btn.active {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+.map-btn i { font-size: 14px; }
+
+/* Detail panel (overlay, bottom-left of map) */
+#detail-panel {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    width: 320px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0 0 8px;
+    display: none;
+    z-index: 6;
+}
+#detail-panel.open { display: block; }
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 6px;
+}
+.detail-header i { font-size: 20px; color: var(--text-secondary); }
+.detail-id { font-size: 10px; color: var(--text-secondary); letter-spacing: 0.08em; }
+.detail-name { font-size: 13px; }
+.detail-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+.detail-close:hover { color: var(--text-primary); }
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 12px;
+    font-size: 12px;
+}
+.detail-row span:first-child { color: var(--text-secondary); }
+.detail-placeholder span:last-child { color: var(--text-faint); font-style: italic; }
+.detail-action {
+    display: block;
+    width: calc(100% - 24px);
+    margin: 8px 12px 4px;
+    padding: 7px;
+    background: var(--bg-panel-raised);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: not-allowed;
+}
+
+/* ---------- Event feed ---------- */
+#event-feed {
+    grid-area: feed;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+#event-feed .feed-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-faint);
+    font-size: 11px;
+}
+#event-feed .feed-empty i { font-size: 24px; }
+
+/* ---------- Timeline ---------- */
+#timeline {
+    grid-area: timeline;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    padding: 0 16px;
+    color: var(--text-faint);
+    font-size: 11px;
+}
+.shift-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-panel-raised);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.shift-progress {
+    height: 100%;
+    width: 0%;
+    background: var(--text-faint);
+}
+
+/* ---------- MapLibre chrome overrides ---------- */
+.maplibregl-ctrl-group {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border);
+}
+.maplibregl-ctrl-group button { background-color: transparent !important; }
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(0.8); }
+.maplibregl-ctrl-attrib {
+    background: rgba(22, 24, 27, 0.75) !important;
+    color: var(--text-faint) !important;
+    font-size: 9px !important;
+    font-family: var(--font-mono) !important;
+}
+.maplibregl-ctrl-attrib a { color: var(--text-secondary) !important; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
