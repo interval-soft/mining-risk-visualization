@@ -335,6 +335,55 @@ html, body {
     background: var(--text-faint);
 }
 
+/* ---------- Underground view ---------- */
+#underground-view {
+    position: absolute;
+    inset: 0;
+    background: #0e1012;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.7s ease;
+    z-index: 8;
+}
+#underground-view.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+#underground-canvas { position: absolute; inset: 0; }
+#underground-canvas canvas { display: block; }
+.ug-labels { position: absolute; inset: 0; pointer-events: none; }
+.ug-hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 9;
+}
+.ug-hud .map-btn { pointer-events: auto; }
+.ug-hud-title {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--text-secondary);
+}
+.ug-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+}
+.ug-label-dim { color: var(--text-secondary); font-size: 10px; }
+.ug-label-title { color: var(--text-primary); font-size: 12px; letter-spacing: 0.08em; }
+.ug-label-unit { color: var(--text-primary); font-size: 10px; }
+
+.detail-action-enabled {
+    color: var(--text-primary) !important;
+    cursor: pointer !important;
+}
+.detail-action-enabled:hover { background: var(--border); }
+
 /* ---------- MapLibre chrome overrides ---------- */
 .maplibregl-ctrl-group {
     background: var(--bg-panel) !important;

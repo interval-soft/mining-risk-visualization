@@ -17,6 +17,16 @@
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/deck.gl@9.3.5/dist.min.js"></script>
 
+    <!-- Three.js for the underground scene (ES modules via import map) -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+        }
+    }
+    </script>
+
     <link rel="stylesheet" href="css/main.css?v=20260702">
 </head>
 <body>
@@ -62,8 +72,22 @@
                 <button id="btn-reset" class="map-btn">
                     <i class="ph-duotone ph-crosshair-simple"></i>Reset view
                 </button>
+                <button id="btn-underground" class="map-btn">
+                    <i class="ph-duotone ph-stack"></i>Underground
+                </button>
             </div>
             <aside id="detail-panel"></aside>
+
+            <!-- Underground view (crossfades over the map) -->
+            <div id="underground-view">
+                <div id="underground-canvas"></div>
+                <div class="ug-hud">
+                    <button id="btn-surface" class="map-btn">
+                        <i class="ph-duotone ph-arrow-u-up-left"></i>Back to surface
+                    </button>
+                    <span class="ug-hud-title">HUGO NORTH BLOCK CAVE · LIFT 1 · −1,300 m</span>
+                </div>
+            </div>
         </main>
 
         <!-- Event feed -->

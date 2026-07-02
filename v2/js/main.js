@@ -153,9 +153,10 @@ class OperationsConsole {
             </div>
             ${rows}
             <div class="detail-row detail-placeholder"><span>Status</span><span>— awaiting telemetry</span></div>
-            ${asset.underground ? '<button class="detail-action" disabled>Enter underground view (milestone 4)</button>' : ''}`;
+            ${asset.underground ? '<button class="detail-action detail-action-enabled" id="btn-enter-ug"><i class="ph-duotone ph-stack"></i> Enter underground view</button>' : ''}`;
         panel.classList.add('open');
         panel.querySelector('.detail-close').addEventListener('click', () => panel.classList.remove('open'));
+        panel.querySelector('#btn-enter-ug')?.addEventListener('click', () => this.enterUnderground());
     }
 
     /** Fleet section in the rail — grouped by unit type, live status dots. */
@@ -331,6 +332,42 @@ class OperationsConsole {
         });
         document.getElementById('btn-reset').addEventListener('click', () =>
             this.mapManager?.resetView());
+        document.getElementById('btn-underground').addEventListener('click', () =>
+            this.enterUnderground());
+        document.getElementById('btn-surface').addEventListener('click', () =>
+            this.exitUnderground());
+    }
+
+    /** Fly to the shafts, then crossfade into the Three.js block-cave scene. */
+    async enterUnderground() {
+        const view = document.getElementById('underground-view');
+        if (view.classList.contains('open')) return;
+
+        if (this.mapManager) {
+            this.mapManager.map.flyTo({
+                center: [106.8465, 43.0370], zoom: 14.5, pitch: 0, duration: 1400, essential: true
+            });
+            await new Promise(r => setTimeout(r, 1450));
+        }
+
+        // Lazy-load Three.js + scene on first entry only
+        if (!this.underground) {
+            try {
+                const { UndergroundScene } = await import('./underground/UndergroundScene.js?v=20260702');
+                this.underground = new UndergroundScene(document.getElementById('underground-canvas'));
+            } catch (err) {
+                console.error('Underground scene failed to load:', err);
+                return;
+            }
+        }
+
+        view.classList.add('open');
+        this.underground.enter();
+    }
+
+    exitUnderground() {
+        document.getElementById('underground-view').classList.remove('open');
+        this.underground?.exit();
     }
 
     /** Header clock — site local time (UTC+8, Ulaanbaatar). */
