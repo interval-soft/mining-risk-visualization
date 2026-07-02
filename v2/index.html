@@ -27,7 +27,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="css/main.css?v=20260702">
+    <link rel="stylesheet" href="/v2/css/main.css?v=20260702">
 </head>
 <body>
     <div id="app">
@@ -98,6 +98,24 @@
                 <i class="ph-duotone ph-pulse"></i>
                 <span>Awaiting event stream</span>
             </div>
+            <div id="ask-box">
+                <div id="ask-answer" hidden>
+                    <div class="ask-answer-head">
+                        <span class="rail-title">AI · Operations assistant</span>
+                        <button id="ask-answer-close" aria-label="Close">×</button>
+                    </div>
+                    <div id="ask-answer-body"></div>
+                    <div id="ask-answer-meta"></div>
+                </div>
+                <form id="ask-form" autocomplete="off">
+                    <i class="ph-duotone ph-sparkle"></i>
+                    <input id="ask-input" type="text" maxlength="300"
+                           placeholder="e.g., Where is HT-103 right now?">
+                    <button type="submit" id="ask-submit" aria-label="Ask">
+                        <i class="ph-duotone ph-paper-plane-tilt"></i>
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <!-- Timeline -->
@@ -108,6 +126,6 @@
         </footer>
     </div>
 
-    <script type="module" src="js/main.js?v=20260702"></script>
+    <script type="module" src="/v2/js/main.js?v=20260702"></script>
 </body>
 </html>

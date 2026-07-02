@@ -90,8 +90,8 @@ export const COLORS = {
 };
 
 export const DATA_URLS = {
-    areas: 'data/areas.geojson',
-    buildings: 'data/buildings.geojson',
-    infrastructure: 'data/infrastructure.geojson',
-    points: 'data/points.geojson'
+    areas: '/v2/data/areas.geojson',
+    buildings: '/v2/data/buildings.geojson',
+    infrastructure: '/v2/data/infrastructure.geojson',
+    points: '/v2/data/points.geojson'
 };

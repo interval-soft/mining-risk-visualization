@@ -38,7 +38,7 @@ class OperationsConsole {
     /** Fleet simulation runs with or without a map (rail + KPIs still live). */
     async initFleet() {
         try {
-            const routes = await (await fetch('data/routes.json')).json();
+            const routes = await (await fetch('/v2/data/routes.json')).json();
             this.fleetSim = new FleetSimulator(routes);
         } catch (err) {
             console.error('Fleet init failed:', err);
@@ -66,7 +66,7 @@ class OperationsConsole {
                 const fleet = this.fleetSim.getFleetState(now);
                 if (this.fleetLayer) {
                     const trails = fleet
-                        .filter(u => u.status === 'operating')
+                        .filter(u => u.status === 'operating' && u.position)
                         .map(u => ({ ...this.fleetSim.getTrail(u.id, now), status: u.status, unitId: u.id }));
                     this.fleetLayer.update(fleet, trails, now / 1000);
                 }
@@ -161,7 +161,7 @@ class OperationsConsole {
 
     /** Fleet section in the rail — grouped by unit type, live status dots. */
     buildFleetRail() {
-        const groups = { haul: 'Haul trucks', water: 'Support', grader: 'Support', bus: 'Shuttles', service: 'Shuttles' };
+        const groups = { haul: 'Haul trucks', water: 'Support', grader: 'Support', bus: 'Shuttles', service: 'Shuttles', lhd: 'Underground fleet' };
         const rail = document.getElementById('asset-list');
         const header = document.createElement('div');
         header.className = 'rail-title rail-fleet-title';
@@ -182,11 +182,14 @@ class OperationsConsole {
             row.className = 'asset-row fleet-row';
             row.dataset.unitId = unit.id;
             row.innerHTML = `
-                <i class="ph-duotone ${unit.type === 'haul' ? 'ph-truck' : unit.type === 'bus' ? 'ph-van' : 'ph-truck-trailer'}"></i>
+                <i class="ph-duotone ${unit.type === 'haul' ? 'ph-truck' : unit.type === 'bus' ? 'ph-van' : unit.type === 'lhd' ? 'ph-stack' : 'ph-truck-trailer'}"></i>
                 <span class="asset-id">${unit.id}</span>
                 <span class="asset-name fleet-phase">${unit.phase}</span>
                 <span class="status-dot status-${unit.status}"></span>`;
-            row.addEventListener('click', () => this.selectUnit(unit.id, { flyTo: true }));
+            row.addEventListener('click', () => {
+                if (unit.underground) { this.enterUnderground(); this.selectUnit(unit.id, { flyTo: false }); }
+                else this.selectUnit(unit.id, { flyTo: true });
+            });
             rail.appendChild(row);
         }
     }
@@ -336,6 +339,51 @@ class OperationsConsole {
             this.enterUnderground());
         document.getElementById('btn-surface').addEventListener('click', () =>
             this.exitUnderground());
+        this.bindAskAI();
+    }
+
+    /** Ask AI — grounded on the same deterministic state the console renders. */
+    bindAskAI() {
+        const form = document.getElementById('ask-form');
+        const input = document.getElementById('ask-input');
+        const submit = document.getElementById('ask-submit');
+        const answerBox = document.getElementById('ask-answer');
+        const body = document.getElementById('ask-answer-body');
+        const meta = document.getElementById('ask-answer-meta');
+
+        document.getElementById('ask-answer-close').addEventListener('click', () => {
+            answerBox.hidden = true;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = input.value.trim();
+            if (query.length < 3) return;
+
+            submit.disabled = true;
+            answerBox.hidden = false;
+            body.innerHTML = '<span class="thinking">Querying live site state…</span>';
+            meta.textContent = '';
+
+            try {
+                const res = await fetch('/api/v2/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                body.textContent = data.answer;
+                meta.textContent = `${data.model || 'AI'} · ${((data.latencyMs || 0) / 1000).toFixed(1)}s`;
+            } catch (err) {
+                body.textContent = 'AI unavailable. The query API is a serverless function — '
+                    + 'run via `vercel dev` locally or use the deployed environment.';
+                meta.textContent = String(err.message || err);
+            } finally {
+                submit.disabled = false;
+                input.select();
+            }
+        });
     }
 
     /** Fly to the shafts, then crossfade into the Three.js block-cave scene. */

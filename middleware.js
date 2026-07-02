@@ -5,6 +5,10 @@ export const config = {
         // Match root and index
         '/',
         '/index.html',
+        // v2 operations console (assets stay open — only the entry HTML is gated)
+        '/v2',
+        '/v2/',
+        '/v2/index.html',
     ],
 };
 

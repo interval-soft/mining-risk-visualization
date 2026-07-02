@@ -12,6 +12,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { ugStatusOf } from '../sim/FleetSimulator.js';
 
 // Local frame: origin at Shaft #1 collar, x = east (m), z = south (m), y = up.
 const M_LAT = 111320, M_LNG = 111320 * Math.cos(43.035 * Math.PI / 180);
@@ -47,12 +48,6 @@ const UG_FLEET = [
     { id: 'LH-503', drift: 14, offsetFrac: 0.6 },
     { id: 'LH-504', drift: 20, offsetFrac: 0.85 }
 ];
-function ugStatus(id, tMs) {
-    const hULN = (new Date(tMs).getUTCHours() + 8) % 24;
-    if (id === 'LH-503' && hULN >= 14 && hULN < 16) return 'maintenance';
-    if (id === 'LH-504' && (hULN >= 23 || hULN < 5)) return 'standby';
-    return 'operating';
-}
 
 export class UndergroundScene {
     constructor(container) {
@@ -259,7 +254,7 @@ export class UndergroundScene {
         const FOOT_W = 500, CX = -750, CZ = -650, ROT = -0.35;
         const CYCLE_S = 95; // muck → ore pass → return
         for (const u of this.lhds) {
-            const status = ugStatus(u.id, tMs);
+            const status = ugStatusOf(u.id, tMs);
             const tc = ((tMs / 1000 + u.offsetFrac * CYCLE_S) % CYCLE_S) / CYCLE_S;
             // triangle wave: out and back along the drift
             const f = status === 'operating' ? (tc < 0.5 ? tc * 2 : 2 - tc * 2) : 0.05;

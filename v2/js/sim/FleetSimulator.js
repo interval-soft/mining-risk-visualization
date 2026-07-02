@@ -15,7 +15,8 @@ const PRESETS = {
     water:   { model: 'CAT 785 Water Cart', speed: 8, dwellS: 60 },
     grader:  { model: 'CAT 24M Grader', speed: 4, dwellS: 120 },
     bus:     { model: 'Crew Bus', speed: 13, dwellS: 420 },
-    service: { model: 'LV Service Ute', speed: 14, dwellS: 900 }
+    service: { model: 'LV Service Ute', speed: 14, dwellS: 900 },
+    lhd:     { model: 'Sandvik LH517i', speed: 3, payloadT: 17 }
 };
 
 /** Fleet definition — routes reference v2/data/routes.json ids */
@@ -31,8 +32,24 @@ const FLEET = [
     { id: 'GR-301', type: 'grader', route: 'RT-TSF', offsetFrac: 0.25 },
     { id: 'CB-401', type: 'bus', route: 'RT-CAMP', offsetFrac: 0.60 },
     { id: 'CB-402', type: 'bus', route: 'RT-APT', offsetFrac: 0.00 },
-    { id: 'SV-501', type: 'service', route: 'RT-UG', offsetFrac: 0.45 }
+    { id: 'SV-501', type: 'service', route: 'RT-UG', offsetFrac: 0.45 },
+    // Underground fleet — extraction level, no surface position
+    { id: 'LH-501', type: 'lhd', drift: 2, offsetFrac: 0.0 },
+    { id: 'LH-502', type: 'lhd', drift: 8, offsetFrac: 0.3 },
+    { id: 'LH-503', type: 'lhd', drift: 14, offsetFrac: 0.6 },
+    { id: 'LH-504', type: 'lhd', drift: 20, offsetFrac: 0.85 }
 ];
+
+/**
+ * Underground unit status — shared with UndergroundScene so the 3D view,
+ * the rail and the server AI all agree. Hours in site time (ULN, UTC+8).
+ */
+export function ugStatusOf(id, tMs) {
+    const hULN = (new Date(tMs).getUTCHours() + 8) % 24;
+    if (id === 'LH-503' && hULN >= 14 && hULN < 16) return 'maintenance';
+    if (id === 'LH-504' && (hULN >= 23 || hULN < 5)) return 'standby';
+    return 'operating';
+}
 
 export class FleetSimulator {
     /** @param {Object} routesData - parsed v2/data/routes.json */
@@ -41,7 +58,7 @@ export class FleetSimulator {
         for (const r of routesData.routes) {
             this.routes.set(r.id, this._prepareRoute(r));
         }
-        this.units = FLEET.filter(u => this.routes.has(u.route));
+        this.units = FLEET.filter(u => u.type === 'lhd' || this.routes.has(u.route));
     }
 
     /** Precompute cumulative distances for fast interpolation. */
@@ -76,6 +93,7 @@ export class FleetSimulator {
 
     /** Deterministic GMG status for a unit at time t. Hours in site time (ULN, UTC+8). */
     _statusOf(unit, tMs) {
+        if (unit.type === 'lhd') return ugStatusOf(unit.id, tMs);
         const hULN = (new Date(tMs).getUTCHours() + 8) % 24;
         const min = new Date(tMs).getUTCMinutes();
 
@@ -109,6 +127,7 @@ export class FleetSimulator {
      * Other types: out-and-back patrol with dwell at each end.
      */
     _unitState(unit, tMs) {
+        if (unit.type === 'lhd') return this._lhdState(unit, tMs);
         const route = this.routes.get(unit.route);
         const preset = PRESETS[unit.type];
         const status = this._statusOf(unit, tMs);
@@ -171,6 +190,31 @@ export class FleetSimulator {
             payloadT: loaded ? PRESETS.haul.payloadT : 0,
             distAlongM: Math.round(dist),
             routeLengthM: Math.round(route.lengthM)
+        };
+    }
+
+    /** Underground LHD: 95 s muck→tram cycle, no surface position. */
+    _lhdState(unit, tMs) {
+        const preset = PRESETS.lhd;
+        const status = this._statusOf(unit, tMs);
+        const CYCLE_S = 95;
+        const tc = ((tMs / 1000 + unit.offsetFrac * CYCLE_S) % CYCLE_S) / CYCLE_S;
+        let phase = tc < 0.5 ? 'mucking' : 'tramming';
+        if (status !== 'operating') phase = status === 'standby' ? 'parked' : status;
+        return {
+            id: unit.id,
+            model: preset.model,
+            type: 'lhd',
+            routeId: null,
+            routeName: `Extraction level — drift ${unit.drift}`,
+            status, phase,
+            position: null,
+            heading: 0,
+            speedKmh: status === 'operating' ? Math.round(preset.speed * 3.6) : 0,
+            payloadT: status === 'operating' && tc >= 0.5 ? preset.payloadT : 0,
+            distAlongM: Math.round(tc * 100), // cycle progress (matches server progressPct)
+            routeLengthM: 100,
+            underground: true
         };
     }
 

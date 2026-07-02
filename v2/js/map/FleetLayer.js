@@ -36,6 +36,7 @@ export class FleetLayer {
      * @param {number} nowS - current sim time in seconds (TripsLayer clock)
      */
     update(fleet, trails, nowS) {
+        const surface = fleet.filter(u => u.position); // underground units have none
         this.overlay.setProps({
             layers: [
                 new deck.TripsLayer({
@@ -54,7 +55,7 @@ export class FleetLayer {
                 }),
                 new deck.IconLayer({
                     id: 'fleet-icons',
-                    data: fleet,
+                    data: surface,
                     pickable: true,
                     iconAtlas: ICON_ATLAS,
                     iconMapping: ICON_MAPPING,
@@ -69,7 +70,7 @@ export class FleetLayer {
                 }),
                 new deck.TextLayer({
                     id: 'fleet-labels',
-                    data: fleet,
+                    data: surface,
                     getPosition: d => d.position,
                     getText: d => d.id,
                     getColor: [232, 236, 239, 230],
