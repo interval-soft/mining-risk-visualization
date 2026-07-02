@@ -262,7 +262,42 @@ html, body {
     border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
+#event-list { overflow-y: auto; flex-shrink: 1; }
+#event-list:not(:empty) + .feed-empty { display: none; }
+.event-entry {
+    display: flex;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--border);
+    border-left: 2px solid transparent;
+}
+.event-entry.severity-high { border-left-color: var(--status-down); }
+.event-entry.severity-medium { border-left-color: var(--status-standby); }
+.event-entry.event-new { animation: event-flash 1.5s ease-out; }
+@keyframes event-flash {
+    from { background: var(--bg-panel-raised); }
+    to { background: transparent; }
+}
+.event-time { color: var(--text-faint); }
+.event-unit { color: var(--text-secondary); min-width: 52px; }
+.event-text { color: var(--text-primary); }
+.event-text b { font-weight: 500; }
+
+/* Semantic status text (used in feed + detail panel) */
+.status-text-operating { color: var(--status-operating); }
+.status-text-standby { color: var(--status-standby); }
+.status-text-down { color: var(--status-down); }
+.status-text-maintenance { color: var(--status-maintenance); }
+
+/* Fleet rail rows */
+.fleet-row .fleet-phase { color: var(--text-secondary); font-size: 11px; }
+.rail-fleet-title { margin-top: 8px; }
+
+/* KPI alert accent — colour only when something is wrong (ISA-101) */
+.kpi-value.kpi-alert-active { color: var(--status-down); }
 #event-feed .feed-empty {
     flex: 1;
     display: flex;

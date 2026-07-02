@@ -9,11 +9,16 @@
 
 import { KEY_ASSETS } from './config.js';
 import { MapManager } from './map/MapManager.js';
+import { FleetSimulator } from './sim/FleetSimulator.js';
+import { FleetLayer } from './map/FleetLayer.js';
 
 class OperationsConsole {
     constructor() {
         this.mapManager = null;
+        this.fleetSim = null;
+        this.fleetLayer = null;
         this.selectedAssetId = null;
+        this.selectedUnitId = null;
 
         // The shell (rail, clock, controls) must work even if the map fails
         // (e.g. WebGL unavailable) — degrade gracefully, never die silently.
@@ -27,6 +32,58 @@ class OperationsConsole {
         this.buildAssetRail();
         this.bindControls();
         this.setClock();
+        this.initFleet();
+    }
+
+    /** Fleet simulation runs with or without a map (rail + KPIs still live). */
+    async initFleet() {
+        try {
+            const routes = await (await fetch('data/routes.json')).json();
+            this.fleetSim = new FleetSimulator(routes);
+        } catch (err) {
+            console.error('Fleet init failed:', err);
+            return;
+        }
+
+        this.buildFleetRail();
+        this.backfillEvents();
+
+        if (this.mapManager) {
+            const attach = () => {
+                this.fleetLayer = new FleetLayer(this.mapManager.map,
+                    (unit) => this.selectUnit(unit.id, { flyTo: false }));
+            };
+            if (this.mapManager.map.loaded()) attach();
+            else this.mapManager.map.on('load', attach);
+        }
+
+        // Animation loop: fleet layer ~15 fps; KPIs / rail / feed at 1 Hz.
+        let lastKpi = 0, lastFrame = 0, lastEventCheck = Date.now();
+        const tick = (ts) => {
+            const now = Date.now();
+            if (ts - lastFrame > 66) {
+                lastFrame = ts;
+                const fleet = this.fleetSim.getFleetState(now);
+                if (this.fleetLayer) {
+                    const trails = fleet
+                        .filter(u => u.status === 'operating')
+                        .map(u => ({ ...this.fleetSim.getTrail(u.id, now), status: u.status, unitId: u.id }));
+                    this.fleetLayer.update(fleet, trails, now / 1000);
+                }
+                if (now - lastKpi > 1000) {
+                    lastKpi = now;
+                    this.updateKPIs();
+                    this.updateFleetRail(fleet);
+                    this.updateShiftBar();
+                    this.refreshUnitDetail(fleet);
+                    const events = this.fleetSim.getEventsBetween(lastEventCheck, now, 30);
+                    if (events.length) this.prependEvents(events);
+                    lastEventCheck = now;
+                }
+            }
+            requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
     }
 
     showMapError() {
@@ -99,6 +156,151 @@ class OperationsConsole {
             ${asset.underground ? '<button class="detail-action" disabled>Enter underground view (milestone 4)</button>' : ''}`;
         panel.classList.add('open');
         panel.querySelector('.detail-close').addEventListener('click', () => panel.classList.remove('open'));
+    }
+
+    /** Fleet section in the rail — grouped by unit type, live status dots. */
+    buildFleetRail() {
+        const groups = { haul: 'Haul trucks', water: 'Support', grader: 'Support', bus: 'Shuttles', service: 'Shuttles' };
+        const rail = document.getElementById('asset-list');
+        const header = document.createElement('div');
+        header.className = 'rail-title rail-fleet-title';
+        header.textContent = 'Fleet';
+        rail.appendChild(header);
+
+        const seen = new Set();
+        for (const unit of this.fleetSim.getFleetState()) {
+            const groupName = groups[unit.type] || 'Other';
+            if (!seen.has(groupName)) {
+                seen.add(groupName);
+                const h = document.createElement('div');
+                h.className = 'rail-group';
+                h.textContent = groupName;
+                rail.appendChild(h);
+            }
+            const row = document.createElement('button');
+            row.className = 'asset-row fleet-row';
+            row.dataset.unitId = unit.id;
+            row.innerHTML = `
+                <i class="ph-duotone ${unit.type === 'haul' ? 'ph-truck' : unit.type === 'bus' ? 'ph-van' : 'ph-truck-trailer'}"></i>
+                <span class="asset-id">${unit.id}</span>
+                <span class="asset-name fleet-phase">${unit.phase}</span>
+                <span class="status-dot status-${unit.status}"></span>`;
+            row.addEventListener('click', () => this.selectUnit(unit.id, { flyTo: true }));
+            rail.appendChild(row);
+        }
+    }
+
+    /** 1 Hz refresh of dots + phase text in the fleet rail. */
+    updateFleetRail(fleet) {
+        for (const unit of fleet) {
+            const row = document.querySelector(`.fleet-row[data-unit-id="${unit.id}"]`);
+            if (!row) continue;
+            row.querySelector('.fleet-phase').textContent = unit.phase;
+            row.querySelector('.status-dot').className = `status-dot status-${unit.status}`;
+        }
+    }
+
+    selectUnit(unitId, { flyTo }) {
+        this.selectedUnitId = unitId;
+        this.selectedAssetId = null;
+        document.querySelectorAll('.asset-row').forEach(el =>
+            el.classList.toggle('selected', el.dataset.unitId === unitId));
+
+        const unit = this.fleetSim.getFleetState().find(u => u.id === unitId);
+        if (!unit) return;
+        if (flyTo && this.mapManager) {
+            this.mapManager.map.flyTo({ center: unit.position, zoom: 15, duration: 1200 });
+        }
+        this.showUnitDetail(unit);
+    }
+
+    showUnitDetail(unit) {
+        const panel = document.getElementById('detail-panel');
+        panel.innerHTML = `
+            <div class="detail-header">
+                <i class="ph-duotone ph-truck"></i>
+                <div>
+                    <div class="detail-id">${unit.id} · <span class="unit-status-text status-text-${unit.status}">${unit.status.toUpperCase()}</span></div>
+                    <div class="detail-name">${unit.model}</div>
+                </div>
+                <button class="detail-close" aria-label="Close">×</button>
+            </div>
+            <div class="detail-row"><span>Assignment</span><span>${unit.routeName}</span></div>
+            <div class="detail-row"><span>Phase</span><span data-live="phase">${unit.phase}</span></div>
+            <div class="detail-row"><span>Speed</span><span data-live="speed">${unit.speedKmh} km/h</span></div>
+            <div class="detail-row"><span>Payload</span><span data-live="payload">${unit.payloadT} t</span></div>
+            <div class="detail-row"><span>Route progress</span><span data-live="progress">${Math.round(unit.distAlongM / unit.routeLengthM * 100)}%</span></div>`;
+        panel.classList.add('open');
+        panel.querySelector('.detail-close').addEventListener('click', () => {
+            panel.classList.remove('open');
+            this.selectedUnitId = null;
+        });
+    }
+
+    /** Live-update the open unit panel without rebuilding the DOM. */
+    refreshUnitDetail(fleet) {
+        if (!this.selectedUnitId) return;
+        const unit = fleet.find(u => u.id === this.selectedUnitId);
+        const panel = document.getElementById('detail-panel');
+        if (!unit || !panel.classList.contains('open')) return;
+        const set = (k, v) => {
+            const el = panel.querySelector(`[data-live="${k}"]`);
+            if (el) el.textContent = v;
+        };
+        set('phase', unit.phase);
+        set('speed', `${unit.speedKmh} km/h`);
+        set('payload', `${unit.payloadT} t`);
+        set('progress', `${Math.round(unit.distAlongM / unit.routeLengthM * 100)}%`);
+        const st = panel.querySelector('.unit-status-text');
+        if (st) { st.textContent = unit.status.toUpperCase(); st.className = `unit-status-text status-text-${unit.status}`; }
+    }
+
+    updateKPIs() {
+        const k = this.fleetSim.getKPIs();
+        const set = (id, html) => { document.getElementById(id).innerHTML = html; };
+        set('kpi-throughput', `${k.throughputTph.toLocaleString('en')}<span class="unit">t/h</span>`);
+        set('kpi-fleet', `${k.operating}/${k.total}`);
+        set('kpi-util', `${k.utilisationPct}<span class="unit">%</span>`);
+        const alertsEl = document.getElementById('kpi-alerts');
+        alertsEl.innerHTML = `${k.activeAlerts}`;
+        alertsEl.classList.toggle('kpi-alert-active', k.activeAlerts > 0);
+        document.querySelectorAll('.kpi').forEach(el => el.classList.remove('kpi-placeholder'));
+    }
+
+    /** Shift bar: day shift 07:00–19:00 ULN, else night shift. */
+    updateShiftBar() {
+        const hULN = (new Date().getUTCHours() + 8) % 24;
+        const mULN = new Date().getUTCMinutes();
+        const t = hULN + mULN / 60;
+        const day = t >= 7 && t < 19;
+        const progress = day ? (t - 7) / 12 : ((t + 24 - 19) % 24) / 12;
+        document.getElementById('shift-label').textContent = day ? 'DAY SHIFT 07:00–19:00' : 'NIGHT SHIFT 19:00–07:00';
+        document.querySelector('.shift-progress').style.width = `${Math.round(progress * 100)}%`;
+    }
+
+    /** Seed the feed with the last 2 h of deterministic history. */
+    backfillEvents() {
+        const now = Date.now();
+        const events = this.fleetSim.getEventsBetween(now - 2 * 3600 * 1000, now, 60);
+        this.prependEvents(events.slice(0, 20), { silent: true });
+    }
+
+    prependEvents(events, { silent = false } = {}) {
+        const feed = document.getElementById('event-list');
+        document.querySelector('#event-feed .feed-empty')?.remove();
+        for (const ev of [...events].reverse()) {
+            const el = document.createElement('div');
+            el.className = `event-entry severity-${ev.severity}${silent ? '' : ' event-new'}`;
+            const time = new Date(ev.timeMs).toLocaleTimeString('en-GB',
+                { timeZone: 'Asia/Ulaanbaatar', hour12: false, hour: '2-digit', minute: '2-digit' });
+            el.innerHTML = `
+                <span class="event-time">${time}</span>
+                <span class="event-unit">${ev.unitId}</span>
+                <span class="event-text">${ev.from} → <b class="status-text-${ev.to}">${ev.to}</b></span>`;
+            feed.prepend(el);
+        }
+        // keep the feed bounded
+        while (feed.children.length > 40) feed.lastChild.remove();
     }
 
     /** Detail panel for a raw map feature (building click). */

@@ -85,7 +85,7 @@ Style **ISA-101 control-room** : fond gris désaturé, couleur = statut uniqueme
 | Jours | Livrable |
 |---|---|
 | 1–2 | ✅ **Fait (2026-07-02)** — Scaffolding `/v2/`, carte MapLibre satellite + terrain, GeoJSON OSM (842 éléments : pit, 3 puits, 334 bâtiments extrudés, convoyeurs), shell ISA-101, rail 10 assets + fly-to + panneau détail, toggle terrain 3D (fix caméra sous terrain à zoom élevé), mode dégradé sans WebGL. QA passée en headless + headed. |
-| 3–5 | Endpoints flotte (simulation déterministe API), animation deck.gl, rail assets + panneau détail |
+| 3–5 | ✅ **Fait (2026-07-02)** — Flotte 12 unités (6 × Komatsu 930E, water carts, grader, bus, ute) animée deck.gl (icônes orientées + trails) sur les vraies haul roads OSM (Dijkstra, 5 routes). Simulation 100 % déterministe `f(t)` identique client/serveur (12/12 sync vérifié). KPIs live (2 430 t/h, 9/12, 75 %), feed événements GMG avec backfill 2 h, panneau détail live, shift bar jour/nuit. Endpoint `/api/v2/fleet` sans DB. |
 | 6–8 | Bandeau KPI, feed événements, timeline shift, schéma DB v2 |
 | 9–10 | Bascule souterrain (Three.js block cave d'après NI 43-101) |
 | 11–12 | IA grounding v2 |

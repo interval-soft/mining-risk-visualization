@@ -12,9 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 
-    <!-- MapLibre GL JS v5 (UMD — no build step) -->
+    <!-- MapLibre GL JS v5 + deck.gl v9 (UMD — no build step) -->
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/deck.gl@9.3.5/dist.min.js"></script>
 
     <link rel="stylesheet" href="css/main.css?v=20260702">
 </head>
@@ -28,19 +29,19 @@
             </div>
             <div class="kpi kpi-placeholder">
                 <span class="kpi-label">Throughput</span>
-                <span class="kpi-value">—<span class="unit">t/h</span></span>
+                <span class="kpi-value" id="kpi-throughput">—<span class="unit">t/h</span></span>
             </div>
             <div class="kpi kpi-placeholder">
                 <span class="kpi-label">Fleet operating</span>
-                <span class="kpi-value">—</span>
+                <span class="kpi-value" id="kpi-fleet">—</span>
             </div>
             <div class="kpi kpi-placeholder">
                 <span class="kpi-label">Utilisation</span>
-                <span class="kpi-value">—<span class="unit">%</span></span>
+                <span class="kpi-value" id="kpi-util">—<span class="unit">%</span></span>
             </div>
             <div class="kpi kpi-placeholder">
                 <span class="kpi-label">Active alerts</span>
-                <span class="kpi-value">—</span>
+                <span class="kpi-value" id="kpi-alerts">—</span>
             </div>
             <span id="site-clock">--:--:-- ULN</span>
         </header>
@@ -68,6 +69,7 @@
         <!-- Event feed -->
         <aside id="event-feed">
             <div class="rail-title">Events</div>
+            <div id="event-list"></div>
             <div class="feed-empty">
                 <i class="ph-duotone ph-pulse"></i>
                 <span>Awaiting event stream</span>
@@ -76,9 +78,9 @@
 
         <!-- Timeline -->
         <footer id="timeline">
-            <span>DAY SHIFT 07:00–19:00</span>
+            <span id="shift-label">DAY SHIFT 07:00–19:00</span>
             <div class="shift-bar"><div class="shift-progress"></div></div>
-            <span>SIM · not connected</span>
+            <span>SIM · deterministic clock</span>
         </footer>
     </div>
 
