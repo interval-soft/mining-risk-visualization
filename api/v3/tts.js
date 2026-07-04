@@ -13,15 +13,18 @@
 
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1';
 
-// Model candidates, most preferred first. IDs drift while Gemini TTS is in
-// preview, so we walk the list until one accepts the request.
+// Model candidates, most preferred first. The Gemini TTS preview is kept
+// first for the day OpenRouter serves it; as of 2026-07 the only
+// audio-output TTS-capable models on OpenRouter are OpenAI's gpt-audio
+// family, so those are the working fallbacks (checked via /api/v1/models).
 const TTS_MODELS = [
     'google/gemini-3.1-flash-tts-preview',
-    'google/gemini-2.5-flash-preview-tts',
-    'google/gemini-2.5-pro-preview-tts'
+    'openai/gpt-audio-mini',
+    'openai/gpt-audio'
 ];
 
-const DEFAULT_VOICE = 'Kore'; // female English voice (Gemini prebuilt)
+// Female English voice per model family.
+const VOICE_BY_FAMILY = { google: 'Kore', openai: 'nova' };
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -54,7 +57,7 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     model,
                     modalities: ['text', 'audio'],
-                    audio: { voice: voice || DEFAULT_VOICE, format: 'mp3' },
+                    audio: { voice: voice || VOICE_BY_FAMILY[model.split('/')[0]] || 'nova', format: 'mp3' },
                     messages: [{
                         role: 'user',
                         content: `Read the following control-room tour narration aloud. Calm, clear, professional female voice, measured pace:\n\n${text.trim()}`

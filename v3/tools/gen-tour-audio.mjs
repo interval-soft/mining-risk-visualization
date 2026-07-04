@@ -19,7 +19,8 @@ const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets', 't
 
 const args = process.argv.slice(2);
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1] : null;
-const voice = args.includes('--voice') ? args[args.indexOf('--voice') + 1] : 'Kore';
+// no default: the endpoint picks the right female voice for whichever model answers
+const voice = args.includes('--voice') ? args[args.indexOf('--voice') + 1] : undefined;
 
 await mkdir(OUT_DIR, { recursive: true });
 
