@@ -23,8 +23,9 @@ function setPersona(app, code) {
     sel.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-function closeDetail() {
+function closeDetail(app) {
     $('detail-panel')?.classList.remove('open');
+    if (app) app.selectedPermitNo = null;   // otherwise the store poll re-opens it
 }
 
 export const TOUR_STEPS = [
@@ -42,7 +43,7 @@ export const TOUR_STEPS = [
                cites its sections (§) as we go.<br><br>
                <span class="tour-hint">Tip: turn your sound on — each step is narrated.</span>`,
         narration: `Welcome to the HMCCP Control of Work console. This is a working digital version of the Worley Permit to Work Procedure, Revision B, for the Padeswood carbon capture project. Nothing here is invented: every rule, role and validity limit is enforced from that document, and this tour cites its sections as we go.`,
-        before: async (app) => { closeDetail(); setPersona(app, 'PI'); app.mapManager?.resetView(); }
+        before: async (app) => { closeDetail(app); setPersona(app, 'PI'); app.mapManager?.resetView(); }
     },
     {
         id: 'site',
@@ -55,7 +56,7 @@ export const TOUR_STEPS = [
                masterplan, so permits pin to the ground they belong to. Click any coloured
                CWA zone at any time to see what it is.`,
         narration: `You are looking at the actual construction site, south west of the Padeswood cement works. The drawing overlaid on the satellite image is the project's own Appendix H construction work areas plan, georeferenced to its true position. Every permit you will see is pinned to the ground it belongs to.`,
-        before: async (app) => { closeDetail(); app.mapManager?.resetView(); }
+        before: async (app) => { closeDetail(app); app.mapManager?.resetView(); }
     },
     {
         id: 'map-controls',
@@ -90,7 +91,7 @@ export const TOUR_STEPS = [
                conflicts</b> and <b>live isolations</b>. They recompute from the same data
                the map and board use — one source of truth.`,
         narration: `The K P I band is the control room heartbeat: permits active, pending review, permits expiring within two hours, high severity simultaneous operations conflicts, and live isolations. All five recompute from the same data the map and the board use.`,
-        before: async (app) => { closeDetail(); }
+        before: async (app) => { closeDetail(app); }
     },
     {
         id: 'board',
@@ -151,7 +152,7 @@ export const TOUR_STEPS = [
                permits waiting for an AA signature — the console routes work to the role
                that owes the next signature, exactly as the §6.2.1 chain prescribes.`,
         narration: `We just switched you to area authority. The my approvals queue now shows only the permits waiting for an area authority signature. The console routes work to whichever role owes the next signature, exactly as the approval chain prescribes.`,
-        before: async (app) => { setPersona(app, 'AA'); closeDetail(); }
+        before: async (app) => { setPersona(app, 'AA'); closeDetail(app); }
     },
     {
         id: 'actions',
@@ -190,7 +191,7 @@ export const TOUR_STEPS = [
                PTW-0138 in the feed. Every signature, suspension and AI answer lands here
                and is kept for the §9.1 three-year retention.`,
         narration: `The audit feed records everything, and it never forgets the daily duties. At each shift start, multi day permits need their daily revalidation under section six point two point two. You can see this morning's revalidation in the feed. Every signature, suspension and A I interaction lands here, retained for three years as section nine point one requires.`,
-        before: async (app) => { closeDetail(); }
+        before: async (app) => { closeDetail(app); }
     },
     {
         id: 'expiry',
@@ -276,7 +277,7 @@ export const TOUR_STEPS = [
                <b>cites the § sections</b> that drive each answer. Every question and
                answer is written to the audit trail.`,
         narration: `The A I assistant is grounded on two sources at once: the live console state, every permit, conflict and isolation you just saw, and the full text of the Rev B procedure itself. It answers like a control room advisor and cites the sections that drive each answer. Every question and answer is written to the audit trail.`,
-        before: async (app) => { setPersona(app, 'PI'); closeDetail(); }
+        before: async (app) => { setPersona(app, 'PI'); closeDetail(app); }
     },
     {
         id: 'ai-live',
@@ -309,7 +310,7 @@ export const TOUR_STEPS = [
                §9.1 audit trail; the console falls back to a deterministic local scenario
                if the database is ever unreachable. The demo never breaks.`,
         narration: `Two practical controls before you explore. Reset scenario re seeds the demo, re anchored to today's shift; break anything you like, it comes back. And the footer badge shows where the data lives. Supabase live means real persistence with a full audit trail. If the database is ever unreachable, the console falls back to a deterministic local scenario. The demo never breaks.`,
-        before: async (app) => { closeDetail(); }
+        before: async (app) => { closeDetail(app); }
     },
     {
         id: 'finish',
@@ -323,6 +324,6 @@ export const TOUR_STEPS = [
                <span class="tour-hint">Switch personas, click zones, ask the AI hard
                questions — then hit Reset scenario.</span>`,
         narration: `And that is the whole loop: request, approve, work, monitor, close, with simultaneous operations, isolations and an A I advisor all enforcing the same Rev B document your teams already know. Replay any chapter from the menu, or relaunch the tour any time with the tour button on the map. The console is yours; switch personas, click zones, ask the A I hard questions, then hit reset scenario.`,
-        before: async (app) => { setPersona(app, 'PI'); closeDetail(); app.mapManager?.resetView(); }
+        before: async (app) => { setPersona(app, 'PI'); closeDetail(app); app.mapManager?.resetView(); }
     }
 ];

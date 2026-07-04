@@ -9,9 +9,10 @@
  * commit the files: the wizard plays static audio, no runtime AI dependency.
  */
 
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, unlink } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import { TOUR_STEPS } from '../js/tour/tourSteps.js';
 
 const ENDPOINT = process.env.TTS_ENDPOINT || 'https://mining-risk-viz.vercel.app/api/v3/tts';
@@ -37,8 +38,17 @@ for (const step of TOUR_STEPS) {
         const data = await r.json();
         if (!r.ok || !data.audio) throw new Error(data.error || `HTTP ${r.status}`);
         const buf = Buffer.from(data.audio, 'base64');
-        await writeFile(join(OUT_DIR, `${step.id}.mp3`), buf);
-        console.log(`OK  ${(buf.length / 1024).toFixed(0)} kB  (${data.model}, ${data.latencyMs} ms)`);
+        const target = join(OUT_DIR, `${step.id}.mp3`);
+        if (data.format === 'mp3') {
+            await writeFile(target, buf);
+        } else {
+            // wav (pcm16) → mp3, mono voice 64k is plenty and keeps the repo light
+            const tmp = join(OUT_DIR, `${step.id}.tmp.${data.format}`);
+            await writeFile(tmp, buf);
+            execFileSync('ffmpeg', ['-y', '-v', 'quiet', '-i', tmp, '-ac', '1', '-b:a', '64k', target]);
+            await unlink(tmp);
+        }
+        console.log(`OK  ${(buf.length / 1024).toFixed(0)} kB ${data.format} → mp3  (${data.model}, ${data.latencyMs} ms)`);
         ok++;
     } catch (e) {
         console.log('FAIL', e.message);
