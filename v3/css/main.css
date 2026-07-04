@@ -376,3 +376,27 @@ html, body {
 .cwa-chip { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 .detail-muted { color: var(--text-faint); font-style: italic; }
 .detail-note { color: var(--text-faint); font-size: 10px; padding-top: 6px; }
+
+/* ---------- v3 : permits (jalon 2) ---------- */
+.permit-type-chip { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.permit-countdown { font-size: 10px; color: var(--text-secondary); margin-left: auto; flex-shrink: 0; }
+.cd-warn { color: var(--status-standby); }
+.cd-danger { color: var(--status-down); }
+.status-badge { font-size: 9px; letter-spacing: 0.08em; }
+.status-tone-operating { color: var(--status-operating); }
+.status-tone-standby { color: var(--status-standby); }
+.status-tone-down { color: var(--status-down); }
+.status-tone-muted { color: var(--text-secondary); }
+.sig-chain { display: inline-flex; align-items: center; gap: 4px; }
+.sig { font-size: 10px; padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border); }
+.sig-done { color: var(--status-operating); border-color: var(--status-operating); }
+.sig-pending { color: var(--text-faint); }
+.sig-arrow { color: var(--text-faint); font-size: 10px; }
+.detail-atts { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 4px; }
+.att { display: inline-flex; align-items: center; gap: 4px; font-size: 10px;
+       padding: 2px 7px; border-radius: 3px; background: var(--bg-panel-raised); }
+.att i { font-size: 12px; }
+.att-ok { color: var(--text-secondary); }
+.att-ok i { color: var(--status-operating); }
+.att-missing { color: var(--status-down); }
+.att-missing i { color: var(--status-down); }
