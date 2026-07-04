@@ -28,6 +28,11 @@ function closeDetail(app) {
     if (app) app.selectedPermitNo = null;   // otherwise the store poll re-opens it
 }
 
+/** Show/hide the Appendix H raster via the real button so its state stays in sync. */
+function setPlan(app, on) {
+    if (app.mapManager && app.mapManager.planVisible !== on) $('btn-plan')?.click();
+}
+
 export const TOUR_STEPS = [
 
     // ---------------- Chapter 1 — Welcome ----------------
@@ -43,7 +48,7 @@ export const TOUR_STEPS = [
                cites its sections (§) as we go.<br><br>
                <span class="tour-hint">Tip: turn your sound on — each step is narrated.</span>`,
         narration: `Welcome to the HMCCP Control of Work console. This is a working digital version of the Worley Permit to Work Procedure, Revision B, for the Padeswood carbon capture project. Nothing here is invented: every rule, role and validity limit is enforced from that document, and this tour cites its sections as we go.`,
-        before: async (app) => { closeDetail(app); setPersona(app, 'PI'); app.mapManager?.resetView(); }
+        before: async (app) => { closeDetail(app); setPersona(app, 'PI'); setPlan(app, false); app.mapManager?.resetView(); }
     },
     {
         id: 'site',
@@ -56,7 +61,7 @@ export const TOUR_STEPS = [
                masterplan, so permits pin to the ground they belong to. Click any coloured
                CWA zone at any time to see what it is.`,
         narration: `You are looking at the actual construction site, south west of the Padeswood cement works. The drawing overlaid on the satellite image is the project's own Appendix H construction work areas plan, georeferenced to its true position. Every permit you will see is pinned to the ground it belongs to.`,
-        before: async (app) => { closeDetail(app); app.mapManager?.resetView(); }
+        before: async (app) => { closeDetail(app); setPlan(app, true); app.mapManager?.resetView(); }
     },
     {
         id: 'map-controls',
@@ -67,7 +72,8 @@ export const TOUR_STEPS = [
                interactive zone fills forward. <b>Reset view</b> returns to the default
                framing. <b>Isolations</b> and <b>Daily SIMOPS</b> open the two operational
                registers — we will visit both in a minute.`,
-        narration: `The map toolbar. Plot plan toggles the appendix drawing. CWA zones brings the interactive zone fills forward. Reset view returns to the default framing. Isolations and Daily SIMOPS open the two operational registers. We will visit both in a minute.`
+        narration: `The map toolbar. Plot plan toggles the appendix drawing. CWA zones brings the interactive zone fills forward. Reset view returns to the default framing. Isolations and Daily SIMOPS open the two operational registers. We will visit both in a minute.`,
+        before: async (app) => { setPlan(app, false); }
     },
     {
         id: 'clock',
@@ -324,6 +330,6 @@ export const TOUR_STEPS = [
                <span class="tour-hint">Switch personas, click zones, ask the AI hard
                questions — then hit Reset scenario.</span>`,
         narration: `And that is the whole loop: request, approve, work, monitor, close, with simultaneous operations, isolations and an A I advisor all enforcing the same Rev B document your teams already know. Replay any chapter from the menu, or relaunch the tour any time with the tour button on the map. The console is yours; switch personas, click zones, ask the A I hard questions, then hit reset scenario.`,
-        before: async (app) => { setPersona(app, 'PI'); closeDetail(app); app.mapManager?.resetView(); }
+        before: async (app) => { setPersona(app, 'PI'); closeDetail(app); setPlan(app, false); app.mapManager?.resetView(); }
     }
 ];

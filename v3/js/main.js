@@ -331,7 +331,6 @@ class ControlOfWorkConsole {
 
     bindControls() {
         const planBtn = document.getElementById('btn-plan');
-        planBtn.classList.add('active');
         planBtn.addEventListener('click', () => {
             const on = this.mapManager?.togglePlotPlan();
             planBtn.classList.toggle('active', !!on);

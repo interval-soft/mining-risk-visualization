@@ -12,7 +12,7 @@ export class MapManager {
     constructor(containerId, onCwaClick) {
         this.onCwaClick = onCwaClick;
         this.cwaVisible = true;
-        this.planVisible = true;
+        this.planVisible = false;   // Appendix H raster off by default — zones only (plan+zones stacked is confusing)
 
         this.map = new maplibregl.Map({
             container: containerId,
@@ -48,6 +48,7 @@ export class MapManager {
         m.addSource('plot-plan', { type: 'image', url: PLOT_PLAN.url, coordinates: PLOT_PLAN.coordinates });
         m.addLayer({
             id: 'plot-plan', type: 'raster', source: 'plot-plan',
+            layout: { visibility: 'none' },
             paint: { 'raster-opacity': 0.78, 'raster-fade-duration': 300 }
         });
 
@@ -88,10 +89,7 @@ export class MapManager {
             }
         });
 
-        // default state: drawing on top, zone fills as quiet hit-areas
-        m.setPaintProperty('cwa-fill', 'fill-opacity', 0.04);
-        m.setLayoutProperty('cwa-labels', 'visibility', 'none');
-        m.setPaintProperty('cwa-outline', 'line-opacity', 0.25);
+        // default state: zones only, full strength (plot plan hidden — see togglePlotPlan)
 
         m.on('click', 'cwa-fill', (e) => {
             if (e.features?.length) this.onCwaClick(e.features[0]);
