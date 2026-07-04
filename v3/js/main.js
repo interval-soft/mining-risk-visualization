@@ -9,6 +9,7 @@
 import { SITE, PERMIT_TYPES, PERMIT_STATUS, ROLES } from './config.js';
 import { MapManager } from './map/MapManager.js';
 import { PermitStore } from './data/PermitStore.js';
+import { actionsFor, awaitingRole } from './data/permitFlow.js';
 
 const TYPE_COLORS = Object.fromEntries(
     Object.entries(PERMIT_TYPES).map(([k, v]) => [k, v.color]));
@@ -51,6 +52,7 @@ class ControlOfWorkConsole {
     render(state) {
         this.renderKpis(state.kpis, state.source);
         this.renderBoard(state.permits);
+        this.renderApprovals(state.permits);
         this.renderEvents(state.events);
         this.mapManager?.updatePermits(state.permits, TYPE_COLORS);
         if (this.selectedPermitNo) {
@@ -97,6 +99,41 @@ class ControlOfWorkConsole {
             }
         }
         this.tickCountdowns();
+    }
+
+    /** "My approvals" — permits awaiting an action from the current persona. */
+    renderApprovals(permits) {
+        const box = document.getElementById('approvals-list');
+        const waiting = awaitingRole(this.persona);
+        const items = permits.filter(p => waiting.has(p.status));
+        box.innerHTML = '';
+        if (!items.length) {
+            box.innerHTML = '<div class="board-empty">Nothing awaiting ' + this.persona + '.</div>';
+            return;
+        }
+        for (const p of items) {
+            const row = document.createElement('button');
+            row.className = 'asset-row approval-row';
+            row.innerHTML = `
+                <span class="permit-type-chip" style="background:${TYPE_COLORS[p.type]}"></span>
+                <span class="asset-id">${p.permit_no.replace('PTW-2026-', '')}</span>
+                <span class="asset-name" title="${p.title}">${PERMIT_STATUS[p.status].label} · ${p.title}</span>`;
+            row.addEventListener('click', () => this.selectPermit(p.permit_no, { flyTo: true }));
+            box.appendChild(row);
+        }
+    }
+
+    async runAction(permitNo, actionId, reason = null) {
+        const errEl = document.getElementById('detail-error');
+        try {
+            await this.store.applyAction(permitNo, actionId,
+                { role: this.persona, reason });
+        } catch (e) {
+            if (errEl) { errEl.textContent = e.message; }
+            return;
+        }
+        const p = this.store.byNo(permitNo);
+        if (p) this.showPermitDetail(p);
     }
 
     renderEvents(events) {
@@ -182,7 +219,35 @@ class ControlOfWorkConsole {
             ${p.icc_no ? `<div class="detail-row"><span>Isolation</span><span>${p.icc_no}</span></div>` : ''}
             <div class="detail-row"><span>Approval chain</span><span class="sig-chain">${chain}</span></div>
             <div class="detail-atts">${attRows}</div>
-            ${p.description ? `<div class="detail-note">${p.description}</div>` : ''}`;
+            ${p.description ? `<div class="detail-note">${p.description}</div>` : ''}
+            <div class="detail-actions" id="detail-actions"></div>
+            <div class="detail-error" id="detail-error"></div>`;
+        const actionsBox = panel.querySelector('#detail-actions');
+        const actions = actionsFor(p.status, this.persona);
+        if (!actions.length) {
+            actionsBox.innerHTML = `<span class="detail-muted">No ${this.persona} action for status "${p.status}"</span>`;
+        }
+        for (const a of actions) {
+            const btn = document.createElement('button');
+            btn.className = 'action-btn';
+            btn.innerHTML = `<i class="ph-duotone ${a.icon}"></i>${a.label}`;
+            btn.addEventListener('click', () => {
+                if (!a.needsReason) return this.runAction(p.permit_no, a.id);
+                let row = panel.querySelector('.reason-row');
+                if (row) { row.remove(); return; }
+                row = document.createElement('div');
+                row.className = 'reason-row';
+                row.innerHTML = `<input type="text" maxlength="120" placeholder="Reason (§6.2.4) — required">
+                                 <button class="action-btn">Confirm</button>`;
+                row.querySelector('button').addEventListener('click', () => {
+                    const reason = row.querySelector('input').value.trim();
+                    if (reason) this.runAction(p.permit_no, a.id, reason);
+                });
+                actionsBox.after(row);
+                row.querySelector('input').focus();
+            });
+            actionsBox.appendChild(btn);
+        }
         panel.classList.add('open');
         panel.querySelector('.detail-close').addEventListener('click', () => {
             panel.classList.remove('open');
@@ -236,7 +301,10 @@ class ControlOfWorkConsole {
             sel.appendChild(opt);
         }
         sel.value = this.persona;
-        sel.addEventListener('change', () => { this.persona = sel.value; });
+        sel.addEventListener('change', () => {
+            this.persona = sel.value;
+            this.render(this.store.state);
+        });
     }
 
     buildBoardLegend() {
@@ -261,6 +329,65 @@ class ControlOfWorkConsole {
         cwaBtn.classList.add('active');
         document.getElementById('btn-reset').addEventListener('click', () =>
             this.mapManager?.resetView());
+        this.bindPermitForm();
+    }
+
+    /** Digital Appendix I — request form with map-pick location. */
+    bindPermitForm() {
+        const form = document.getElementById('permit-form');
+        const typeSel = document.getElementById('pf-type');
+        const cwaSel = document.getElementById('pf-cwa');
+        for (const [k, t] of Object.entries(PERMIT_TYPES)) {
+            typeSel.add(new Option(`${t.label} (${t.validity})`, k));
+        }
+        fetch('/v3/data/cwa.geojson').then(r => r.json()).then(g => {
+            for (const f of g.features) {
+                cwaSel.add(new Option(`${f.properties.id} — ${f.properties.name.slice(0, 40)}`, f.properties.id));
+            }
+        });
+
+        document.getElementById('btn-new-permit').addEventListener('click', () => {
+            form.hidden = !form.hidden;
+        });
+        document.getElementById('form-close').addEventListener('click', () => { form.hidden = true; });
+
+        this.pickedLngLat = null;
+        document.getElementById('pf-pick').addEventListener('click', () => {
+            document.body.classList.add('pick-mode');
+            const once = (e) => {
+                this.pickedLngLat = [e.lngLat.lng, e.lngLat.lat];
+                document.getElementById('pf-loc').textContent =
+                    `${e.lngLat.lat.toFixed(5)}, ${e.lngLat.lng.toFixed(5)}`;
+                document.body.classList.remove('pick-mode');
+            };
+            this.mapManager?.map.once('click', once);
+        });
+
+        document.getElementById('pf-submit').addEventListener('click', async () => {
+            const errEl = document.getElementById('pf-error');
+            const title = document.getElementById('pf-title').value.trim();
+            if (!title) { errEl.textContent = 'Description of work is required.'; return; }
+            const attachments = {};
+            document.querySelectorAll('#pf-atts input').forEach(cb => {
+                attachments[cb.dataset.att] = cb.checked;
+            });
+            errEl.textContent = '';
+            const no = await this.store.createPermit({
+                type: typeSel.value,
+                cwa: cwaSel.value,
+                title,
+                contractor: document.getElementById('pf-contractor').value.trim() || 'Contractor',
+                performing_authority: document.getElementById('pf-pa').value.trim() || '—',
+                lng: this.pickedLngLat?.[0] ?? null,
+                lat: this.pickedLngLat?.[1] ?? null,
+                attachments
+            });
+            form.hidden = true;
+            document.getElementById('pf-title').value = '';
+            this.selectPermit(no, { flyTo: !!this.pickedLngLat });
+            this.pickedLngLat = null;
+            document.getElementById('pf-loc').textContent = '— not set';
+        });
     }
 
     setClock() {

@@ -1,16 +1,22 @@
 /**
- * PermitStore — fetches console state from /api/v3/permits, falling back
- * to the shared seed module when the API is unreachable (static local dev).
- * Notifies subscribers on refresh (poll every 30 s — permit state changes
- * slowly; countdowns tick client-side between refreshes).
+ * PermitStore — console state + transactional actions.
+ *
+ * Reads /api/v3/permits (falls back to the shared seed when the API is
+ * unreachable). Actions run through the SAME state machine as the server
+ * (permitFlow.js): applied optimistically for instant UI, then persisted
+ * via POST /api/v3/action when a database is configured. Once a local
+ * mutation exists without persistence, polling stops overwriting state.
  */
 
 import { buildSeed } from './permitSeed.js';
+import { applyTransition } from './permitFlow.js';
+import { PERMIT_TYPES } from '../config.js';
 
 export class PermitStore {
     constructor() {
         this.state = { permits: [], isolations: [], events: [], kpis: {}, source: 'loading' };
         this.listeners = new Set();
+        this.localMutations = false;
     }
 
     subscribe(fn) { this.listeners.add(fn); }
@@ -22,30 +28,107 @@ export class PermitStore {
     }
 
     async refresh() {
+        if (this.localMutations) return;   // don't wipe unpersisted demo state
         try {
             const res = await fetch('/api/v3/permits');
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             this.state = await res.json();
         } catch {
-            // Static dev / API down — same scenario, computed locally
             const seed = buildSeed(Date.now());
-            const issued = seed.permits.filter(p => p.status === 'issued');
-            this.state = {
-                ...seed,
-                source: 'local-seed',
-                kpis: {
-                    active: issued.length,
-                    pending: seed.permits.filter(p => ['requested', 'reviewed', 'verified'].includes(p.status)).length,
-                    expiringSoon: issued.filter(p => new Date(p.valid_to).getTime() - Date.now() < 2 * 3600e3).length,
-                    conflicts: null,
-                    isolationsLive: seed.isolations.length
-                }
-            };
+            this.state = { ...seed, source: 'local-seed', kpis: {} };
+            this._recomputeKpis();
         }
         this._emit();
     }
 
+    _recomputeKpis() {
+        const now = Date.now();
+        const s = this.state;
+        const issued = s.permits.filter(p => p.status === 'issued');
+        s.kpis = {
+            active: issued.length,
+            pending: s.permits.filter(p => ['requested', 'reviewed', 'verified'].includes(p.status)).length,
+            expiringSoon: issued.filter(p => new Date(p.valid_to).getTime() - now < 2 * 3600e3).length,
+            conflicts: s.kpis?.conflicts ?? null,
+            isolationsLive: s.isolations.filter(i => ['applied', 'sanction_to_test'].includes(i.status)).length
+        };
+    }
+
     byNo(permitNo) {
         return this.state.permits.find(p => p.permit_no === permitNo);
+    }
+
+    /**
+     * Run a lifecycle action. Throws (with the §-referenced rule message)
+     * when the transition is illegal — callers surface it to the user.
+     */
+    async applyAction(permitNo, actionId, { role, name, reason } = {}) {
+        const current = this.byNo(permitNo);
+        if (!current) throw new Error(`Unknown permit ${permitNo}`);
+
+        // Same rules as the server — throws before any state change
+        const { permit, event } = applyTransition(current, actionId, { role, name, reason });
+
+        Object.assign(current, permit);
+        this.state.events.unshift(event);
+        this.localMutations = true;
+        this._recomputeKpis();
+        this._emit();
+
+        try {
+            const res = await fetch('/api/v3/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ permit_no: permitNo, action: actionId, actor_role: role, actor_name: name, reason })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.persisted) {
+                this.localMutations = false;
+                await this.refresh();
+            }
+        } catch { /* offline/static dev — optimistic state stands */ }
+    }
+
+    /** Digital Appendix I submission. */
+    async createPermit(fields) {
+        let persisted = false, template = null;
+        try {
+            const res = await fetch('/api/v3/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fields)
+            });
+            const data = await res.json().catch(() => ({}));
+            persisted = !!data.persisted;
+            template = data.template || null;
+            if (persisted) { await this.refresh(); return data.permit.permit_no; }
+        } catch { /* fall through to local mint */ }
+
+        // Local mint (no DB): same shape, next sequential number
+        const maxN = Math.max(149, ...this.state.permits.map(p => parseInt(p.permit_no.slice(-4)) || 0));
+        const permitNo = `PTW-2026-${String(maxN + 1).padStart(4, '0')}`;
+        const validityH = PERMIT_TYPES[fields.type]?.validityH ?? 168;
+        const fromMs = Date.now() + 24 * 3600e3;   // §4.3.3: ≥24 h notice
+        const validFrom = template?.valid_from || new Date(fromMs).toISOString();
+        const validTo = template?.valid_to || new Date(fromMs + validityH * 3600e3).toISOString();
+        this.state.permits.push({
+            permit_no: permitNo, status: 'requested',
+            type: fields.type, cwa: fields.cwa, title: fields.title,
+            contractor: fields.contractor || 'Contractor',
+            performing_authority: fields.performing_authority || '—',
+            lng: fields.lng ?? null, lat: fields.lat ?? null,
+            valid_from: validFrom, valid_to: validTo,
+            requested_by: fields.contractor || 'Contractor',
+            signatures: {}, attachments: fields.attachments || {},
+            icc_no: null, revalidated_at: null, description: null
+        });
+        this.state.events.unshift({
+            ts: Date.now(), permit_no: permitNo, actor_role: 'PR',
+            action: 'permit requested — Appendix I form submitted (§5.2)'
+        });
+        this.localMutations = true;
+        this._recomputeKpis();
+        this._emit();
+        return permitNo;
     }
 }

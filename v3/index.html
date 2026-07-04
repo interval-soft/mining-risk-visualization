@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 
-    <link rel="stylesheet" href="/v3/css/main.css?v=20260704">
+    <link rel="stylesheet" href="/v3/css/main.css?v=20260704b">
 </head>
 <body>
     <div id="app">
@@ -50,7 +50,9 @@
 
         <!-- Permit board -->
         <nav id="asset-rail">
-            <div class="rail-title">Permit board</div>
+            <div class="rail-title rail-title-row">Permit board
+                <button id="btn-new-permit" class="mini-btn"><i class="ph-duotone ph-plus-circle"></i> New permit</button>
+            </div>
             <div id="permit-board"></div>
             <div class="rail-title">Permit types · validity (§4.1)</div>
             <div id="board-legend"></div>
@@ -72,12 +74,56 @@
                 </button>
             </div>
             <aside id="detail-panel"></aside>
+
+            <!-- Digital Appendix I — HMCCP Permit Request Form -->
+            <aside id="permit-form" hidden>
+                <div class="detail-header">
+                    <i class="ph-duotone ph-clipboard-text"></i>
+                    <div>
+                        <div class="detail-id">HMCCP PERMIT REQUEST</div>
+                        <div class="detail-name">Appendix I — digital form</div>
+                    </div>
+                    <button class="detail-close" id="form-close" aria-label="Close">×</button>
+                </div>
+                <label class="form-field">Permit type
+                    <select id="pf-type"></select>
+                </label>
+                <label class="form-field">Construction Work Area
+                    <select id="pf-cwa"></select>
+                </label>
+                <label class="form-field">Description of work
+                    <input id="pf-title" type="text" maxlength="90" placeholder="e.g. Absorber shell welding — course 4">
+                </label>
+                <label class="form-field">Contractor
+                    <input id="pf-contractor" type="text" maxlength="40" placeholder="e.g. ACME Fabrication">
+                </label>
+                <label class="form-field">Performing Authority
+                    <input id="pf-pa" type="text" maxlength="40" placeholder="e.g. D. Roberts">
+                </label>
+                <div class="form-field">Supporting documents (§4.2)
+                    <div id="pf-atts" class="form-atts">
+                        <label><input type="checkbox" data-att="rams"> RAMS</label>
+                        <label><input type="checkbox" data-att="tra"> TRA</label>
+                        <label><input type="checkbox" data-att="lift_plan"> Lift plan</label>
+                        <label><input type="checkbox" data-att="utility_drawings"> Utility drawings</label>
+                        <label><input type="checkbox" data-att="gas_test"> Gas test</label>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <button id="pf-pick" class="map-btn"><i class="ph-duotone ph-map-pin"></i>Pick location on map</button>
+                    <span id="pf-loc" class="detail-muted">— not set</span>
+                </div>
+                <div class="form-actions">
+                    <button id="pf-submit" class="map-btn pf-primary"><i class="ph-duotone ph-paper-plane-tilt"></i>Submit request (≥24 h notice, §4.3.3)</button>
+                </div>
+                <div id="pf-error" class="form-error"></div>
+            </aside>
         </main>
 
         <!-- Right rail: approvals + events -->
         <aside id="event-feed">
             <div class="rail-title">My approvals</div>
-            <div class="board-empty">Queue by persona — milestone 3.</div>
+            <div id="approvals-list"></div>
             <div class="rail-title">Events</div>
             <div id="event-list"></div>
             <div class="feed-empty">
@@ -95,6 +141,6 @@
         </footer>
     </div>
 
-    <script type="module" src="/v3/js/main.js?v=20260704"></script>
+    <script type="module" src="/v3/js/main.js?v=20260704b"></script>
 </body>
 </html>

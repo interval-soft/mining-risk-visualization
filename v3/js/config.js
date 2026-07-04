@@ -30,12 +30,12 @@ export const TILES = {
  * Validity per §4.1.
  */
 export const PERMIT_TYPES = {
-    cold_work:             { label: 'Cold Work', color: '#4a90d9', validity: '7 days', form: 'blue' },
-    hot_work_civil:        { label: 'Hot Work (Early Works)', color: '#d95757', validity: '7 days', form: 'red' },
-    hot_work_construction: { label: 'Hot Work (Construction)', color: '#c23030', validity: '24 h', form: 'red' },
-    confined_space:        { label: 'Confined Space Entry', color: '#3fae6a', validity: '1 shift', form: 'green' },
-    excavation:            { label: 'Excavation', color: '#2b2f33', validity: '7 days', form: 'black' },
-    piling:                { label: 'Excavation (Piling)', color: '#4d4d55', validity: '7 days', form: 'black' }
+    cold_work:             { label: 'Cold Work', color: '#4a90d9', validity: '7 days', validityH: 168, form: 'blue' },
+    hot_work_civil:        { label: 'Hot Work (Early Works)', color: '#d95757', validity: '7 days', validityH: 168, form: 'red' },
+    hot_work_construction: { label: 'Hot Work (Construction)', color: '#c23030', validity: '24 h', validityH: 24, form: 'red' },
+    confined_space:        { label: 'Confined Space Entry', color: '#3fae6a', validity: '1 shift', validityH: 12, form: 'green' },
+    excavation:            { label: 'Excavation', color: '#2b2f33', validity: '7 days', validityH: 168, form: 'black' },
+    piling:                { label: 'Excavation (Piling)', color: '#4d4d55', validity: '7 days', validityH: 168, form: 'black' }
 };
 
 /** Lifecycle states — Set To Work §5 + §6.2 */
