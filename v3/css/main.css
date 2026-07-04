@@ -443,3 +443,21 @@ html, body {
 .form-error { color: var(--status-down); font-size: 10.5px; padding: 6px 12px 0; }
 #pf-loc { margin-left: 8px; font-size: 10px; }
 .pick-mode #map { cursor: crosshair !important; }
+
+/* ---------- v3 : SIMOPS (jalon 4) ---------- */
+.btn-badge { background: var(--status-down); color: #fff; border-radius: 8px;
+    font-size: 9px; padding: 1px 5px; margin-left: 4px; }
+.conflict-card { margin: 8px 12px; padding: 8px 10px; border: 1px solid var(--border);
+    border-left-width: 3px; border-radius: 3px; cursor: pointer; }
+.conflict-high { border-left-color: var(--status-down); }
+.conflict-medium { border-left-color: var(--status-standby); }
+.conflict-focus { background: var(--bg-panel-raised); }
+.conflict-head { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+.conflict-high .conflict-sev { color: var(--status-down); }
+.conflict-medium .conflict-sev { color: var(--status-standby); }
+.conflict-sev { font-size: 9px; letter-spacing: 0.1em; font-weight: 700; }
+.conflict-meta { color: var(--text-faint); font-size: 10px; padding: 3px 0; }
+.conflict-permits { display: flex; gap: 6px; padding: 3px 0; }
+.conflict-chip { cursor: pointer; background: var(--bg-panel-raised); }
+.conflict-chip:hover { border-color: var(--text-secondary); }
+.conflict-advice { color: var(--text-secondary); font-size: 10.5px; line-height: 1.5; padding-top: 4px; }

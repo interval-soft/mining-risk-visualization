@@ -26,15 +26,32 @@ export function shiftStart(now = Date.now()) {
 
 /** CWA centroids for permit pins (approx, from v3/data/cwa.geojson layout). */
 const PIN = {
-    'CWA-0200': [-3.0570, 53.1568], 'CWA-0300': [-3.0546, 53.1556],
-    'CWA-0500': [-3.0533, 53.1560], 'CWA-0620': [-3.0537, 53.1540],
-    'CWA-0630': [-3.0530, 53.1543], 'CWA-0700': [-3.0552, 53.1532],
-    'CWA-0800': [-3.0512, 53.1544], 'CWA-0900': [-3.0576, 53.1537],
-    'CWA-0910': [-3.0589, 53.1547], 'CWA-1000': [-3.0561, 53.1526],
-    'CWA-1010': [-3.0555, 53.1527], 'CWA-1100': [-3.0518, 53.1527],
-    'CWA-1200': [-3.0522, 53.1515], 'CWA-1300': [-3.0603, 53.1523],
-    'CWA-1400': [-3.0568, 53.1513], 'CWA-1500': [-3.0512, 53.1560],
-    'CWA-1600': [-3.0537, 53.1585], 'CWA-1700': [-3.0523, 53.1505]
+    "CWA-0100": [-3.0559, 53.1534],
+    "CWA-0200": [-3.0509, 53.1552],
+    "CWA-0300": [-3.0519, 53.1543],
+    "CWA-0400": [-3.0530, 53.1545],
+    "CWA-0500": [-3.0509, 53.1543],
+    "CWA-0600": [-3.0509, 53.1536],
+    "CWA-0620": [-3.0514, 53.1531],
+    "CWA-0630": [-3.0506, 53.1530],
+    "CWA-0640": [-3.0508, 53.1526],
+    "CWA-0650": [-3.0516, 53.1527],
+    "CWA-0700": [-3.0524, 53.1525],
+    "CWA-0701": [-3.0518, 53.1514],
+    "CWA-0710": [-3.0500, 53.1520],
+    "CWA-0711": [-3.0524, 53.1504],
+    "CWA-0800": [-3.0496, 53.1528],
+    "CWA-0900": [-3.0540, 53.1529],
+    "CWA-0910": [-3.0546, 53.1538],
+    "CWA-1000": [-3.0531, 53.1520],
+    "CWA-1010": [-3.0530, 53.1520],
+    "CWA-1100": [-3.0502, 53.1518],
+    "CWA-1200": [-3.0506, 53.1510],
+    "CWA-1300": [-3.0556, 53.1513],
+    "CWA-1400": [-3.0534, 53.1510],
+    "CWA-1500": [-3.0489, 53.1540],
+    "CWA-1600": [-3.0495, 53.1557],
+    "CWA-1700": [-3.0510, 53.1503]
 };
 
 const sig = (t0, role, name, dt) => ({ [role.toLowerCase()]: { name, ts: new Date(t0 + dt).toISOString() } });
@@ -74,6 +91,11 @@ export function buildSeed(now = Date.now()) {
             'CO₂ compression area — pile group P-114 (CFA rig 2)', 'GeoPile UK', 'J. Price',
             t0 - 2 * D, t0 + 5 * D,
             { rams: true, tra: true, utility_drawings: true, piling_prework: true, grid_maps: true }],
+        ['PTW-2026-0133', 'confined_space', 'issued', 'CWA-0620',
+            'Absorber column — internal weld visual inspection', 'NDT Cymru', 'M. Evans',
+            t0, t0 + 12 * H,
+            { rams: true, tra: true, gas_test: true, standby_person: true, rescue_plan: true },
+            { note: 'Entry via manway M2 — same column as shell welding works' }],
         ['PTW-2026-0143', 'cold_work', 'issued', 'CWA-0700',
             'E-W piperack — steel erection bay 4 (mobile crane)', 'ErectSteel Ltd', 'A. Jones',
             t0 - 1 * D, t0 + 6 * D,

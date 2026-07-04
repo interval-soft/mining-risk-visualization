@@ -55,6 +55,11 @@ class ControlOfWorkConsole {
         this.renderApprovals(state.permits);
         this.renderEvents(state.events);
         this.mapManager?.updatePermits(state.permits, TYPE_COLORS);
+        this.mapManager?.updateConflicts(state.conflicts || []);
+        const badge = document.getElementById('simops-count');
+        const n = (state.conflicts || []).length;
+        badge.hidden = n === 0;
+        badge.textContent = n;
         if (this.selectedPermitNo) {
             const p = this.store.byNo(this.selectedPermitNo);
             if (p) this.showPermitDetail(p);
@@ -69,6 +74,7 @@ class ControlOfWorkConsole {
         set('kpi-conflicts', k.conflicts ?? '—');
         set('kpi-isolations', k.isolationsLive);
         document.getElementById('kpi-expiring').classList.toggle('kpi-alert-active', k.expiringSoon > 0);
+        document.getElementById('kpi-conflicts').classList.toggle('kpi-alert-active', (k.conflicts ?? 0) > 0);
         document.querySelectorAll('.kpi').forEach(el => el.classList.remove('kpi-placeholder'));
         document.getElementById('data-source').textContent =
             source === 'db' ? 'Supabase · live' : 'SEED · deterministic (no DB)';
@@ -329,7 +335,53 @@ class ControlOfWorkConsole {
         cwaBtn.classList.add('active');
         document.getElementById('btn-reset').addEventListener('click', () =>
             this.mapManager?.resetView());
+        document.getElementById('btn-simops').addEventListener('click', () => this.showSimopsPanel());
+        if (this.mapManager) this.mapManager.onConflictClick = (id) => {
+            this.showSimopsPanel(id);
+        };
         this.bindPermitForm();
+    }
+
+    /** Daily SIMOPS / Line of Sight view (§6.4) — conflicts with advice. */
+    showSimopsPanel(focusId = null) {
+        const conflicts = this.store.state.conflicts || [];
+        const live = this.store.state.permits.filter(p => p.status === 'issued').length;
+        const panel = document.getElementById('detail-panel');
+        const today = new Date().toLocaleDateString('en-GB',
+            { timeZone: SITE.timeZone, weekday: 'short', day: '2-digit', month: 'short' });
+
+        const cards = conflicts.map(c => `
+            <div class="conflict-card conflict-${c.severity}${c.id === focusId ? ' conflict-focus' : ''}" data-conflict="${c.id}">
+                <div class="conflict-head">
+                    <span class="conflict-sev">${c.severity.toUpperCase()}</span>
+                    <span>${c.label}</span>
+                </div>
+                <div class="conflict-meta">${c.cwa}${c.distanceM !== null ? ' · ' + c.distanceM + ' m apart' : ''}</div>
+                <div class="conflict-permits">${c.permits.map(no =>
+                    `<button class="sig conflict-chip" data-permit="${no}">${no.replace('PTW-2026-', 'PTW ')}</button>`).join(' ')}</div>
+                <div class="conflict-advice">${c.advice}</div>
+            </div>`).join('');
+
+        panel.innerHTML = `
+            <div class="detail-header">
+                <i class="ph-duotone ph-warning-diamond"></i>
+                <div>
+                    <div class="detail-id">DAILY SIMOPS · LINE OF SIGHT — ${today}</div>
+                    <div class="detail-name">${live} live permits · ${conflicts.length} interaction${conflicts.length !== 1 ? 's' : ''} flagged (§6.4)</div>
+                </div>
+                <button class="detail-close" aria-label="Close">×</button>
+            </div>
+            ${cards || '<div class="detail-note">No simultaneous-operation interactions detected among live and upcoming permits.</div>'}`;
+        panel.classList.add('open');
+        panel.querySelector('.detail-close').addEventListener('click', () => panel.classList.remove('open'));
+        panel.querySelectorAll('.conflict-chip').forEach(chip =>
+            chip.addEventListener('click', () => this.selectPermit(chip.dataset.permit, { flyTo: true })));
+        panel.querySelectorAll('.conflict-card').forEach(card =>
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.conflict-chip')) return;
+                const c = conflicts.find(x => x.id === card.dataset.conflict);
+                if (c) this.mapManager?.flyToConflict(c);
+            }));
     }
 
     /** Digital Appendix I — request form with map-pick location. */

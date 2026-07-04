@@ -124,8 +124,75 @@ export class MapManager {
         });
         m.on('mouseenter', 'permit-pins', () => { m.getCanvas().style.cursor = 'pointer'; });
         m.on('mouseleave', 'permit-pins', () => { m.getCanvas().style.cursor = ''; });
+        // ---- SIMOPS conflicts (data injected by updateConflicts) ----
+        m.addSource('conflicts', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        m.addLayer({
+            id: 'conflict-links', type: 'line', source: 'conflicts',
+            filter: ['==', ['geometry-type'], 'LineString'],
+            paint: {
+                'line-color': ['match', ['get', 'severity'], 'high', '#d95757', '#d9a441'],
+                'line-width': 2.5,
+                'line-dasharray': [2, 1.5]
+            }
+        });
+        m.addLayer({
+            id: 'conflict-markers', type: 'circle', source: 'conflicts',
+            filter: ['==', ['geometry-type'], 'Point'],
+            paint: {
+                'circle-radius': 13,
+                'circle-color': 'rgba(0,0,0,0)',
+                'circle-stroke-width': 2.5,
+                'circle-stroke-color': ['match', ['get', 'severity'], 'high', '#d95757', '#d9a441']
+            }
+        });
+        m.addLayer({
+            id: 'conflict-glyphs', type: 'symbol', source: 'conflicts',
+            filter: ['==', ['geometry-type'], 'Point'],
+            layout: {
+                'text-field': '!',
+                'text-font': ['Noto Sans Regular'],
+                'text-size': 15,
+                'text-allow-overlap': true
+            },
+            paint: {
+                'text-color': ['match', ['get', 'severity'], 'high', '#d95757', '#d9a441']
+            }
+        });
+        m.on('click', 'conflict-markers', (e) => {
+            if (e.features?.length) this.onConflictClick?.(e.features[0].properties.conflictId);
+        });
+
         this._layersReady = true;
         if (this._pendingPermits) this.updatePermits(...this._pendingPermits);
+        if (this._pendingConflicts) this.updateConflicts(this._pendingConflicts);
+    }
+
+    /** Refresh conflict overlays: dashed link + warning ring at midpoint. */
+    updateConflicts(conflicts) {
+        if (!this._layersReady) { this._pendingConflicts = conflicts; return; }
+        const features = [];
+        for (const c of conflicts) {
+            if (c.pins?.length === 2 && c.pins[0][0] != null && c.pins[1][0] != null) {
+                features.push({
+                    type: 'Feature',
+                    geometry: { type: 'LineString', coordinates: c.pins },
+                    properties: { severity: c.severity, conflictId: c.id }
+                });
+            }
+            if (c.midpoint) {
+                features.push({
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: c.midpoint },
+                    properties: { severity: c.severity, conflictId: c.id }
+                });
+            }
+        }
+        this.map.getSource('conflicts').setData({ type: 'FeatureCollection', features });
+    }
+
+    flyToConflict(c) {
+        if (!c.midpoint) return;
+        this.map.flyTo({ center: c.midpoint, zoom: 17.2, duration: 1100 });
     }
 
     /** Refresh permit pins. Small jitter separates same-CWA pins. */

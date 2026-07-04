@@ -11,6 +11,7 @@
 import { buildSeed } from './permitSeed.js';
 import { applyTransition } from './permitFlow.js';
 import { PERMIT_TYPES } from '../config.js';
+import { detectConflicts } from './simops.js';
 
 export class PermitStore {
     constructor() {
@@ -45,11 +46,12 @@ export class PermitStore {
         const now = Date.now();
         const s = this.state;
         const issued = s.permits.filter(p => p.status === 'issued');
+        s.conflicts = detectConflicts(s.permits);
         s.kpis = {
             active: issued.length,
             pending: s.permits.filter(p => ['requested', 'reviewed', 'verified'].includes(p.status)).length,
             expiringSoon: issued.filter(p => new Date(p.valid_to).getTime() - now < 2 * 3600e3).length,
-            conflicts: s.kpis?.conflicts ?? null,
+            conflicts: s.conflicts.filter(c => c.severity === 'high').length,
             isolationsLive: s.isolations.filter(i => ['applied', 'sanction_to_test'].includes(i.status)).length
         };
     }

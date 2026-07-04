@@ -9,8 +9,9 @@
 
 import { query } from '../_lib/db.js';
 import { buildSeed } from '../../v3/js/data/permitSeed.js';
+import { detectConflicts } from '../../v3/js/data/simops.js';
 
-function computeKpis(permits, isolations, now) {
+function computeKpis(permits, isolations, conflicts, now) {
     const issued = permits.filter(p => p.status === 'issued');
     const pending = permits.filter(p => ['requested', 'reviewed', 'verified'].includes(p.status));
     const expiring = issued.filter(p =>
@@ -19,7 +20,7 @@ function computeKpis(permits, isolations, now) {
         active: issued.length,
         pending: pending.length,
         expiringSoon: expiring.length,
-        conflicts: null,   // SIMOPS engine — milestone 4
+        conflicts: conflicts.filter(c => c.severity === 'high').length,
         isolationsLive: isolations.filter(i => i.status === 'applied' || i.status === 'sanction_to_test').length
     };
 }
@@ -54,10 +55,12 @@ export default async function handler(req, res) {
         events = seed.events;
     }
 
+    const conflicts = detectConflicts(permits);
+
     res.status(200).json({
         timestamp: new Date(now).toISOString(),
         source,
-        kpis: computeKpis(permits, isolations, now),
-        permits, isolations, events
+        kpis: computeKpis(permits, isolations, conflicts, now),
+        permits, isolations, events, conflicts
     });
 }
