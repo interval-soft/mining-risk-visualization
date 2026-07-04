@@ -561,3 +561,6 @@ html, body {
 
 
 .sref { color: var(--status-maintenance); }
+
+.mini-btn-armed { color: var(--status-down); border-color: var(--status-down); }
+#btn-reset-scenario { margin-right: 10px; }

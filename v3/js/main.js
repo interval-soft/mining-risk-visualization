@@ -344,6 +344,85 @@ class ControlOfWorkConsole {
             this.mapManager.onIsolationClick = (icc) => this.showIsolationPanel(icc);
         }
         this.bindPermitForm();
+        this.bindAskAI();
+        this.bindResetScenario();
+    }
+
+    /** AI Control of Work — grounded on live state + the procedure itself. */
+    bindAskAI() {
+        const form = document.getElementById('ask-form');
+        const input = document.getElementById('ask-input');
+        const submit = document.getElementById('ask-submit');
+        const answerBox = document.getElementById('ask-answer');
+        const body = document.getElementById('ask-answer-body');
+        const meta = document.getElementById('ask-answer-meta');
+
+        document.getElementById('ask-answer-close').addEventListener('click', () => {
+            answerBox.hidden = true;
+        });
+        document.querySelectorAll('.ask-chip').forEach(chip =>
+            chip.addEventListener('click', () => {
+                input.value = chip.dataset.q;
+                form.requestSubmit();
+            }));
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const q = input.value.trim();
+            if (q.length < 3) return;
+            submit.disabled = true;
+            answerBox.hidden = false;
+            body.innerHTML = '<span class="thinking">Checking live permits, SIMOPS and the procedure…</span>';
+            meta.textContent = '';
+            try {
+                const res = await fetch('/api/v3/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const escaped = data.answer
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                body.innerHTML = escaped
+                    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+                    .replace(/\((§[\d.]+[^)]*)\)/g, '<span class="sref">($1)</span>');
+                meta.textContent = `${data.model || 'AI'} · ${((data.latencyMs || 0) / 1000).toFixed(1)}s · grounded on live state + PTW Procedure RevB`;
+            } catch (err) {
+                body.textContent = 'AI unavailable. The query API is a serverless function — use the deployed environment.';
+                meta.textContent = String(err.message || err);
+            } finally {
+                submit.disabled = false;
+                input.select();
+            }
+        });
+    }
+
+    /** Demo reset — two-step confirm so a stray click can't wipe a live walkthrough. */
+    bindResetScenario() {
+        const resetBtn = document.getElementById('btn-reset-scenario');
+        let armed = null;
+        resetBtn.addEventListener('click', async () => {
+            if (!armed) {
+                resetBtn.innerHTML = '<i class="ph-duotone ph-warning"></i> Confirm reset?';
+                resetBtn.classList.add('mini-btn-armed');
+                armed = setTimeout(() => {
+                    resetBtn.innerHTML = '<i class="ph-duotone ph-arrow-counter-clockwise"></i> Reset scenario';
+                    resetBtn.classList.remove('mini-btn-armed');
+                    armed = null;
+                }, 4000);
+                return;
+            }
+            clearTimeout(armed); armed = null;
+            resetBtn.innerHTML = '<i class="ph-duotone ph-hourglass"></i> Resetting…';
+            resetBtn.disabled = true;
+            this.selectedPermitNo = null;
+            document.getElementById('detail-panel').classList.remove('open');
+            await this.store.resetScenario();
+            resetBtn.innerHTML = '<i class="ph-duotone ph-arrow-counter-clockwise"></i> Reset scenario';
+            resetBtn.classList.remove('mini-btn-armed');
+            resetBtn.disabled = false;
+        });
     }
 
     /** Isolation register (§8) — ICC cards with lockbox and linked permits. */

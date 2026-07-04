@@ -92,6 +92,15 @@ export class PermitStore {
         } catch { /* offline/static dev — optimistic state stands */ }
     }
 
+    /** Demo reset — re-seeds the DB (when present) and re-anchors to today. */
+    async resetScenario() {
+        try {
+            await fetch('/api/v3/seed', { method: 'POST' });
+        } catch { /* no API (static dev) — local reset below is enough */ }
+        this.localMutations = false;   // allow refresh to overwrite everything
+        await this.refresh();
+    }
+
     /** Isolation action (SAP) — §8 rules incl. the §8.1.1 de-isolation guard. */
     async applyIsolationAction(iccNo, actionId, { role } = {}) {
         const iso = this.state.isolations.find(i => i.icc_no === iccNo);
