@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 
-    <link rel="stylesheet" href="/v3/css/main.css?v=20260704d">
+    <link rel="stylesheet" href="/v3/css/main.css?v=20260704e">
 </head>
 <body>
     <div id="app">
@@ -136,6 +136,29 @@
                 <i class="ph-duotone ph-pulse"></i>
                 <span>Awaiting audit stream</span>
             </div>
+            <div id="ask-box">
+                <div id="ask-answer" hidden>
+                    <div class="ask-answer-head">
+                        <span class="rail-title">AI · Control of Work assistant</span>
+                        <button id="ask-answer-close" aria-label="Close">×</button>
+                    </div>
+                    <div id="ask-answer-body"></div>
+                    <div id="ask-answer-meta"></div>
+                </div>
+                <div id="ask-chips">
+                    <button class="ask-chip" data-q="Can I start hot work in CWA-0620 right now?">Hot work in CWA-0620?</button>
+                    <button class="ask-chip" data-q="What is blocking the removal of isolation ICC-0009?">What blocks ICC-0009?</button>
+                    <button class="ask-chip" data-q="Prepare the daily SIMOPS meeting brief.">Daily SIMOPS brief</button>
+                </div>
+                <form id="ask-form" autocomplete="off">
+                    <i class="ph-duotone ph-sparkle"></i>
+                    <input id="ask-input" type="text" maxlength="300"
+                           placeholder="e.g., Why is PTW-0147 invalid?">
+                    <button type="submit" id="ask-submit" aria-label="Ask">
+                        <i class="ph-duotone ph-paper-plane-tilt"></i>
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <!-- Timeline + persona -->
@@ -147,6 +170,6 @@
         </footer>
     </div>
 
-    <script type="module" src="/v3/js/main.js?v=20260704d"></script>
+    <script type="module" src="/v3/js/main.js?v=20260704e"></script>
 </body>
 </html>

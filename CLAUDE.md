@@ -110,6 +110,27 @@ Standalone page, POC for Worley. Does NOT touch v1 code paths.
   for Production — the AI cannot be tested on preview deployments.
 - Bump the ?v= cache-busters in v2/index.html when deploying v2 changes.
 
+## V3 — HMCCP ePTW Console (/v3/)
+
+Digital Permit to Work for Worley's Padeswood carbon-capture project (UK).
+The Worley procedure 215000-00190-000-HS-PRO-00002 RevB IS the functional
+spec (digest note in the Digitaltwin/ Obsidian vault).
+- Same no-build stack as v2 (MapLibre UMD + vanilla ESM). /v3 gated by
+  the site_auth cookie. All asset URLs absolute (/v3/...).
+- SHARED pure-JS modules in v3/js/data/ (permitSeed, permitFlow, simops,
+  isolationFlow) are imported by BOTH the browser and api/v3/* functions —
+  single source of truth, no twin files to sync. Demo seed anchors to
+  today's 07:00 UK so countdowns are always alive.
+- api/v3/* read the Supabase project "digitaltwin" (mpytqivbpzbsurykvmlr,
+  us-east-1) when DATABASE_URL is set; otherwise they serve/validate
+  against the deterministic seed. POST /api/v3/seed re-anchors demo data.
+  DATABASE_URL must be added to Vercel by hand (Supabase MCP cannot read
+  the DB password).
+- AI: POST /api/v3/query grounds the LLM on live permits/SIMOPS/ICC plus
+  the procedure digest (api/_lib/v3/procedure.js) and cites § sections.
+- CWA polygons are SCHEMATIC (traced from Appendix H, plant north 341°,
+  generator in scratchpad) — replace with client GIS when available.
+
 ## Project Phases
 
 Phase 1 (done): 3D visualization POC
