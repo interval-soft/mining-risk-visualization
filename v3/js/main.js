@@ -329,6 +329,12 @@ class ControlOfWorkConsole {
     }
 
     bindControls() {
+        const planBtn = document.getElementById('btn-plan');
+        planBtn.classList.add('active');
+        planBtn.addEventListener('click', () => {
+            const on = this.mapManager?.togglePlotPlan();
+            planBtn.classList.toggle('active', !!on);
+        });
         const cwaBtn = document.getElementById('btn-cwa');
         cwaBtn.addEventListener('click', () => {
             const on = this.mapManager?.toggleCwa();

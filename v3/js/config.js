@@ -65,6 +65,21 @@ export const PERSONAS = [
     { id: 'SAP', name: 'Senior Authorised Person' }
 ];
 
+/**
+ * Appendix H plot plan as a georeferenced raster overlay.
+ * Corners share the exact transform of the CWA polygons (anchor/rotation/
+ * scale) so drawing and interactive zones stay registered.
+ */
+export const PLOT_PLAN = {
+    url: '/v3/data/site-plan.png',
+    coordinates: [
+        [-3.063895, 53.152589],
+        [-3.057699, 53.15131],
+        [-3.060104, 53.14712],
+        [-3.0663, 53.1484]
+    ]
+};
+
 export const DATA_URLS = {
     cwa: '/v3/data/cwa.geojson',
     buildings: '/v3/data/buildings.geojson',
