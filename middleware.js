@@ -9,6 +9,10 @@ export const config = {
         '/v2',
         '/v2/',
         '/v2/index.html',
+        // v3 ePTW console
+        '/v3',
+        '/v3/',
+        '/v3/index.html',
     ],
 };
 

@@ -63,6 +63,14 @@ Style **ISA-101 control-room** : fond gris désaturé, couleur = statut uniqueme
 4. Bascule souterrain (scène Three.js block cave)
 5. IA ancrée sur l'état live (« Où est le truck DT204 ? », « Pourquoi la prod a chuté ? »)
 
+## Points ouverts — clôturés le 3 juillet 2026
+
+- [x] **Persistance Supabase** : audit IA auto-provisionnant (`v2_ai_queries`) dans `api/_lib/v2/audit.js` — s'active dès que `DATABASE_URL` existe dans Vercel, no-op sinon. ⚠️ **La base DigitalTwin n'existe dans aucun des 4 projets Supabase du compte** (valulearn ×2, ecranlarge, interval-v2) → décision Joachim : réutiliser un projet, en créer un, ou rester sans DB.
+- [x] **Labels 3D** : culling par distance caméra (LHD 3 km / niveaux 5.2 km / contexte 7 km) + fond sur le titre HUD.
+- [x] **Docs** : section V2 dans CLAUDE.md (sync des sims jumelles, chemins absolus, clé Sensitive, cache-busters).
+- [ ] *(action Joachim)* Clé OpenRouter : cocher « Preview » dans le dashboard pour tester l'IA hors prod.
+- [ ] *(action Joachim, autre projet)* Supabase `interval-v2` : 8 tables avec **RLS désactivé** dont `platform_api_keys` — à corriger avec des policies adaptées.
+
 ## Risques
 
 | Risque | Mitigation |
@@ -87,6 +95,6 @@ Style **ISA-101 control-room** : fond gris désaturé, couleur = statut uniqueme
 | 1–2 | ✅ **Fait (2026-07-02)** — Scaffolding `/v2/`, carte MapLibre satellite + terrain, GeoJSON OSM (842 éléments : pit, 3 puits, 334 bâtiments extrudés, convoyeurs), shell ISA-101, rail 10 assets + fly-to + panneau détail, toggle terrain 3D (fix caméra sous terrain à zoom élevé), mode dégradé sans WebGL. QA passée en headless + headed. |
 | 3–5 | ✅ **Fait (2026-07-02)** — Flotte 12 unités (6 × Komatsu 930E, water carts, grader, bus, ute) animée deck.gl (icônes orientées + trails) sur les vraies haul roads OSM (Dijkstra, 5 routes). Simulation 100 % déterministe `f(t)` identique client/serveur (12/12 sync vérifié). KPIs live (2 430 t/h, 9/12, 75 %), feed événements GMG avec backfill 2 h, panneau détail live, shift bar jour/nuit. Endpoint `/api/v2/fleet` sans DB. |
 | 6–8 | Bandeau KPI, feed événements, timeline shift, schéma DB v2 |
-| 9–10 | Bascule souterrain (Three.js block cave d'après NI 43-101) |
-| 11–12 | IA grounding v2 |
-| 13–14 | Polish design ISA-101, QA, deploy |
+| 9–10 | ✅ **Fait (2026-07-02)** — Bascule surface ⇄ souterrain : fly-to puits → crossfade scène Three.js. Hugo North Lift 1 en mètres réels : 5 puits (1 148–1 385 m), 4 niveaux, 2 231 drawpoints (InstancedMesh), gisement, convoyeur 13.2 km, 4 LHDs Sandvik animés (même f(t) déterministe). Labels CSS2D, OrbitControls, lazy-load three@0.185. |
+| 11–12 | ✅ **Fait (2026-07-02)** — `/api/v2/query` : IA (claude-sonnet-5 via OpenRouter) ancrée sur l'état déterministe live (16 unités dont 4 LHDs souterrains, KPIs, assets). Panneau Ask AI dans le feed. **Déployé et vérifié en prod** (~2 s/réponse). `/v2` protégé par le cookie site_auth (matcher middleware étendu, v1 intact). Fix chemins absolus (`/v2` servi sans slash final). Clé OpenRouter = Sensitive → non copiable vers preview ; tests IA en prod uniquement. |
+| 13–14 | ✅ **Fait (2026-07-02)** — Intro fly-in sobre 3.5 s (+ `?skip-intro=true`), veil de chargement, chips de questions suggérées (script de démo intégré), rendu markdown minimal des réponses IA, labels 3D étagés, tooltips rail, favicon. Déployé et vérifié en prod. **POC complet : 14 jours de jalons livrés en 1 journée.** |
