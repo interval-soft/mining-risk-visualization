@@ -12,6 +12,7 @@ import { buildSeed } from './permitSeed.js';
 import { applyTransition } from './permitFlow.js';
 import { PERMIT_TYPES } from '../config.js';
 import { detectConflicts } from './simops.js';
+import { applyIsolationTransition } from './isolationFlow.js';
 
 export class PermitStore {
     constructor() {
@@ -89,6 +90,31 @@ export class PermitStore {
                 await this.refresh();
             }
         } catch { /* offline/static dev — optimistic state stands */ }
+    }
+
+    /** Isolation action (SAP) — §8 rules incl. the §8.1.1 de-isolation guard. */
+    async applyIsolationAction(iccNo, actionId, { role } = {}) {
+        const iso = this.state.isolations.find(i => i.icc_no === iccNo);
+        if (!iso) throw new Error(`Unknown ICC ${iccNo}`);
+
+        const { isolation, event } = applyIsolationTransition(iso, actionId,
+            { role, permits: this.state.permits });
+
+        Object.assign(iso, isolation);
+        this.state.events.unshift(event);
+        this.localMutations = true;
+        this._recomputeKpis();
+        this._emit();
+
+        try {
+            const res = await fetch('/api/v3/isolation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ icc_no: iccNo, action: actionId, actor_role: role })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.persisted) { this.localMutations = false; await this.refresh(); }
+        } catch { /* optimistic state stands */ }
     }
 
     /** Digital Appendix I submission. */

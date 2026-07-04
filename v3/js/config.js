@@ -59,6 +59,12 @@ export const ROLES = [
     { id: 'PA', name: 'Performing Authority' }
 ];
 
+/** Personas selectable in the console — chain roles + isolation authority */
+export const PERSONAS = [
+    ...ROLES,
+    { id: 'SAP', name: 'Senior Authorised Person' }
+];
+
 export const DATA_URLS = {
     cwa: '/v3/data/cwa.geojson',
     buildings: '/v3/data/buildings.geojson',

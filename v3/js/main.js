@@ -6,10 +6,11 @@
  * Milestone 3 adds workflow actions, 4 SIMOPS, 5 isolations UI, 6 the AI.
  */
 
-import { SITE, PERMIT_TYPES, PERMIT_STATUS, ROLES } from './config.js';
+import { SITE, PERMIT_TYPES, PERMIT_STATUS, ROLES, PERSONAS } from './config.js';
 import { MapManager } from './map/MapManager.js';
 import { PermitStore } from './data/PermitStore.js';
 import { actionsFor, awaitingRole } from './data/permitFlow.js';
+import { ISOLATION_ACTIONS, openLinkedPermits } from './data/isolationFlow.js';
 
 const TYPE_COLORS = Object.fromEntries(
     Object.entries(PERMIT_TYPES).map(([k, v]) => [k, v.color]));
@@ -56,6 +57,7 @@ class ControlOfWorkConsole {
         this.renderEvents(state.events);
         this.mapManager?.updatePermits(state.permits, TYPE_COLORS);
         this.mapManager?.updateConflicts(state.conflicts || []);
+        this.mapManager?.updateIsolations(state.isolations || []);
         const badge = document.getElementById('simops-count');
         const n = (state.conflicts || []).length;
         badge.hidden = n === 0;
@@ -300,7 +302,7 @@ class ControlOfWorkConsole {
 
     buildPersonaSwitcher() {
         const sel = document.getElementById('persona-select');
-        for (const role of ROLES) {
+        for (const role of PERSONAS) {
             const opt = document.createElement('option');
             opt.value = role.id;
             opt.textContent = `${role.id} — ${role.name}`;
@@ -336,10 +338,80 @@ class ControlOfWorkConsole {
         document.getElementById('btn-reset').addEventListener('click', () =>
             this.mapManager?.resetView());
         document.getElementById('btn-simops').addEventListener('click', () => this.showSimopsPanel());
-        if (this.mapManager) this.mapManager.onConflictClick = (id) => {
-            this.showSimopsPanel(id);
-        };
+        document.getElementById('btn-isolations').addEventListener('click', () => this.showIsolationPanel());
+        if (this.mapManager) {
+            this.mapManager.onConflictClick = (id) => this.showSimopsPanel(id);
+            this.mapManager.onIsolationClick = (icc) => this.showIsolationPanel(icc);
+        }
         this.bindPermitForm();
+    }
+
+    /** Isolation register (§8) — ICC cards with lockbox and linked permits. */
+    showIsolationPanel(focusIcc = null) {
+        const isolations = this.store.state.isolations || [];
+        const permits = this.store.state.permits || [];
+        const panel = document.getElementById('detail-panel');
+
+        const TAG = { red: '#d95757', green: '#4caf7d', blue: '#5b8dbe', yellow: '#d9a441' };
+        const cards = isolations.map(iso => {
+            const points = typeof iso.points === 'string' ? JSON.parse(iso.points) : (iso.points || []);
+            const linked = openLinkedPermits(iso, permits);
+            const live = ['applied', 'sanction_to_test'].includes(iso.status);
+            const ptRows = points.map(pt => `
+                <div class="iso-point">
+                    <span class="iso-tag" style="background:${TAG[pt.tag_color] || '#8d99a4'}"></span>
+                    <span>pt ${pt.no} · ${pt.equipment}</span>
+                    <span class="detail-muted">${pt.method}</span>
+                </div>`).join('');
+            const actions = Object.entries(ISOLATION_ACTIONS)
+                .filter(([, a]) => a.from.includes(iso.status) && a.roles.includes(this.persona))
+                .map(([id, a]) =>
+                    `<button class="action-btn iso-action" data-icc="${iso.icc_no}" data-action="${id}">
+                        <i class="ph-duotone ${a.icon}"></i>${a.label}</button>`).join('');
+            return `
+            <div class="conflict-card iso-card${iso.icc_no === focusIcc ? ' conflict-focus' : ''}">
+                <div class="conflict-head">
+                    <span class="conflict-sev ${live ? 'iso-live' : ''}">${iso.status.toUpperCase().replace('_', ' ')}</span>
+                    <span>${iso.icc_no} · ${iso.type}</span>
+                </div>
+                <div class="conflict-meta">${iso.description || ''}</div>
+                ${ptRows}
+                ${iso.lockbox_key ? `<div class="conflict-meta"><i class="ph-duotone ph-key"></i>
+                    Lockbox ${iso.lockbox_key} · key with ${iso.key_holder} (§8.3)</div>` : ''}
+                <div class="conflict-permits">${
+                    linked.length
+                        ? linked.map(p => `<button class="sig conflict-chip" data-permit="${p.permit_no}">${p.permit_no.replace('PTW-2026-', 'PTW ')}</button>`).join(' ')
+                        : '<span class="detail-muted">no open linked permits</span>'}</div>
+                <div class="detail-actions iso-actions">${actions ||
+                    `<span class="detail-muted">No ${this.persona} action — isolations are SAP-controlled (§8.1.1)</span>`}</div>
+            </div>`;
+        }).join('');
+
+        panel.innerHTML = `
+            <div class="detail-header">
+                <i class="ph-duotone ph-lock-key"></i>
+                <div>
+                    <div class="detail-id">ISOLATION REGISTER · ICC (§8)</div>
+                    <div class="detail-name">${isolations.filter(i => ['applied', 'sanction_to_test'].includes(i.status)).length} live isolation(s) · lockbox keys at permit office</div>
+                </div>
+                <button class="detail-close" aria-label="Close">×</button>
+            </div>
+            ${cards || '<div class="detail-note">No isolations registered.</div>'}
+            <div class="detail-error" id="detail-error"></div>`;
+        panel.classList.add('open');
+        panel.querySelector('.detail-close').addEventListener('click', () => panel.classList.remove('open'));
+        panel.querySelectorAll('.conflict-chip').forEach(chip =>
+            chip.addEventListener('click', () => this.selectPermit(chip.dataset.permit, { flyTo: true })));
+        panel.querySelectorAll('.iso-action').forEach(btn =>
+            btn.addEventListener('click', async () => {
+                try {
+                    await this.store.applyIsolationAction(btn.dataset.icc, btn.dataset.action,
+                        { role: this.persona });
+                    this.showIsolationPanel(btn.dataset.icc);
+                } catch (e) {
+                    document.getElementById('detail-error').textContent = e.message;
+                }
+            }));
     }
 
     /** Daily SIMOPS / Line of Sight view (§6.4) — conflicts with advice. */

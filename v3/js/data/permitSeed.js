@@ -81,8 +81,8 @@ export function buildSeed(now = Date.now()) {
         ['PTW-2026-0140', 'confined_space', 'issued', 'CWA-1200',
             'Cooling tower basin — internal coating inspection', 'NDT Cymru', 'M. Evans',
             t0, t0 + 12 * H,               // 1 shift
-            { rams: true, tra: true, gas_test: true, standby_person: true, rescue_plan: true },
-            { note: 'AGT gas test 06:45 — O2 20.9%, LEL 0%, entry log open' }],
+            { rams: true, tra: true, gas_test: true, standby_person: true, rescue_plan: true, icc: true },
+            { note: 'AGT gas test 06:45 — O2 20.9%, LEL 0%, entry log open', iccNo: 'ICC-0009' }],
         ['PTW-2026-0136', 'excavation', 'issued', 'CWA-0200',
             'Drainage trench D-D — culvert 2 crossing', 'AlphaCivil Ltd', 'C. Williams',
             t0 - 5 * D, t0 + 2 * D,

@@ -162,9 +162,69 @@ export class MapManager {
             if (e.features?.length) this.onConflictClick?.(e.features[0].properties.conflictId);
         });
 
+        // ---- Isolation points (§8.9 tag colour code) ----
+        m.addSource('isolations', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        m.addLayer({
+            id: 'isolation-points', type: 'circle', source: 'isolations',
+            paint: {
+                'circle-radius': 5.5,
+                'circle-color': ['match', ['get', 'tag'],
+                    'red', '#d95757', 'green', '#4caf7d', 'blue', '#5b8dbe', 'yellow', '#d9a441',
+                    '#8d99a4'],
+                'circle-stroke-width': 1.5,
+                'circle-stroke-color': '#0e1012',
+                'circle-opacity': ['case', ['==', ['get', 'live'], 1], 1, 0.35]
+            }
+        });
+        m.addLayer({
+            id: 'isolation-labels', type: 'symbol', source: 'isolations',
+            minzoom: 16,
+            layout: {
+                'text-field': ['get', 'label'],
+                'text-font': ['Noto Sans Regular'],
+                'text-size': 9,
+                'text-offset': [0, 1.1],
+                'text-anchor': 'top'
+            },
+            paint: {
+                'text-color': '#c8cfd6',
+                'text-halo-color': 'rgba(0,0,0,0.85)',
+                'text-halo-width': 1.1
+            }
+        });
+        m.on('click', 'isolation-points', (e) => {
+            if (e.features?.length) this.onIsolationClick?.(e.features[0].properties.icc);
+        });
+        m.on('mouseenter', 'isolation-points', () => { m.getCanvas().style.cursor = 'pointer'; });
+        m.on('mouseleave', 'isolation-points', () => { m.getCanvas().style.cursor = ''; });
+
         this._layersReady = true;
         if (this._pendingPermits) this.updatePermits(...this._pendingPermits);
         if (this._pendingConflicts) this.updateConflicts(this._pendingConflicts);
+        if (this._pendingIsolations) this.updateIsolations(this._pendingIsolations);
+    }
+
+    /** Refresh isolation point markers. */
+    updateIsolations(isolations) {
+        if (!this._layersReady) { this._pendingIsolations = isolations; return; }
+        const features = [];
+        for (const iso of isolations) {
+            const points = typeof iso.points === 'string' ? JSON.parse(iso.points) : (iso.points || []);
+            for (const pt of points) {
+                if (pt.lng == null) continue;
+                features.push({
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [pt.lng, pt.lat] },
+                    properties: {
+                        icc: iso.icc_no,
+                        tag: pt.tag_color,
+                        label: `${iso.icc_no} · pt ${pt.no}`,
+                        live: ['applied', 'sanction_to_test'].includes(iso.status) ? 1 : 0
+                    }
+                });
+            }
+        }
+        this.map.getSource('isolations').setData({ type: 'FeatureCollection', features });
     }
 
     /** Refresh conflict overlays: dashed link + warning ring at midpoint. */

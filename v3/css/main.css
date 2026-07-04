@@ -461,3 +461,11 @@ html, body {
 .conflict-chip { cursor: pointer; background: var(--bg-panel-raised); }
 .conflict-chip:hover { border-color: var(--text-secondary); }
 .conflict-advice { color: var(--text-secondary); font-size: 10.5px; line-height: 1.5; padding-top: 4px; }
+
+/* ---------- v3 : isolations (jalon 5) ---------- */
+.iso-point { display: flex; align-items: center; gap: 7px; font-size: 11px; padding: 3px 0; color: var(--text-primary); }
+.iso-point .detail-muted { margin-left: auto; font-size: 10px; }
+.iso-tag { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.iso-live { color: var(--status-operating); }
+.iso-card { cursor: default; }
+.iso-actions { border-top: none; margin-top: 4px; padding-top: 4px; padding-left: 0; padding-right: 0; }
