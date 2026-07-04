@@ -7,8 +7,8 @@
 export const SITE = {
     name: 'HMCCP — Padeswood',
     client: 'Heidelberg Materials · Worley/MHI',
-    center: [-3.0568, 53.1517],
-    defaultZoom: 15.2,
+    center: [-3.0612, 53.1511],
+    defaultZoom: 15.4,
     minZoom: 10,
     maxZoom: 19,
     timeZone: 'Europe/London',
@@ -72,11 +72,13 @@ export const PERSONAS = [
  */
 export const PLOT_PLAN = {
     url: '/v3/data/site-plan.png',
+    // Géoréférencé le 2026-07-04 sur le DNS Site Masterplan (RSK Fig 1.2,
+    // grille OSGB au cadre) + AGI eni Sheet 14 — voir gen-cwa.js (scratchpad).
     coordinates: [
-        [-3.063895, 53.152589],
-        [-3.057699, 53.15131],
-        [-3.060104, 53.14712],
-        [-3.0663, 53.1484]
+        [-3.066518, 53.153166],
+        [-3.061687, 53.152226],
+        [-3.063452, 53.148952],
+        [-3.068282, 53.149893]
     ]
 };
 

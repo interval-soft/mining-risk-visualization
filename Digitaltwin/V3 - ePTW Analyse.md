@@ -73,18 +73,18 @@ Hybride : **seed déterministe** (~18 permis réalistes répartis sur états/CWA
 
 | # | Livrable |
 |---|---|
-| 1 | Données Padeswood (OSM + CWA digitalisées) + carte + shell + **schéma DB + Supabase** |
-| 2 | Modèle permis + seed + permit board + permis sur carte + détail |
-| 3 | Workflow complet (personas, signatures, revalidation, expiration) + formulaire Appendix I |
-| 4 | SIMOPS engine + vue meeting quotidien |
-| 5 | Isolations/ICC + lockbox |
-| 6 | IA CoW (procédure citée) + audit trail + polish ISA-101 + deploy |
+| 1 | ✅ **Fait (2026-07-04)** — Supabase `digitaltwin` (us-east-1, schéma v3 + RLS), OSM Padeswood (871 bâtiments), 26 CWA Appendix H géoréférencées (plant-north 341°), shell ISA-101, `/v3` protégé |
+| 2 | ✅ **Fait (2026-07-04)** — Seed partagé unique (16 permis ancrés 07:00 UK, 2 ICC, 40 événements), GET /api/v3/permits (DB→fallback seed) + POST /api/v3/seed (reset démo), board par état avec countdowns, pins carte, détail (chaîne signatures, checklist §4.2), feed audit. Déployé prod. |
+| 3 | ✅ **Fait (2026-07-04)** — Machine à états partagée (9 actions §5/§6.2, rôles, signatures, raisons obligatoires, erreurs référencées §), POST /api/v3/action + /api/v3/create, boutons contextuels par persona, file « My approvals », formulaire Appendix I digital (placement carte, validité auto §4.1). Chaîne complète QA : requested→issued via 4 personas. Fix : validité par type dans le fallback local. |
+| 4 | ✅ **Fait (2026-07-04)** — simops.js partagé (§6.4/§C.11 : hot×confined, exclusion levage, travaux de sol, risque cumulé ; high=2 live / medium=1 en approbation), overlay carte (liens pointillés + anneaux), panneau Daily SIMOPS avec conseils §6.3, badge/KPI rouges. Seed : PTW-0133 espace confiné dans l'absorber en soudure = conflit HIGH 0 m. Résolution live QA : suspension → KPI 1→0, audit tracé. Vérifié en prod. |
+| 5 | ✅ **Fait (2026-07-04)** — isolationFlow.js partagé (apply/remove SAP-only, **garde §8.1.1** : dé-isolation bloquée si permis lié ouvert, nominatif), POST /api/v3/isolation, registre ICC (points aux couleurs de tag §8.9, lockbox+porteur §8.3, permis liés), points sur carte, persona SAP. QA : blocage → clôture PA → dé-isolation §8.12, KPI 2→1. STT/proving dead = phase 2. |
+| 6 | ✅ **Fait (2026-07-04)** — Digest § de la procédure (api/_lib/v3/procedure.js) + POST /api/v3/query à double grounding (état live : permis expirés/docs manquants/SIMOPS/ICC + la procédure), réponses citées §, audit v2_ai_queries, chips de démo. Vérifié prod : « hot work CWA-0620 ? » → NO sur 3 fondements (§4.1+§1.4, §6.2.1, §6.4+§6.3) en 1.7 s. **POC v3 COMPLET : 6 jalons en 2 jours (plan : 2-3 semaines).** |
 
 ## Risques
 
 | Risque | Mitigation |
 |---|---|
-| CWA digitalisées ≈ approximatives | Caveat explicite « schématique » ; l'exactitude viendra du GIS client |
+| CWA digitalisées ≈ approximatives | Formes des zones schématiques (Appendix H), mais **placement géoréférencé le 4 juil** sur le DNS **Site Masterplan** (RSK Fig 1.2, grille OSGB 1:5000 au cadre, portail gallois CAS-02009-W1R1Z7) + dessin AGI eni (Sheet 14, corrélé OSM à ±5 m). Ancre = bassin d'orage (65,5×83,9 m), plant north = 019° vrai, échelle raster 0,3545 m/px, résidu ~10 m (révisions de layout différentes entre dessins). L'exactitude finale viendra du GIS client |
 | Scope creep isolations (section 8 est énorme) | ICC minimal viable : registre + lockbox + lien permis ; STT/proving dead en phase 2 |
 | Workflow multi-rôles sans multi-user | Persona switcher assumé — au POC c'est même mieux pour la démo |
 | DB = single point of failure en démo | Seed re-jouable + cache local en lecture ; l'app affiche l'état même si l'écriture échoue |

@@ -128,8 +128,15 @@ spec (digest note in the Digitaltwin/ Obsidian vault).
   the DB password).
 - AI: POST /api/v3/query grounds the LLM on live permits/SIMOPS/ICC plus
   the procedure digest (api/_lib/v3/procedure.js) and cites § sections.
-- CWA polygons are SCHEMATIC (traced from Appendix H, plant north 341°,
-  generator in scratchpad) — replace with client GIS when available.
+- CWA polygons: zone SHAPES are schematic (traced from Appendix H) but the
+  plot-plan PLACEMENT is georeferenced (2026-07-04) against the DNS Site
+  Masterplan (RSK Fig 1.2, OSGB grid frame, 1:5000) + eni AGI drawing
+  Sheet 14 — anchor = stormwater pond, plant north = 019° true, raster
+  0.3545 m/px. PLOT_PLAN corners in v3/js/config.js MUST stay in sync with
+  the CORNERS block of the generator (v3/tools/gen-cwa.cjs) and
+  the PIN table in permitSeed.js (CWA centroids). SIMOPS radii (simops.js)
+  are calibrated to these distances — re-check the 1 HIGH + 2 MEDIUM demo
+  narrative after any re-anchor.
 
 ## Project Phases
 

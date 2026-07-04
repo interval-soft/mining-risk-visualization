@@ -35,7 +35,7 @@ const PAIR_RULES = [
     {
         kind: 'hot-work-vs-confined-space',
         label: 'Hot work × confined space entry',
-        radiusM: 45,
+        radiusM: 35,
         test: (a, b) =>
             (HOT.includes(a.type) && b.type === 'confined_space') ||
             (HOT.includes(b.type) && a.type === 'confined_space'),
@@ -44,14 +44,14 @@ const PAIR_RULES = [
     {
         kind: 'lift-exclusion-overlap',
         label: 'Lifting exclusion zone overlap',
-        radiusM: 35,
+        radiusM: 27,
         test: (a, b) => (atts(a).lift_plan && !atts(b).lift_plan) || (atts(b).lift_plan && !atts(a).lift_plan),
         advice: 'Work party inside a planned lift exclusion zone. Only planned lifts per lift plan, exclusion zone established (§6.3). Sequence the operations or re-route.'
     },
     {
         kind: 'ground-works-interaction',
         label: 'Concurrent ground disturbance',
-        radiusM: 35,
+        radiusM: 27,
         test: (a, b) => GROUND.includes(a.type) && GROUND.includes(b.type),
         advice: 'Adjacent excavations/piling affect ground stability and buried services. Joint review of utility drawings and spoil zones (§7.1).'
     }
