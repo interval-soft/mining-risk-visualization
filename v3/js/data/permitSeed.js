@@ -26,32 +26,32 @@ export function shiftStart(now = Date.now()) {
 
 /** CWA centroids for permit pins (approx, from v3/data/cwa.geojson layout). */
 const PIN = {
-    "CWA-0100": [-3.0559, 53.1534],
-    "CWA-0200": [-3.0509, 53.1552],
-    "CWA-0300": [-3.0519, 53.1543],
-    "CWA-0400": [-3.0530, 53.1545],
-    "CWA-0500": [-3.0509, 53.1543],
-    "CWA-0600": [-3.0509, 53.1536],
-    "CWA-0620": [-3.0514, 53.1531],
-    "CWA-0630": [-3.0506, 53.1530],
-    "CWA-0640": [-3.0508, 53.1526],
-    "CWA-0650": [-3.0516, 53.1527],
-    "CWA-0700": [-3.0524, 53.1525],
-    "CWA-0701": [-3.0518, 53.1514],
-    "CWA-0710": [-3.0500, 53.1520],
-    "CWA-0711": [-3.0524, 53.1504],
-    "CWA-0800": [-3.0496, 53.1528],
-    "CWA-0900": [-3.0540, 53.1529],
-    "CWA-0910": [-3.0546, 53.1538],
-    "CWA-1000": [-3.0531, 53.1520],
-    "CWA-1010": [-3.0530, 53.1520],
-    "CWA-1100": [-3.0502, 53.1518],
-    "CWA-1200": [-3.0506, 53.1510],
-    "CWA-1300": [-3.0556, 53.1513],
-    "CWA-1400": [-3.0534, 53.1510],
-    "CWA-1500": [-3.0489, 53.1540],
-    "CWA-1600": [-3.0495, 53.1557],
-    "CWA-1700": [-3.0510, 53.1503]
+    "CWA-0100": [-3.0649, 53.1502],
+    "CWA-0200": [-3.0613, 53.1515],
+    "CWA-0300": [-3.0621, 53.1509],
+    "CWA-0400": [-3.0629, 53.151],
+    "CWA-0500": [-3.0613, 53.1509],
+    "CWA-0600": [-3.0613, 53.1503],
+    "CWA-0620": [-3.0617, 53.15],
+    "CWA-0630": [-3.0611, 53.1499],
+    "CWA-0640": [-3.0613, 53.1496],
+    "CWA-0650": [-3.0618, 53.1497],
+    "CWA-0700": [-3.0624, 53.1495],
+    "CWA-0701": [-3.062, 53.1488],
+    "CWA-0710": [-3.0607, 53.1492],
+    "CWA-0711": [-3.0624, 53.1481],
+    "CWA-0800": [-3.0604, 53.1498],
+    "CWA-0900": [-3.0636, 53.1498],
+    "CWA-0910": [-3.064, 53.1505],
+    "CWA-1000": [-3.0629, 53.1492],
+    "CWA-1010": [-3.0628, 53.1492],
+    "CWA-1100": [-3.0608, 53.149],
+    "CWA-1200": [-3.0611, 53.1485],
+    "CWA-1300": [-3.0647, 53.1487],
+    "CWA-1400": [-3.0631, 53.1485],
+    "CWA-1500": [-3.0599, 53.1507],
+    "CWA-1600": [-3.0603, 53.1519],
+    "CWA-1700": [-3.0614, 53.1479]
 };
 
 const sig = (t0, role, name, dt) => ({ [role.toLowerCase()]: { name, ts: new Date(t0 + dt).toISOString() } });
@@ -180,13 +180,13 @@ export function buildSeed(now = Date.now()) {
     const isolations = [
         { icc_no: 'ICC-0012', type: 'electrical', status: 'applied',
           description: 'MCC room feeder — LV isolation, proved dead §8.15.2',
-          points: [{ no: 1, equipment: 'MCC-11 incomer', method: 'Racked out + locked', tag_color: 'green', lng: -3.0518, lat: 53.1527 }],
+          points: [{ no: 1, equipment: "MCC-11 incomer", method: "Racked out + locked", tag_color: "green", lng: -3.0608, lat: 53.149 }],
           lockbox_key: 'LBX-04', key_holder: 'R. Owen (PA)' },
         { icc_no: 'ICC-0009', type: 'process', status: 'applied',
           description: 'Cooling water basin — inlet valves spade isolated (positive, §8.14.1)',
           points: [
-              { no: 1, equipment: 'CWS-V101', method: 'Spade inserted', tag_color: 'red', lng: -3.0524, lat: 53.1516 },
-              { no: 2, equipment: 'CWS-V102 bleed', method: 'Locked open', tag_color: 'blue', lng: -3.0521, lat: 53.1514 }],
+              { no: 1, equipment: "CWS-V101", method: "Spade inserted", tag_color: "red", lng: -3.0611, lat: 53.1485 },
+              { no: 2, equipment: "CWS-V102 bleed", method: "Locked open", tag_color: "blue", lng: -3.0608, lat: 53.148399999999995 }],
           lockbox_key: 'LBX-02', key_holder: 'M. Evans (PA)' }
     ];
 
