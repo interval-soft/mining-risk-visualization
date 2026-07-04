@@ -6,13 +6,12 @@
  * Permit pins/zones arrive in milestone 2 (deck.gl overlay).
  */
 
-import { SITE, TILES, DATA_URLS, PLOT_PLAN } from '../config.js';
+import { SITE, TILES, DATA_URLS } from '../config.js';
 
 export class MapManager {
     constructor(containerId, onCwaClick) {
         this.onCwaClick = onCwaClick;
         this.cwaVisible = true;
-        this.planVisible = false;   // Appendix H raster off by default — zones only (plan+zones stacked is confusing)
 
         this.map = new maplibregl.Map({
             container: containerId,
@@ -44,13 +43,6 @@ export class MapManager {
             m.addSource(key, { type: 'geojson', data: url });
         }
 
-        // Appendix H plot plan — the client's own drawing, georeferenced
-        m.addSource('plot-plan', { type: 'image', url: PLOT_PLAN.url, coordinates: PLOT_PLAN.coordinates });
-        m.addLayer({
-            id: 'plot-plan', type: 'raster', source: 'plot-plan',
-            layout: { visibility: 'none' },
-            paint: { 'raster-opacity': 0.78, 'raster-fade-duration': 300 }
-        });
 
         // Existing plant context — subtle building footprints
         m.addLayer({
@@ -89,7 +81,6 @@ export class MapManager {
             }
         });
 
-        // default state: zones only, full strength (plot plan hidden — see togglePlotPlan)
 
         m.on('click', 'cwa-fill', (e) => {
             if (e.features?.length) this.onCwaClick(e.features[0]);
@@ -300,17 +291,6 @@ export class MapManager {
             this.map.setLayoutProperty(id, 'visibility', vis);
         }
         return this.cwaVisible;
-    }
-
-    /** Toggle the Appendix H raster. When ON, CWA fills fade to hit-area only. */
-    togglePlotPlan() {
-        this.planVisible = !this.planVisible;
-        this.map.setLayoutProperty('plot-plan', 'visibility', this.planVisible ? 'visible' : 'none');
-        // zones stay clickable; fills/labels step back under the drawing
-        this.map.setPaintProperty('cwa-fill', 'fill-opacity', this.planVisible ? 0.04 : 0.30);
-        this.map.setLayoutProperty('cwa-labels', 'visibility', this.planVisible ? 'none' : 'visible');
-        this.map.setPaintProperty('cwa-outline', 'line-opacity', this.planVisible ? 0.25 : 0.9);
-        return this.planVisible;
     }
 
     flyToCwa(feature) {

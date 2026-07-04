@@ -65,22 +65,9 @@ export const PERSONAS = [
     { id: 'SAP', name: 'Senior Authorised Person' }
 ];
 
-/**
- * Appendix H plot plan as a georeferenced raster overlay.
- * Corners share the exact transform of the CWA polygons (anchor/rotation/
- * scale) so drawing and interactive zones stay registered.
- */
-export const PLOT_PLAN = {
-    url: '/v3/data/site-plan.png',
-    // Géoréférencé le 2026-07-04 sur le DNS Site Masterplan (RSK Fig 1.2,
-    // grille OSGB au cadre) + AGI eni Sheet 14 — voir gen-cwa.js (scratchpad).
-    coordinates: [
-        [-3.066518, 53.153166],
-        [-3.061687, 53.152226],
-        [-3.063452, 53.148952],
-        [-3.068282, 53.149893]
-    ]
-};
+// The Appendix H raster overlay was removed from the UI (2026-07-04, demo
+// clarity). Its georeferenced corners live on in v3/tools/gen-cwa.cjs
+// (CORNERS block), which drives the CWA polygon placement.
 
 export const DATA_URLS = {
     cwa: '/v3/data/cwa.geojson',

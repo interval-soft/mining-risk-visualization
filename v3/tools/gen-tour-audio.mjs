@@ -31,8 +31,43 @@ const only = args.includes('--only') ? args[args.indexOf('--only') + 1] : null;
 const voice = args.includes('--voice') ? args[args.indexOf('--voice') + 1]
     : (GEMINI_KEY ? 'Kore' : undefined);
 
-const STYLE = 'Speak in a warm, natural, unhurried professional tone — a friendly control-room guide. ' +
-    'Read the following narration verbatim, without adding anything:\n\n';
+const STYLE = 'Speak in a warm, natural, unhurried professional tone — a friendly control-room guide ' +
+    'giving a live walkthrough to a colleague. Breathe naturally between sentences. ' +
+    'Square-bracket annotations like [short pause] or [warmly] are delivery directions — ' +
+    'perform them, never read them aloud. Read the narration verbatim otherwise, without adding anything:\n\n';
+
+/**
+ * QA: transcribe the generated MP3 and make sure no [tag] leaked into
+ * speech (the TTS occasionally reads a direction aloud). Returns the list
+ * of leaked tag phrases (empty = clean).
+ */
+async function leakedTags(mp3Path, narration) {
+    // a tag whose words also occur in the spoken prose is undetectable —
+    // exclude it from the check (and avoid such tags when writing steps)
+    const prose = narration.replace(/\[[^\]]+\]/g, ' ').toLowerCase();
+    const tags = [...narration.matchAll(/\[([^\]]+)\]/g)]
+        .map(m => m[1].toLowerCase())
+        .filter(t => !prose.includes(t));
+    if (!tags.length) return [];
+    const { readFile } = await import('node:fs/promises');
+    const audio = (await readFile(mp3Path)).toString('base64');
+    const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_KEY}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [
+                    { text: 'Transcribe ONLY the spoken words of this audio. Do NOT annotate pauses, silences or non-speech events — words only.' },
+                    { inlineData: { mimeType: 'audio/mp3', data: audio } }
+                ] }]
+            })
+        });
+    const data = await r.json();
+    const norm = (s) => s.toLowerCase().replace(/[^a-z ]+/g, ' ').replace(/\s+/g, ' ');
+    const transcript = norm(data.candidates?.[0]?.content?.parts?.[0]?.text || '');
+    return tags.filter(t => transcript.includes(norm(t)));
+}
 
 /** Google AI Studio direct: returns { buf: <pcm16 Buffer>, rate } */
 async function geminiTts(text) {
@@ -67,13 +102,23 @@ for (const step of TOUR_STEPS) {
     try {
         const t0 = Date.now();
         if (GEMINI_KEY) {
-            const { buf, rate } = await geminiTts(step.narration);
-            const tmp = join(OUT_DIR, `${step.id}.tmp.raw`);
-            await writeFile(tmp, buf);
-            execFileSync('ffmpeg', ['-y', '-v', 'quiet', '-f', 's16le', '-ar', rate, '-ac', '1',
-                '-i', tmp, '-b:a', '64k', target]);
-            await unlink(tmp);
-            console.log(`OK  ${(buf.length / 1024).toFixed(0)} kB pcm → mp3  (${GEMINI_MODEL}/${voice}, ${Date.now() - t0} ms)`);
+            let leaks = [];
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                const { buf, rate } = await geminiTts(step.narration);
+                const tmp = join(OUT_DIR, `${step.id}.tmp.raw`);
+                await writeFile(tmp, buf);
+                execFileSync('ffmpeg', ['-y', '-v', 'quiet', '-f', 's16le', '-ar', rate, '-ac', '1',
+                    '-i', tmp, '-b:a', '64k', target]);
+                await unlink(tmp);
+                leaks = await leakedTags(target, step.narration);
+                if (!leaks.length) {
+                    console.log(`OK  ${(buf.length / 1024).toFixed(0)} kB pcm → mp3, tags clean` +
+                        `${attempt > 1 ? ` (attempt ${attempt})` : ''}  (${GEMINI_MODEL}/${voice}, ${Date.now() - t0} ms)`);
+                    break;
+                }
+                process.stdout.write(`[leak: ${leaks.join(', ')}] retry ${attempt}… `);
+            }
+            if (leaks.length) throw new Error(`tags still spoken after 3 attempts: ${leaks.join(', ')}`);
         } else {
             const r = await fetch(ENDPOINT, {
                 method: 'POST',
