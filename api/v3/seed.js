@@ -21,7 +21,9 @@ export default async function handler(req, res) {
     try {
         const { permits, isolations, events } = buildSeed(Date.now());
 
-        await query('TRUNCATE v3_permit_events, v3_permits, v3_isolations RESTART IDENTITY CASCADE');
+        // No RESTART IDENTITY: the app role owns no sequences (least privilege),
+        // and gapless ids don't matter — permit numbers are the business keys.
+        await query('TRUNCATE v3_permit_events, v3_permits, v3_isolations CASCADE');
 
         for (const p of permits) {
             const rows = await query(
