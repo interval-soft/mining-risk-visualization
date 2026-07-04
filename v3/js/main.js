@@ -11,6 +11,7 @@ import { MapManager } from './map/MapManager.js';
 import { PermitStore } from './data/PermitStore.js';
 import { actionsFor, awaitingRole } from './data/permitFlow.js';
 import { ISOLATION_ACTIONS, openLinkedPermits } from './data/isolationFlow.js';
+import { initTour } from './tour/TourEngine.js';
 
 const TYPE_COLORS = Object.fromEntries(
     Object.entries(PERMIT_TYPES).map(([k, v]) => [k, v.color]));
@@ -610,4 +611,4 @@ class ControlOfWorkConsole {
     }
 }
 
-new ControlOfWorkConsole();
+initTour(new ControlOfWorkConsole());
