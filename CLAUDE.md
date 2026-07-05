@@ -128,6 +128,16 @@ spec (digest note in the Digitaltwin/ Obsidian vault).
   the DB password).
 - AI: POST /api/v3/query grounds the LLM on live permits/SIMOPS/ICC plus
   the procedure digest (api/_lib/v3/procedure.js) and cites § sections.
+  The system prompt forbids markdown tables and treats permit free-text as
+  data, not instructions (prompt-injection guard). The answer is rendered
+  by renderAnswer() in main.js (HTML-escaped, then bold/§/bullets/tables).
+- SECURITY: all user/DB-sourced text (permit titles, contractor, PA,
+  suspension reasons, signature names, event text, isolation/SIMOPS fields)
+  MUST go through esc() before landing in an innerHTML template — these
+  fields are user-controlled and persisted (stored-XSS otherwise). Write
+  endpoints bound length + validate shape via api/_lib/v3/sanitize.js
+  (client maxlength is cosmetic; a direct POST bypasses it). Keep both
+  when adding fields.
 - Guided tour: v3/js/tour/ (22 steps, 8 chapters) drives the REAL UI via
   before() hooks and auto-launches on first visit (localStorage
   v3_tour_seen). Narration MP3s are STATIC files in v3/assets/tour/,
