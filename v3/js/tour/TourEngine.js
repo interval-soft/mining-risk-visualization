@@ -27,7 +27,10 @@ export class TourEngine {
         this.chapters = [...new Set(this.steps.map(s => s.chapter))];
         this.index = -1;
         this.active = false;
-        this.autoplay = false;
+        // The tour is a narrated presentation: it PLAYS by default (narration
+        // + auto-advance when each step's audio ends). The ▶/⏸ button pauses
+        // and resumes that — a real media control, not an opt-in toggle.
+        this.paused = false;
         this.muted = localStorage.getItem(MUTE_KEY) === '1';
         this.audio = null;
         this.autoTimer = null;
@@ -58,12 +61,12 @@ export class TourEngine {
                 <span class="tour-progress"></span>
                 <span class="tour-top-spacer"></span>
                 <button class="tour-icon-btn tour-mute" title="Toggle narration"></button>
-                <button class="tour-icon-btn tour-auto" title="Auto-play (advances with the narration)"></button>
+                <button class="tour-icon-btn tour-auto" title="Pause / resume the narration"></button>
                 <button class="tour-icon-btn tour-close" title="End tour (Esc)">×</button>
             </div>
             <div class="tour-title"></div>
             <div class="tour-body"></div>
-            <div class="tour-audio-note" hidden>🔇 Browser blocked autoplay — narration resumes on your next click.</div>
+            <div class="tour-audio-note" hidden>⏸ Paused — click anywhere or press ▶ to start the narration.</div>
             <div class="tour-card-controls">
                 <button class="tour-btn tour-back">◀ Back</button>
                 <button class="tour-btn tour-skip">Skip tour</button>
@@ -86,7 +89,7 @@ export class TourEngine {
         this.card.querySelector('.tour-skip').addEventListener('click', () => this.end());
         this.card.querySelector('.tour-close').addEventListener('click', () => this.end());
         this.card.querySelector('.tour-mute').addEventListener('click', () => this.toggleMute());
-        this.card.querySelector('.tour-auto').addEventListener('click', () => this.toggleAutoplay());
+        this.card.querySelector('.tour-auto').addEventListener('click', () => this.togglePause());
 
         document.body.appendChild(this.hole);
         document.body.appendChild(this.card);
@@ -98,8 +101,9 @@ export class TourEngine {
         mute.textContent = this.muted ? '🔇' : '🔊';
         mute.classList.toggle('tour-toggle-on', !this.muted);
         const auto = this.card.querySelector('.tour-auto');
-        auto.textContent = this.autoplay ? '⏸' : '▶';
-        auto.classList.toggle('tour-toggle-on', this.autoplay);
+        auto.textContent = this.paused ? '▶' : '⏸';
+        auto.title = this.paused ? 'Resume the narration' : 'Pause the narration';
+        auto.classList.toggle('tour-toggle-on', !this.paused);
     }
 
     // ---------- lifecycle ----------
@@ -114,7 +118,7 @@ export class TourEngine {
     end() {
         this.active = false;
         this.index = -1;
-        this.autoplay = false;
+        this.paused = false;
         this.hole.hidden = true;
         this.card.hidden = true;
         this._stopAudio();
@@ -134,6 +138,8 @@ export class TourEngine {
         if (i < 0 || i >= this.steps.length) { this.end(); return; }
         this._stopAudio();
         this._clearTimers();
+        this.paused = false;            // navigating always plays the destination step
+        this._syncToggleButtons();
         this.index = i;
         const step = this.steps[i];
 
@@ -243,16 +249,23 @@ export class TourEngine {
             a.removeEventListener('error', onError);
         };
         a.play().catch(() => {
-            // Autoplay policy: no user gesture yet. Resume on next interaction.
+            // Autoplay policy: no user gesture yet. HOLD the tour (paused) so it
+            // doesn't fly through steps silently; the first interaction resumes.
+            if (a !== this.audio) return;
+            this.paused = true;
+            this._syncToggleButtons();
             const note = this.card.querySelector('.tour-audio-note');
             note.hidden = false;
             const resume = () => {
-                note.hidden = true;
-                if (this.audio === a && this.active) a.play().catch(() => {});
                 document.removeEventListener('pointerdown', resume, true);
+                note.hidden = true;
+                if (this.audio === a && this.active && this.paused) {
+                    this.paused = false;
+                    this._syncToggleButtons();
+                    a.play().catch(() => {});
+                }
             };
             document.addEventListener('pointerdown', resume, true);
-            this._armAutoAdvance(AUTOPLAY_FALLBACK_MS);
         });
     }
 
@@ -268,10 +281,10 @@ export class TourEngine {
     }
 
     _armAutoAdvance(delayMs) {
-        if (!this.autoplay || !this.active) return;
+        if (this.paused || !this.active) return;
         clearTimeout(this.autoTimer);
         this.autoTimer = setTimeout(() => {
-            if (this.autoplay && this.active) this.next();
+            if (!this.paused && this.active) this.next();
         }, delayMs);
     }
 
@@ -289,19 +302,20 @@ export class TourEngine {
         localStorage.setItem(MUTE_KEY, this.muted ? '1' : '0');
         this._syncToggleButtons();
         if (this.muted) this._stopAudio();
-        else if (this.active) this._playAudio(this.steps[this.index]);
+        else if (this.active && !this.paused) this._playAudio(this.steps[this.index]);
     }
 
-    toggleAutoplay() {
-        this.autoplay = !this.autoplay;
+    /** ▶/⏸ — pause or resume the narration (and the auto-advance with it). */
+    togglePause() {
+        this.paused = !this.paused;
         this._syncToggleButtons();
-        if (this.autoplay) {
-            // if narration already finished (or muted), advance on the fallback timer
-            if (!this.audio || this.audio.ended || this.audio.paused) {
-                this._armAutoAdvance(1500);
-            }
-        } else {
+        if (this.paused) {
+            this.audio?.pause();
             clearTimeout(this.autoTimer);
+        } else if (this.audio && !this.audio.ended) {
+            this.audio.play().catch(() => {});   // resume from where it stopped
+        } else {
+            this._armAutoAdvance(600);            // narration already finished → continue the tour
         }
     }
 }
