@@ -41,14 +41,16 @@ export const TOUR_STEPS = [
         title: 'HMCCP Control of Work',
         html: `This console is a working digital version of the Worley <b>Permit to Work
                Procedure RevB</b> (215000-00190-000-HS-PRO-00002) for the Heidelberg Materials
-               Carbon Capture Project at Padeswood. Nothing here is invented: every rule,
-               role and validity you will see is enforced from that document, and the tour
-               cites its sections (§) as we go.<br><br>
-               <b>One note for this demo:</b> the Construction Work Area locations on the
-               map are indicative — we have not yet mapped their exact position. That will
-               be done together with the Worley team.<br><br>
+               Carbon Capture Project at Padeswood. Every rule, role and validity is
+               <b>faithful to that document</b>, and the tour cites its sections (§) as we go.<br><br>
+               <b>Two things to keep in mind for this demo.</b> First, the permits, isolations
+               and events shown are <b>illustrative sample data</b> from a small database we
+               set up for the demonstration — not live site data. Second, this is designed as
+               a <b>layer on top of the permit system you already use, not a replacement</b>:
+               in a live deployment it would read your permits, isolations and SIMOPS straight
+               from your system of record and present them here.<br><br>
                <span class="tour-hint">Tip: turn your sound on — each step is narrated.</span>`,
-        narration: `[warmly] Welcome to the HMCCP Control of Work console. … This is a working digital version of the Worley Permit to Work Procedure, Revision B, for the Padeswood carbon capture project. Nothing here is invented: every rule, role and validity limit is enforced from that document, [slightly emphatic] and this tour cites its sections as we go. … [candid, reassuring] One note for this demonstration: we could not map the exact location of the construction work areas yet — the zones on the map are placed indicatively, and we will map them precisely together with the Worley team.`,
+        narration: `[warmly] Welcome to the HMCCP Control of Work console. … This is a working digital version of the Worley Permit to Work Procedure, Revision B, for the Padeswood carbon capture project. Every rule, role and validity is faithful to that document, [slightly emphatic] and this tour cites its sections as we go. … [candid] Two things to keep in mind for this demonstration. First, the permits, isolations and events you will see are illustrative sample data, from a small database we set up for the demo — not live site data. … [clear] Second, this console is designed as a layer on top of the permit system you already use — not a replacement. In a live deployment, it would read your permits, isolations and simops directly from your system of record, and present them here.`,
         before: async (app) => { closeDetail(app); setPersona(app, 'PI'); app.mapManager?.resetView(); }
     },
     {
@@ -143,10 +145,11 @@ export const TOUR_STEPS = [
         title: 'Roles, not logins',
         html: `The procedure defines distinct roles — <b>WA</b> (Work Applicant),
                <b>AA</b> (Area Authority), <b>PI</b> (Permit Issuer), <b>PA</b> (Performing
-               Authority) and <b>SAP</b> (Senior Authorised Person). In production each is a
-               signed-in user; in this POC you switch roles here, and the whole console
-               re-evaluates what YOU are allowed to do.`,
-        narration: `The procedure defines distinct roles: work applicant, area authority, permit issuer, performing authority, and senior authorised person. … In production each role is a signed in user. In this proof of concept you switch roles with this selector, [slightly emphatic] and the whole console re evaluates what you are allowed to do.`
+               Authority) and <b>SAP</b> (Senior Authorised Person). In production these are
+               separate signed-in users, with delegation and escalation. For this demo you
+               switch roles here with one click, and the whole console re-evaluates what YOU
+               are allowed to do.`,
+        narration: `The procedure defines distinct roles: work applicant, area authority, permit issuer, performing authority, and senior authorised person. … In production these are separate signed in users, with delegation and escalation. For this demonstration you switch roles with this selector, [slightly emphatic] and the whole console re evaluates what you are allowed to do.`
     },
     {
         id: 'approvals',
@@ -252,8 +255,9 @@ export const TOUR_STEPS = [
                Confirmation Certificate</b> lists its points with the §8.9 tag colours
                (red process, green electrical, blue instrument), the <b>lockbox and key
                holder (§8.3)</b>, and the permits that depend on it. Isolation points are
-               pinned on the map like permits.`,
-        narration: `[calm] Section eight of the procedure covers energy isolations. Each isolation confirmation certificate lists its isolation points, with the standard tag colours: red for process, green for electrical, blue for instrument. … It tracks the lockbox and key holder, and the permits that depend on the isolation. Isolation points are pinned on the map, just like permits.`,
+               pinned on the map like permits. This is a focused first slice of Section 8 —
+               the full lock-out/tag-out and proving-dead workflow would come in a later phase.`,
+        narration: `[calm] Section eight of the procedure covers energy isolations. Each isolation confirmation certificate lists its isolation points, with the standard tag colours: red for process, green for electrical, blue for instrument. … It tracks the lockbox and key holder, and the permits that depend on the isolation. … [aside] This is a focused first slice of section eight — the full lock out, tag out and proving dead workflow would come in a later phase.`,
         before: async (app) => { app.showIsolationPanel(); }
     },
     {
@@ -279,9 +283,12 @@ export const TOUR_STEPS = [
         html: `The AI is grounded on <b>two sources at once</b>: the live console state —
                every permit, conflict and isolation you just saw — and the full text
                digest of the RevB procedure. It answers like a control-room advisor and
-               <b>cites the § sections</b> that drive each answer. Every question and
-               answer is written to the audit trail.`,
-        narration: `[warming up] The A I assistant is grounded on two sources at once: the live console state — every permit, conflict and isolation you just saw — and the full text of the Rev B procedure itself. … It answers like a control room advisor, and cites the sections that drive each answer. Every question and answer is written to the audit trail.`,
+               <b>cites the § sections</b> that drive each answer.<br><br>
+               <b>On security:</b> in a live deployment this would run as a <b>local, on-premise
+               model</b> (for example Gemma) with <b>no connection to the outside world</b> —
+               no permit data ever leaves your network. Every question and answer is written
+               to the audit trail.`,
+        narration: `[warming up] The assistant is grounded on two sources at once: the live console state — every permit, conflict and isolation you just saw — and the full text of the Rev B procedure itself. … It answers like a control room advisor, and cites the sections behind each answer. … [reassuring] And on security: in a live deployment, this would run as a local model, on your own hardware — for example Gemma — with no connection to the outside world. No permit data ever leaves your network. … Every question and answer is written to the audit trail.`,
         before: async (app) => { setPersona(app, 'PI'); closeDetail(app); }
     },
     {
@@ -310,11 +317,10 @@ export const TOUR_STEPS = [
         target: ['#btn-reset-scenario', '#data-source'],
         title: 'Demo controls',
         html: `<b>Reset scenario</b> re-seeds the demo, re-anchored to today's 07:00 shift —
-               break anything you like, it comes back. The footer badge shows where the
-               data lives: <b>Supabase · live</b> means real persistence with a three-year
-               §9.1 audit trail; the console falls back to a deterministic local scenario
-               if the database is ever unreachable. The demo never breaks.`,
-        narration: `Two practical controls before you explore. Reset scenario re seeds the demo, re anchored to today's shift — [amused] break anything you like, it comes back. … And the footer badge shows where the data lives. Supabase live means real persistence, with a full audit trail. If the database is ever unreachable, the console falls back to a deterministic local scenario. [confident] The demo never breaks.`,
+               break anything you like, it comes back. Everything you do is persisted with a
+               full <b>§9.1 audit trail</b>; if the data layer is ever unreachable the console
+               falls back to a self-contained sample scenario, so the demo never breaks.`,
+        narration: `Two practical controls before you explore. Reset scenario re seeds the demo, re anchored to today's shift — [amused] break anything you like, it comes back. … Everything you do is persisted, with a full audit trail. And if the data layer is ever unreachable, the console falls back to a self contained sample scenario — [confident] so the demo never breaks.`,
         before: async (app) => { closeDetail(app); }
     },
     {

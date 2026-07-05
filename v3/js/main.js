@@ -130,7 +130,7 @@ class ControlOfWorkConsole {
         document.getElementById('kpi-conflicts').classList.toggle('kpi-alert-active', (k.conflicts ?? 0) > 0);
         document.querySelectorAll('.kpi').forEach(el => el.classList.remove('kpi-placeholder'));
         document.getElementById('data-source').textContent =
-            source === 'db' ? 'Supabase · live' : 'SEED · deterministic (no DB)';
+            source === 'db' ? 'Demo data · live' : 'Demo data · sample';
     }
 
     renderBoard(permits) {
