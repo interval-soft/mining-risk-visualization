@@ -131,6 +131,16 @@ spec (digest note in the Digitaltwin/ Obsidian vault).
   The system prompt forbids markdown tables and treats permit free-text as
   data, not instructions (prompt-injection guard). The answer is rendered
   by renderAnswer() in main.js (HTML-escaped, then bold/§/bullets/tables).
+- Reporting: v3/js/reports/reportBuilder.js generates 3 PDFs client-side
+  (permit certificate, daily SIMOPS brief §6.4, shift handover) —
+  DETERMINISTIC, no AI, no network (the security-friendly counterpart to
+  the AI). pdfmake is VENDORED under v3/vendor/ (no runtime CDN, lazy-
+  loaded on first report) so the demo never breaks. Buttons: certificate
+  on permit detail, export on SIMOPS panel, handover in the footer.
+  Positioning: this console is pitched as a LAYER over the client's
+  existing PTW system (Isometrix), not a replacement; demo data is
+  "illustrative sample" (never say Supabase in the UI); the AI is framed
+  as an on-premise local model (e.g. Gemma) with no external connection.
 - SECURITY: all user/DB-sourced text (permit titles, contractor, PA,
   suspension reasons, signature names, event text, isolation/SIMOPS fields)
   MUST go through esc() before landing in an innerHTML template — these
