@@ -418,6 +418,8 @@ html, body {
 }
 .action-btn:hover { border-color: var(--text-secondary); }
 .action-btn i { font-size: 13px; }
+.report-btn { color: var(--text-secondary); }
+.report-btn:hover { color: var(--status-maintenance); border-color: var(--status-maintenance); }
 .reason-row { display: flex; gap: 6px; padding: 6px 12px; }
 .reason-row input { flex: 1; background: var(--bg-panel-raised); border: 1px solid var(--border);
     border-radius: 3px; color: var(--text-primary); font-family: inherit; font-size: 11px; padding: 5px 8px; }

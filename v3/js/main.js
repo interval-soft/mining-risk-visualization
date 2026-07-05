@@ -12,6 +12,7 @@ import { PermitStore } from './data/PermitStore.js';
 import { actionsFor, awaitingRole } from './data/permitFlow.js';
 import { ISOLATION_ACTIONS, openLinkedPermits } from './data/isolationFlow.js';
 import { initTour } from './tour/TourEngine.js';
+import { permitCertificate, simopsBrief, shiftHandover, downloadReport } from './reports/reportBuilder.js';
 
 const TYPE_COLORS = Object.fromEntries(
     Object.entries(PERMIT_TYPES).map(([k, v]) => [k, v.color]));
@@ -92,6 +93,7 @@ class ControlOfWorkConsole {
         this.buildPersonaSwitcher();
         this.buildBoardLegend();
         this.bindControls();
+        this.bindReports();
         this.setClock();
 
         this.store.subscribe((s) => this.render(s));
@@ -307,6 +309,12 @@ class ControlOfWorkConsole {
             });
             actionsBox.appendChild(btn);
         }
+        // Deterministic PDF certificate (no AI, no network — see reportBuilder)
+        const rep = document.createElement('button');
+        rep.className = 'action-btn report-btn';
+        rep.innerHTML = `<i class="ph-duotone ph-file-arrow-down"></i>Certificate (PDF)`;
+        rep.addEventListener('click', () => this.exportReport('certificate', p.permit_no));
+        actionsBox.appendChild(rep);
         panel.classList.add('open');
         panel.querySelector('.detail-close').addEventListener('click', () => {
             panel.classList.remove('open');
@@ -569,8 +577,12 @@ class ControlOfWorkConsole {
                 </div>
                 <button class="detail-close" aria-label="Close">×</button>
             </div>
-            ${cards || '<div class="detail-note">No simultaneous-operation interactions detected among live and upcoming permits.</div>'}`;
+            ${cards || '<div class="detail-note">No simultaneous-operation interactions detected among live and upcoming permits.</div>'}
+            <div class="detail-actions">
+                <button class="action-btn report-btn" id="simops-export"><i class="ph-duotone ph-file-arrow-down"></i>Export brief (PDF)</button>
+            </div>`;
         panel.classList.add('open');
+        panel.querySelector('#simops-export').addEventListener('click', () => this.exportReport('simops'));
         panel.querySelector('.detail-close').addEventListener('click', () => panel.classList.remove('open'));
         panel.querySelectorAll('.conflict-chip').forEach(chip =>
             chip.addEventListener('click', () => this.selectPermit(chip.dataset.permit, { flyTo: true })));
@@ -656,6 +668,33 @@ class ControlOfWorkConsole {
         };
         tick();
         setInterval(tick, 1000);
+    }
+
+    /** Deterministic PDF reports — no AI, no network (pdfmake is vendored). */
+    async exportReport(kind, permitNo) {
+        const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+        try {
+            let doc, name;
+            if (kind === 'certificate') {
+                const p = this.store.byNo(permitNo);
+                if (!p) return;
+                doc = permitCertificate(p, { isolations: this.store.state.isolations || [] });
+                name = `${permitNo}_certificate_${stamp}.pdf`;
+            } else if (kind === 'simops') {
+                doc = simopsBrief(this.store.state);
+                name = `SIMOPS_brief_${stamp}.pdf`;
+            } else {
+                doc = shiftHandover(this.store.state);
+                name = `Shift_handover_${stamp}.pdf`;
+            }
+            await downloadReport(doc, name);
+        } catch (e) {
+            console.error('Report generation failed:', e);
+        }
+    }
+
+    bindReports() {
+        document.getElementById('btn-handover')?.addEventListener('click', () => this.exportReport('handover'));
     }
 }
 
