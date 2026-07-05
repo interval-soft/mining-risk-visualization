@@ -10,6 +10,7 @@
 
 import { query } from '../_lib/db.js';
 import { PERMIT_TYPES } from '../../v3/js/config.js';
+import { clampStr, cleanCwa, cleanNum, cleanAttachments } from '../_lib/v3/sanitize.js';
 
 const VALIDITY_H = Object.fromEntries(
     Object.entries(PERMIT_TYPES).map(([k, t]) => [k, t.validityH]));
@@ -19,9 +20,20 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { type, cwa, title, contractor, performing_authority, lng, lat, attachments } = req.body || {};
+    const body = req.body || {};
+    const type = body.type;
     if (!type || !VALIDITY_H[type]) return res.status(400).json({ error: 'Invalid permit type' });
-    if (!cwa || !title) return res.status(400).json({ error: 'cwa and title are required' });
+
+    const cwa = cleanCwa(body.cwa);
+    const title = clampStr(body.title, 90);
+    if (!cwa) return res.status(400).json({ error: 'Invalid or missing cwa (expected CWA-0000)' });
+    if (!title) return res.status(400).json({ error: 'title is required' });
+
+    const contractor = clampStr(body.contractor, 40) || 'Contractor';
+    const performing_authority = clampStr(body.performing_authority, 40) || '—';
+    const lng = cleanNum(body.lng, -180, 180);
+    const lat = cleanNum(body.lat, -90, 90);
+    const attachments = cleanAttachments(body.attachments);
 
     const now = Date.now();
     const validFrom = new Date(now + 24 * 3600e3);        // §4.3.3: ≥24 h notice
@@ -46,9 +58,9 @@ export default async function handler(req, res) {
               valid_from, valid_to, requested_by, performing_authority, signatures, attachments)
              VALUES ($1,$2,'requested',$3,$4,$5,$6,$7,$8,$9,$5,$10,'{}',$11)
              RETURNING *`,
-            [permitNo, type, cwa, title, contractor || 'Contractor', lng ?? null, lat ?? null,
+            [permitNo, type, cwa, title, contractor, lng, lat,
              validFrom.toISOString(), validTo.toISOString(),
-             performing_authority || '—', JSON.stringify(attachments || {})]);
+             performing_authority, JSON.stringify(attachments)]);
         await query(
             `INSERT INTO v3_permit_events (permit_id, actor_role, action)
              VALUES ($1, 'PR', 'permit requested — Appendix I form submitted (§5.2)')`,

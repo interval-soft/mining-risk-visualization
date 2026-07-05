@@ -548,10 +548,27 @@ html, body {
     font-size: 11.5px;
     line-height: 1.55;
     color: var(--text-primary);
-    white-space: pre-wrap;
     overflow-y: auto;
 }
 #ask-answer-body .thinking { color: var(--text-faint); font-style: italic; }
+#ask-answer-body .ai-gap { height: 6px; }
+#ask-answer-body .ai-ul { margin: 4px 0; padding-left: 16px; }
+#ask-answer-body .ai-ul li { margin: 2px 0; }
+#ask-answer-body .ai-table {
+    margin: 6px 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow-x: auto;
+}
+#ask-answer-body .ai-tr {
+    display: flex;
+    gap: 8px;
+    padding: 3px 8px;
+    border-bottom: 1px solid var(--border);
+}
+#ask-answer-body .ai-tr:last-child { border-bottom: none; }
+#ask-answer-body .ai-tr:first-child { font-weight: 700; color: var(--text-secondary); }
+#ask-answer-body .ai-tr span { flex: 1; min-width: 0; }
 #ask-answer-meta {
     padding: 0 12px 8px;
     font-size: 9px;

@@ -262,7 +262,8 @@ export class MapManager {
         if (!this._layersReady) { this._pendingPermits = [permits, typeColors]; return; }
         const seen = {};
         const features = permits
-            .filter(p => p.lng != null && !['closed', 'withdrawn'].includes(p.status))
+            .filter(p => Number.isFinite(+p.lng) && Number.isFinite(+p.lat)
+                && !['closed', 'withdrawn'].includes(p.status))
             .map(p => {
                 const n = (seen[p.cwa] = (seen[p.cwa] || 0) + 1) - 1;
                 return {

@@ -34,8 +34,13 @@ export class PermitStore {
         try {
             const res = await fetch('/api/v3/permits');
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            this.state = await res.json();
+            const data = await res.json();
+            // A local action may have landed while this fetch was in flight —
+            // re-check before clobbering, or the optimistic state is lost.
+            if (this.localMutations) return;
+            this.state = data;
         } catch {
+            if (this.localMutations) return;
             const seed = buildSeed(Date.now());
             this.state = { ...seed, source: 'local-seed', kpis: {} };
             this._recomputeKpis();
@@ -126,9 +131,9 @@ export class PermitStore {
         } catch { /* optimistic state stands */ }
     }
 
-    /** Digital Appendix I submission. */
+    /** Digital Appendix I submission. Throws on explicit server rejection. */
     async createPermit(fields) {
-        let persisted = false, template = null;
+        let template = null;
         try {
             const res = await fetch('/api/v3/create', {
                 method: 'POST',
@@ -136,10 +141,19 @@ export class PermitStore {
                 body: JSON.stringify(fields)
             });
             const data = await res.json().catch(() => ({}));
-            persisted = !!data.persisted;
-            template = data.template || null;
-            if (persisted) { await this.refresh(); return data.permit.permit_no; }
-        } catch { /* fall through to local mint */ }
+            if (res.ok) {
+                if (data.persisted) { await this.refresh(); return data.permit.permit_no; }
+                template = data.template || null;   // no-DB path (200 + template) → local mint below
+            } else if (res.status === 400 || res.status === 422) {
+                // The deployed API validated and refused — surface it, don't
+                // mint a phantom. (404/5xx = no API route in static dev → fall
+                // through to the offline local mint below.)
+                throw new Error(data.error || 'Permit request rejected.');
+            }
+        } catch (e) {
+            if (e instanceof TypeError) { /* network/offline — fall through to local mint */ }
+            else throw e;
+        }
 
         // Local mint (no DB): same shape, next sequential number
         const maxN = Math.max(149, ...this.state.permits.map(p => parseInt(p.permit_no.slice(-4)) || 0));

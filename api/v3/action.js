@@ -10,15 +10,21 @@
 
 import { query } from '../_lib/db.js';
 import { applyTransition } from '../../v3/js/data/permitFlow.js';
+import { clampStr, cleanRole } from '../_lib/v3/sanitize.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { permit_no, action, actor_role, actor_name, reason } = req.body || {};
+    const body = req.body || {};
+    const permit_no = clampStr(body.permit_no, 20);
+    const action = clampStr(body.action, 20);
+    const actor_role = cleanRole(body.actor_role);
+    const actor_name = clampStr(body.actor_name, 60) || null;
+    const reason = clampStr(body.reason, 120) || null;
     if (!permit_no || !action || !actor_role) {
-        return res.status(400).json({ error: 'permit_no, action and actor_role are required' });
+        return res.status(400).json({ error: 'permit_no, action and a valid actor_role are required' });
     }
 
     if (!process.env.DATABASE_URL) {

@@ -16,6 +16,56 @@ import { initTour } from './tour/TourEngine.js';
 const TYPE_COLORS = Object.fromEntries(
     Object.entries(PERMIT_TYPES).map(([k, v]) => [k, v.color]));
 
+/**
+ * Escape user/DB-sourced text before it goes into an innerHTML template.
+ * Permit titles, contractor, PA, suspension reasons, signature names etc.
+ * are user-controlled and persisted — without this they execute as HTML
+ * (stored XSS). Covers both text nodes and double-quoted attributes.
+ */
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/**
+ * Render the AI answer safely. The text is HTML-escaped first (no XSS from
+ * a hijacked answer), then a tiny Markdown subset is applied: bold, (§refs),
+ * "- " bullets, and Markdown tables (which the model still occasionally
+ * emits) folded into readable rows instead of raw pipes.
+ */
+function renderAnswer(text) {
+    const inline = (s) => esc(s)
+        .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+        .replace(/\((§[\d.]+[^)]*)\)/g, '<span class="sref">($1)</span>');
+    const lines = String(text ?? '').split('\n');
+    const out = [];
+    let inList = false, inTable = false;
+    const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+    const closeTable = () => { if (inTable) { out.push('</div>'); inTable = false; } };
+    for (const raw of lines) {
+        const line = raw.trimEnd();
+        if (/^\s*\|?\s*:?-{2,}.*\|/.test(line)) continue;                 // table separator row
+        const cells = line.match(/^\s*\|(.+)\|\s*$/);
+        if (cells) {                                                      // table data row
+            closeList();
+            if (!inTable) { out.push('<div class="ai-table">'); inTable = true; }
+            const parts = cells[1].split('|').map(c => `<span>${inline(c.trim())}</span>`);
+            out.push(`<div class="ai-tr">${parts.join('')}</div>`);
+            continue;
+        }
+        closeTable();
+        const bullet = line.match(/^\s*[-*]\s+(.*)/);
+        if (bullet) {
+            if (!inList) { out.push('<ul class="ai-ul">'); inList = true; }
+            out.push(`<li>${inline(bullet[1])}</li>`);
+            continue;
+        }
+        closeList();
+        if (line.trim()) out.push(`<div>${inline(line)}</div>`);
+        else out.push('<div class="ai-gap"></div>');
+    }
+    closeList(); closeTable();
+    return out.join('');
+}
+
 const BOARD_GROUPS = [
     { title: 'Issued · Active', statuses: ['issued'] },
     { title: 'Authorised — awaiting PA', statuses: ['authorised'] },
@@ -100,9 +150,9 @@ class ControlOfWorkConsole {
                 if (p.permit_no === this.selectedPermitNo) row.classList.add('selected');
                 row.innerHTML = `
                     <span class="permit-type-chip" style="background:${TYPE_COLORS[p.type]}"></span>
-                    <span class="asset-id">${p.permit_no.replace('PTW-2026-', '')}</span>
-                    <span class="asset-name" title="${p.title}">${p.cwa.replace('CWA-', 'C')} · ${p.title}</span>
-                    <span class="permit-countdown" data-valid-to="${p.valid_to}" data-status="${p.status}"></span>`;
+                    <span class="asset-id">${esc(p.permit_no.replace('PTW-2026-', ''))}</span>
+                    <span class="asset-name" title="${esc(p.title)}">${esc(p.cwa.replace('CWA-', 'C'))} · ${esc(p.title)}</span>
+                    <span class="permit-countdown" data-valid-to="${esc(p.valid_to)}" data-status="${esc(p.status)}"></span>`;
                 row.addEventListener('click', () => this.selectPermit(p.permit_no, { flyTo: true }));
                 board.appendChild(row);
             }
@@ -125,8 +175,8 @@ class ControlOfWorkConsole {
             row.className = 'asset-row approval-row';
             row.innerHTML = `
                 <span class="permit-type-chip" style="background:${TYPE_COLORS[p.type]}"></span>
-                <span class="asset-id">${p.permit_no.replace('PTW-2026-', '')}</span>
-                <span class="asset-name" title="${p.title}">${PERMIT_STATUS[p.status].label} · ${p.title}</span>`;
+                <span class="asset-id">${esc(p.permit_no.replace('PTW-2026-', ''))}</span>
+                <span class="asset-name" title="${esc(p.title)}">${esc(PERMIT_STATUS[p.status].label)} · ${esc(p.title)}</span>`;
             row.addEventListener('click', () => this.selectPermit(p.permit_no, { flyTo: true }));
             box.appendChild(row);
         }
@@ -158,8 +208,8 @@ class ControlOfWorkConsole {
                 { timeZone: SITE.timeZone, day: '2-digit', month: '2-digit' });
             el.innerHTML = `
                 <span class="event-time">${day} ${time}</span>
-                <span class="event-unit">${ev.actor_role || '—'}</span>
-                <span class="event-text">${ev.permit_no.replace('PTW-2026-', 'PTW ')} — ${ev.action}</span>`;
+                <span class="event-unit">${esc(ev.actor_role || '—')}</span>
+                <span class="event-text">${esc(ev.permit_no.replace('PTW-2026-', 'PTW '))} — ${esc(ev.action)}</span>`;
             feed.appendChild(el);
         }
     }
@@ -198,12 +248,12 @@ class ControlOfWorkConsole {
 
         const chain = ROLES.map(r => {
             const s = sigs[r.id.toLowerCase()];
-            return `<span class="sig ${s ? 'sig-done' : 'sig-pending'}" title="${s ? s.name : 'pending'}">${r.id}</span>`;
+            return `<span class="sig ${s ? 'sig-done' : 'sig-pending'}" title="${esc(s ? s.name : 'pending')}">${r.id}</span>`;
         }).join('<span class="sig-arrow">→</span>');
 
         const attRows = Object.entries(atts).map(([k, v]) =>
             `<span class="att ${v ? 'att-ok' : 'att-missing'}">
-                <i class="ph-duotone ${v ? 'ph-check-circle' : 'ph-x-circle'}"></i>${k.replace(/_/g, ' ')}</span>`
+                <i class="ph-duotone ${v ? 'ph-check-circle' : 'ph-x-circle'}"></i>${esc(String(k).replace(/_/g, ' '))}</span>`
         ).join('');
 
         const fmt = (iso) => new Date(iso).toLocaleString('en-GB',
@@ -214,27 +264,27 @@ class ControlOfWorkConsole {
             <div class="detail-header">
                 <span class="cwa-chip" style="background:${t.color}"></span>
                 <div>
-                    <div class="detail-id">${p.permit_no} · <span class="status-badge status-tone-${st.tone}">${st.label.toUpperCase()}</span></div>
-                    <div class="detail-name">${p.title}</div>
+                    <div class="detail-id">${esc(p.permit_no)} · <span class="status-badge status-tone-${st.tone}">${esc(st.label.toUpperCase())}</span></div>
+                    <div class="detail-name">${esc(p.title)}</div>
                 </div>
                 <button class="detail-close" aria-label="Close">×</button>
             </div>
-            <div class="detail-row"><span>Type</span><span>${t.label} · ${t.validity}</span></div>
-            <div class="detail-row"><span>Area</span><span>${p.cwa}</span></div>
-            <div class="detail-row"><span>Contractor / PA</span><span>${p.contractor} · ${p.performing_authority}</span></div>
+            <div class="detail-row"><span>Type</span><span>${esc(t.label)} · ${esc(t.validity)}</span></div>
+            <div class="detail-row"><span>Area</span><span>${esc(p.cwa)}</span></div>
+            <div class="detail-row"><span>Contractor / PA</span><span>${esc(p.contractor)} · ${esc(p.performing_authority)}</span></div>
             <div class="detail-row"><span>Validity</span><span>${fmt(p.valid_from)} → ${fmt(p.valid_to)}
-                <span class="permit-countdown" data-valid-to="${p.valid_to}" data-status="${p.status}"></span></span></div>
+                <span class="permit-countdown" data-valid-to="${esc(p.valid_to)}" data-status="${esc(p.status)}"></span></span></div>
             ${p.revalidated_at ? `<div class="detail-row"><span>Revalidated</span><span>${fmt(p.revalidated_at)} (§6.2.2)</span></div>` : ''}
-            ${p.icc_no ? `<div class="detail-row"><span>Isolation</span><span>${p.icc_no}</span></div>` : ''}
+            ${p.icc_no ? `<div class="detail-row"><span>Isolation</span><span>${esc(p.icc_no)}</span></div>` : ''}
             <div class="detail-row"><span>Approval chain</span><span class="sig-chain">${chain}</span></div>
             <div class="detail-atts">${attRows}</div>
-            ${p.description ? `<div class="detail-note">${p.description}</div>` : ''}
+            ${p.description ? `<div class="detail-note">${esc(p.description)}</div>` : ''}
             <div class="detail-actions" id="detail-actions"></div>
             <div class="detail-error" id="detail-error"></div>`;
         const actionsBox = panel.querySelector('#detail-actions');
         const actions = actionsFor(p.status, this.persona);
         if (!actions.length) {
-            actionsBox.innerHTML = `<span class="detail-muted">No ${this.persona} action for status "${p.status}"</span>`;
+            actionsBox.innerHTML = `<span class="detail-muted">No ${esc(this.persona)} action for status "${esc(p.status)}"</span>`;
         }
         for (const a of actions) {
             const btn = document.createElement('button');
@@ -271,15 +321,15 @@ class ControlOfWorkConsole {
         const active = this.store.state.permits.filter(x =>
             x.cwa === p.id && !['closed', 'withdrawn', 'expired'].includes(x.status));
         const rows = active.map(x =>
-            `<div class="detail-row"><span>${x.permit_no.replace('PTW-2026-', 'PTW ')}</span>
-             <span>${PERMIT_TYPES[x.type].label} · ${PERMIT_STATUS[x.status].label}</span></div>`).join('');
+            `<div class="detail-row"><span>${esc(x.permit_no.replace('PTW-2026-', 'PTW '))}</span>
+             <span>${esc(PERMIT_TYPES[x.type].label)} · ${esc(PERMIT_STATUS[x.status].label)}</span></div>`).join('');
         const panel = document.getElementById('detail-panel');
         panel.innerHTML = `
             <div class="detail-header">
                 <span class="cwa-chip" style="background:${p.color}"></span>
                 <div>
-                    <div class="detail-id">${p.id}</div>
-                    <div class="detail-name">${p.name}</div>
+                    <div class="detail-id">${esc(p.id)}</div>
+                    <div class="detail-name">${esc(p.name)}</div>
                 </div>
                 <button class="detail-close" aria-label="Close">×</button>
             </div>
@@ -383,11 +433,7 @@ class ControlOfWorkConsole {
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                const escaped = data.answer
-                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                body.innerHTML = escaped
-                    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
-                    .replace(/\((§[\d.]+[^)]*)\)/g, '<span class="sref">($1)</span>');
+                body.innerHTML = renderAnswer(data.answer);
                 meta.textContent = `${data.model || 'AI'} · ${((data.latencyMs || 0) / 1000).toFixed(1)}s · grounded on live state + PTW Procedure RevB`;
             } catch (err) {
                 body.textContent = 'AI unavailable. The query API is a serverless function — use the deployed environment.';
@@ -440,8 +486,8 @@ class ControlOfWorkConsole {
             const ptRows = points.map(pt => `
                 <div class="iso-point">
                     <span class="iso-tag" style="background:${TAG[pt.tag_color] || '#8d99a4'}"></span>
-                    <span>pt ${pt.no} · ${pt.equipment}</span>
-                    <span class="detail-muted">${pt.method}</span>
+                    <span>pt ${esc(pt.no)} · ${esc(pt.equipment)}</span>
+                    <span class="detail-muted">${esc(pt.method)}</span>
                 </div>`).join('');
             const actions = Object.entries(ISOLATION_ACTIONS)
                 .filter(([, a]) => a.from.includes(iso.status) && a.roles.includes(this.persona))
@@ -451,19 +497,19 @@ class ControlOfWorkConsole {
             return `
             <div class="conflict-card iso-card${iso.icc_no === focusIcc ? ' conflict-focus' : ''}">
                 <div class="conflict-head">
-                    <span class="conflict-sev ${live ? 'iso-live' : ''}">${iso.status.toUpperCase().replace('_', ' ')}</span>
-                    <span>${iso.icc_no} · ${iso.type}</span>
+                    <span class="conflict-sev ${live ? 'iso-live' : ''}">${esc(iso.status.toUpperCase().replace('_', ' '))}</span>
+                    <span>${esc(iso.icc_no)} · ${esc(iso.type)}</span>
                 </div>
-                <div class="conflict-meta">${iso.description || ''}</div>
+                <div class="conflict-meta">${esc(iso.description || '')}</div>
                 ${ptRows}
                 ${iso.lockbox_key ? `<div class="conflict-meta"><i class="ph-duotone ph-key"></i>
-                    Lockbox ${iso.lockbox_key} · key with ${iso.key_holder} (§8.3)</div>` : ''}
+                    Lockbox ${esc(iso.lockbox_key)} · key with ${esc(iso.key_holder)} (§8.3)</div>` : ''}
                 <div class="conflict-permits">${
                     linked.length
                         ? linked.map(p => `<button class="sig conflict-chip" data-permit="${p.permit_no}">${p.permit_no.replace('PTW-2026-', 'PTW ')}</button>`).join(' ')
                         : '<span class="detail-muted">no open linked permits</span>'}</div>
                 <div class="detail-actions iso-actions">${actions ||
-                    `<span class="detail-muted">No ${this.persona} action — isolations are SAP-controlled (§8.1.1)</span>`}</div>
+                    `<span class="detail-muted">No ${esc(this.persona)} action — isolations are SAP-controlled (§8.1.1)</span>`}</div>
             </div>`;
         }).join('');
 
@@ -505,13 +551,13 @@ class ControlOfWorkConsole {
         const cards = conflicts.map(c => `
             <div class="conflict-card conflict-${c.severity}${c.id === focusId ? ' conflict-focus' : ''}" data-conflict="${c.id}">
                 <div class="conflict-head">
-                    <span class="conflict-sev">${c.severity.toUpperCase()}</span>
-                    <span>${c.label}</span>
+                    <span class="conflict-sev">${esc(c.severity.toUpperCase())}</span>
+                    <span>${esc(c.label)}</span>
                 </div>
-                <div class="conflict-meta">${c.cwa}${c.distanceM !== null ? ' · ' + c.distanceM + ' m apart' : ''}</div>
+                <div class="conflict-meta">${esc(c.cwa)}${c.distanceM !== null ? ' · ' + esc(c.distanceM) + ' m apart' : ''}</div>
                 <div class="conflict-permits">${c.permits.map(no =>
-                    `<button class="sig conflict-chip" data-permit="${no}">${no.replace('PTW-2026-', 'PTW ')}</button>`).join(' ')}</div>
-                <div class="conflict-advice">${c.advice}</div>
+                    `<button class="sig conflict-chip" data-permit="${esc(no)}">${esc(no.replace('PTW-2026-', 'PTW '))}</button>`).join(' ')}</div>
+                <div class="conflict-advice">${esc(c.advice)}</div>
             </div>`).join('');
 
         panel.innerHTML = `
@@ -548,6 +594,8 @@ class ControlOfWorkConsole {
             for (const f of g.features) {
                 cwaSel.add(new Option(`${f.properties.id} — ${f.properties.name.slice(0, 40)}`, f.properties.id));
             }
+        }).catch(() => {
+            cwaSel.add(new Option('CWA list unavailable', ''));
         });
 
         document.getElementById('btn-new-permit').addEventListener('click', () => {
@@ -576,16 +624,22 @@ class ControlOfWorkConsole {
                 attachments[cb.dataset.att] = cb.checked;
             });
             errEl.textContent = '';
-            const no = await this.store.createPermit({
-                type: typeSel.value,
-                cwa: cwaSel.value,
-                title,
-                contractor: document.getElementById('pf-contractor').value.trim() || 'Contractor',
-                performing_authority: document.getElementById('pf-pa').value.trim() || '—',
-                lng: this.pickedLngLat?.[0] ?? null,
-                lat: this.pickedLngLat?.[1] ?? null,
-                attachments
-            });
+            let no;
+            try {
+                no = await this.store.createPermit({
+                    type: typeSel.value,
+                    cwa: cwaSel.value,
+                    title,
+                    contractor: document.getElementById('pf-contractor').value.trim() || 'Contractor',
+                    performing_authority: document.getElementById('pf-pa').value.trim() || '—',
+                    lng: this.pickedLngLat?.[0] ?? null,
+                    lat: this.pickedLngLat?.[1] ?? null,
+                    attachments
+                });
+            } catch (e) {
+                errEl.textContent = e.message || 'Permit request rejected.';
+                return;
+            }
             form.hidden = true;
             document.getElementById('pf-title').value = '';
             this.selectPermit(no, { flyTo: !!this.pickedLngLat });
