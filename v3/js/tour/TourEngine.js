@@ -230,8 +230,18 @@ export class TourEngine {
         if (this.muted) { this._armAutoAdvance(AUTOPLAY_FALLBACK_MS); return; }
         const a = new Audio(`${AUDIO_BASE}${step.id}.mp3?${AUDIO_VERSION}`);
         this.audio = a;
-        a.addEventListener('ended', () => this._armAutoAdvance(900));
-        a.addEventListener('error', () => this._armAutoAdvance(AUTOPLAY_FALLBACK_MS));
+        // Guard every handler on audio identity: once we move on, `this.audio`
+        // is a different element (or null), so a stale event — including the
+        // 'error' that _stopAudio's teardown fires — becomes a no-op and can
+        // never arm the auto-advance for the wrong step.
+        const onEnded = () => { if (a === this.audio) this._armAutoAdvance(900); };
+        const onError = () => { if (a === this.audio) this._armAutoAdvance(AUTOPLAY_FALLBACK_MS); };
+        a.addEventListener('ended', onEnded);
+        a.addEventListener('error', onError);
+        a._cleanup = () => {
+            a.removeEventListener('ended', onEnded);
+            a.removeEventListener('error', onError);
+        };
         a.play().catch(() => {
             // Autoplay policy: no user gesture yet. Resume on next interaction.
             const note = this.card.querySelector('.tour-audio-note');
@@ -248,9 +258,12 @@ export class TourEngine {
 
     _stopAudio() {
         if (this.audio) {
-            this.audio.pause();
-            this.audio.src = '';
-            this.audio = null;
+            const a = this.audio;
+            this.audio = null;          // null FIRST: any late event now fails the identity guard
+            a._cleanup?.();             // drop listeners before teardown can fire 'error'
+            a.pause();
+            a.removeAttribute('src');
+            a.load?.();                 // release the buffer without a handled error
         }
     }
 
