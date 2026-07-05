@@ -81,6 +81,16 @@ Hybride : **seed déterministe** (~18 permis réalistes répartis sur états/CWA
 | 6 | ✅ **Fait (2026-07-04)** — Digest § de la procédure (api/_lib/v3/procedure.js) + POST /api/v3/query à double grounding (état live : permis expirés/docs manquants/SIMOPS/ICC + la procédure), réponses citées §, audit v2_ai_queries, chips de démo. Vérifié prod : « hot work CWA-0620 ? » → NO sur 3 fondements (§4.1+§1.4, §6.2.1, §6.4+§6.3) en 1.7 s. **POC v3 COMPLET : 6 jalons en 2 jours (plan : 2-3 semaines).** |
 | 7 | ✅ **Fait (2026-07-04)** — **Wizard guidé narré** (22 étapes, 8 chapitres) : spotlight qui pilote la vraie UI (personas, permis, SIMOPS, ICC, requête IA live), citations § à chaque étape, sauts par chapitre, mode auto-play (présentation), auto-lancement 1ʳᵉ visite. Narration vocale féminine anglaise **pré-générée en MP3 statiques** (3,3 Mo) via /api/v3/tts — OpenRouter `gpt-audio-mini` (le Gemini TTS demandé n'est pas encore servi par OpenRouter), pipeline pcm16→WAV→ffmpeg→mp3. QA prod : tour complet déroulé, IA live « NO » cité §, audio streamé 206. |
 
+## Positionnement client (décidé le 2026-07-05)
+
+Le vrai système PTW de Worley tourne sur **Isometrix**. Cadrage de la démo, intégré à l'intro du tour :
+- **Couche, pas remplacement** : le Digital Twin se branche par-dessus le système d'enregistrement existant ; en déploiement réel il **fédère** permis/isolations/SIMOPS depuis leur source de vérité (Isometrix), il ne la remplace pas.
+- **Données factices** : sample data issue d'une petite base de démo (ne pas mentionner Supabase — non pertinent pour le client).
+- **IA = frein client** : Worley réticent. Réponse retenue = **modèle local on-premise (ex. Gemma), aucune communication externe, aucune donnée ne quitte le réseau**. Annoncé dans le chapitre IA.
+- **« faithful to RevB »** plutôt que « nothing invented » (procédure = RevB *Issued For Review*, non figée).
+- Simplifications POC **nommées** dans le tour : persona switcher vs vrai multi-user (délégation/escalade), ICC = première tranche de §8 (LOTO/proving-dead en phase ultérieure).
+- **Demande client : reporting / génération de documents.** Angle sécurité idéal car **déterministe, sans IA, rien ne sort du réseau**. Candidats (issus de la procédure) : certificat de permis (Appendix I rempli + signatures), brief SIMOPS quotidien (§6.4 look-ahead daté), shift handover, certificat d'isolation (§8), export d'audit (§9.1). Livraison pressentie : vue print-stylée → PDF navigateur, zéro service externe. **À construire.**
+
 ## Risques
 
 | Risque | Mitigation |
