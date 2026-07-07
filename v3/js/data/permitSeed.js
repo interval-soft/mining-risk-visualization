@@ -24,7 +24,11 @@ export function shiftStart(now = Date.now()) {
     return anchor.getTime();
 }
 
-/** CWA centroids for permit pins (from v3/data/cwa.geojson — georeferenced 2026-07-04). */
+/**
+ * CWA centroids for permit pins (georeferenced 2026-07-04). This table is the
+ * centroid output of v3/tools/gen-cwa.cjs — regenerate and paste it here
+ * whenever the CWA placement changes, so pins stay registered with the zones.
+ */
 const PIN = {
     "CWA-0100": [-3.066221, 53.151246],
     "CWA-0200": [-3.063956, 53.151978],
@@ -154,7 +158,7 @@ export function buildSeed(now = Date.now()) {
     const CHAIN = { requested: [], reviewed: ['AA'], verified: ['AA', 'PI'],
         authorised: ['WA', 'AA', 'PI'], issued: ['WA', 'AA', 'PI', 'PA'],
         suspended: ['WA', 'AA', 'PI', 'PA'], closed: ['WA', 'AA', 'PI', 'PA'] };
-    const NAMES = { WA: 'P. Sinclair', AA: 'G. Latham', PI: 'B. Kavanagh' };
+    const NAMES = { WA: 'P. Sinclair', AA: 'G. Latham', PI: 'B. Kavanagh' };  // must match permitFlow.js NAMES
 
     const permits = rows.map(([no, type, status, cwa, title, contractor, pa, from, to, attachments, extra = {}]) => {
         const signatures = {};

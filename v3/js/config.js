@@ -25,9 +25,10 @@ export const TILES = {
 };
 
 /**
- * Permit types — colours follow the HMCCP Permit Request Form coding
- * (Excavation black, Cold Work blue, Hot Work red, Other green).
- * Validity per §4.1.
+ * Permit types. `color` is the map/board hex; `validity`/`validityH` are the
+ * §4.1 maximum validity (label + hours). `form` is the paper HMCCP Permit
+ * Request Form colour band (Excavation black, Cold Work blue, Hot Work red,
+ * Confined Space green) — currently unused in the UI, kept for reporting.
  */
 export const PERMIT_TYPES = {
     cold_work:             { label: 'Cold Work', color: '#4a90d9', validity: '7 days', validityH: 168, form: 'blue' },

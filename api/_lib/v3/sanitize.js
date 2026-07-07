@@ -24,7 +24,12 @@ export function cleanNum(v, min, max) {
     return Number.isFinite(n) && n >= min && n <= max ? n : null;
 }
 
-/** Attachments → flat { knownKey: boolean } only. */
+/**
+ * Attachments → flat { knownKey: boolean } only. The whitelist mirrors the
+ * #pf-atts checkboxes in v3/index.html (the create form); any other key in the
+ * payload is intentionally dropped. (The seed carries richer per-permit
+ * checklists, but those are never re-submitted through /api/v3/create.)
+ */
 const ATT_KEYS = ['rams', 'tra', 'lift_plan', 'utility_drawings', 'gas_test'];
 export function cleanAttachments(v) {
     const src = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};

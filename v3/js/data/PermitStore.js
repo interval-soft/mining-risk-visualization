@@ -58,6 +58,9 @@ export class PermitStore {
             pending: s.permits.filter(p => ['requested', 'reviewed', 'verified'].includes(p.status)).length,
             expiringSoon: issued.filter(p => new Date(p.valid_to).getTime() - now < 2 * 3600e3).length,
             conflicts: s.conflicts.filter(c => c.severity === 'high').length,
+            // 'sanction_to_test' is counted as live for the day it lands — but
+            // no action produces it yet (STT / proving-dead is phase 2, see
+            // isolationFlow.js); today only 'applied' occurs.
             isolationsLive: s.isolations.filter(i => ['applied', 'sanction_to_test'].includes(i.status)).length
         };
     }

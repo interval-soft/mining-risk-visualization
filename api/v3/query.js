@@ -4,7 +4,9 @@
  * Dual grounding: (1) the LIVE console state — permits, SIMOPS conflicts,
  * isolations — identical to what the browser renders; (2) the client's own
  * PTW procedure digest, so answers cite § sections. Every interaction is
- * written to the v2_ai_queries audit table when a database is configured.
+ * written to an audit table when a database is configured — v3 deliberately
+ * reuses v2's self-provisioning `v2_ai_queries` table (via logAIQuery) rather
+ * than standing up a separate one.
  */
 
 import { callOpenRouter } from '../_lib/openrouter.js';

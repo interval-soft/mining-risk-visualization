@@ -1,9 +1,17 @@
 /**
- * DigitalTwin v3 — ePTW Console entry point.
- * HMCCP Control of Work, Padeswood.
+ * DigitalTwin v3 — ePTW Console entry point (HMCCP Control of Work, Padeswood).
  *
- * Milestone 2: permit engine — board, map pins, live detail, KPIs, audit feed.
- * Milestone 3 adds workflow actions, 4 SIMOPS, 5 isolations UI, 6 the AI.
+ * Boots and owns the whole single-page console: the ControlOfWorkConsole class
+ * wires the permit board, the map (MapManager), the live detail/SIMOPS/isolation
+ * panels, the KPI band, the audit feed, the AI assistant, the digital Appendix I
+ * form, the guided tour and the PDF reports. It renders from a single PermitStore
+ * whose state it subscribes to; all lifecycle rules come from the shared modules
+ * in ./data (permitFlow, simops, isolationFlow) so the browser and the /api/v3
+ * functions enforce identical logic.
+ *
+ * SECURITY: every user/DB-sourced value is passed through esc() before it lands
+ * in an innerHTML template (see esc() below) — these fields are persisted and
+ * would otherwise be a stored-XSS vector.
  */
 
 import { SITE, PERMIT_TYPES, PERMIT_STATUS, ROLES, PERSONAS } from './config.js';
@@ -75,6 +83,11 @@ const BOARD_GROUPS = [
     { title: 'Closed — recent', statuses: ['closed', 'withdrawn', 'expired'] }
 ];
 
+/**
+ * The console controller. Holds the current persona and selection, owns the
+ * PermitStore, and re-renders the whole UI from store state on every emit.
+ * The map is optional: if WebGL/init fails the shell still works (showMapError).
+ */
 class ControlOfWorkConsole {
     constructor() {
         this.mapManager = null;
@@ -500,7 +513,7 @@ class ControlOfWorkConsole {
             const actions = Object.entries(ISOLATION_ACTIONS)
                 .filter(([, a]) => a.from.includes(iso.status) && a.roles.includes(this.persona))
                 .map(([id, a]) =>
-                    `<button class="action-btn iso-action" data-icc="${iso.icc_no}" data-action="${id}">
+                    `<button class="action-btn iso-action" data-icc="${esc(iso.icc_no)}" data-action="${id}">
                         <i class="ph-duotone ${a.icon}"></i>${a.label}</button>`).join('');
             return `
             <div class="conflict-card iso-card${iso.icc_no === focusIcc ? ' conflict-focus' : ''}">
@@ -514,7 +527,7 @@ class ControlOfWorkConsole {
                     Lockbox ${esc(iso.lockbox_key)} · key with ${esc(iso.key_holder)} (§8.3)</div>` : ''}
                 <div class="conflict-permits">${
                     linked.length
-                        ? linked.map(p => `<button class="sig conflict-chip" data-permit="${p.permit_no}">${p.permit_no.replace('PTW-2026-', 'PTW ')}</button>`).join(' ')
+                        ? linked.map(p => `<button class="sig conflict-chip" data-permit="${esc(p.permit_no)}">${esc(p.permit_no.replace('PTW-2026-', 'PTW '))}</button>`).join(' ')
                         : '<span class="detail-muted">no open linked permits</span>'}</div>
                 <div class="detail-actions iso-actions">${actions ||
                     `<span class="detail-muted">No ${esc(this.persona)} action — isolations are SAP-controlled (§8.1.1)</span>`}</div>
@@ -557,7 +570,7 @@ class ControlOfWorkConsole {
             { timeZone: SITE.timeZone, weekday: 'short', day: '2-digit', month: 'short' });
 
         const cards = conflicts.map(c => `
-            <div class="conflict-card conflict-${c.severity}${c.id === focusId ? ' conflict-focus' : ''}" data-conflict="${c.id}">
+            <div class="conflict-card conflict-${esc(c.severity)}${c.id === focusId ? ' conflict-focus' : ''}" data-conflict="${esc(c.id)}">
                 <div class="conflict-head">
                     <span class="conflict-sev">${esc(c.severity.toUpperCase())}</span>
                     <span>${esc(c.label)}</span>

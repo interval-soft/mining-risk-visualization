@@ -1,18 +1,19 @@
-// Génère v3/data/cwa.geojson — les 17 Construction Work Areas du plot plan
-// Worley (Appendix H, 215000-00190-000-HS-PRO-00002 RevB).
-// Tracé SCHÉMATIQUE : rectangles en grille locale "plant north" (019° vrai),
-// à remplacer par le GIS client.
+// Generates v3/data/cwa.geojson — the 26 Construction Work Areas of the Worley
+// plot plan (Appendix H, 215000-00190-000-HS-PRO-00002 RevB).
+// SCHEMATIC tracing: rectangles in a local "plant north" grid (019° true),
+// to be replaced by the client GIS.
 //
-// GÉORÉFÉRENCEMENT (2026-07-04) : coins dérivés du DNS "Volume 3, Figure 1.2
-// Site Masterplan" (RSK, REV 11, British National Grid sur le cadre, 1:5000)
-// via le bassin d'orage (65.5 x 83.9 m, rot grille 18.8°) + validation AGI
-// (dessin eni 70116227-PW.2.2.2-LAY-Sheet14). Échelle raster : 0.3545 m/px.
-// Les coins ci-dessous sont ceux du raster site-plan.png (958x1080 px) ;
-// la grille locale 625x675 s'y projette par parallélogramme (exact pour une
-// similitude). GARDER EN SYNC avec PLOT_PLAN dans v3/js/config.js.
+// GEOREFERENCING (2026-07-04): corners derived from the DNS "Volume 3,
+// Figure 1.2 Site Masterplan" (RSK, REV 11, British National Grid on the frame,
+// 1:5000) via the stormwater pond (65.5 x 83.9 m, grid rot 18.8°) + AGI check
+// (eni drawing 70116227-PW.2.2.2-LAY-Sheet14). Raster scale: 0.3545 m/px.
+// The corners below are those of the site-plan.png raster (958x1080 px); the
+// local 625x675 grid projects onto it by parallelogram (exact for a similarity
+// transform). KEEP IN SYNC with the PIN table in v3/js/data/permitSeed.js
+// (CWA centroids): the script prints the recomputed centroids at the end.
 const fs = require('fs');
 
-const CORNERS = {                       // raster site-plan.png, WGS84
+const CORNERS = {                       // raster site-plan.png corners, WGS84
     TL: [-3.066518, 53.153166],         // px (0, 0)
     TR: [-3.061687, 53.152226],         // px (958, 0)
     BR: [-3.063452, 53.148952],         // px (958, 1080)
@@ -20,8 +21,8 @@ const CORNERS = {                       // raster site-plan.png, WGS84
 };
 
 function toLngLat([x, y]) {
-    const fx = x / 625;                 // fraction le long de l'axe est-plot (image x)
-    const fy = y / 675;                 // fraction depuis le bas (image y inversé)
+    const fx = x / 625;                 // fraction along the plant-east axis (image x)
+    const fy = y / 675;                 // fraction up from the bottom (image y inverted)
     const lng = CORNERS.BL[0] + fx * (CORNERS.BR[0] - CORNERS.BL[0]) + fy * (CORNERS.TL[0] - CORNERS.BL[0]);
     const lat = CORNERS.BL[1] + fx * (CORNERS.BR[1] - CORNERS.BL[1]) + fy * (CORNERS.TL[1] - CORNERS.BL[1]);
     return [+lng.toFixed(6), +lat.toFixed(6)];
@@ -30,7 +31,7 @@ function rect(x1, y1, x2, y2) {
     return [[[x1,y1],[x2,y1],[x2,y2],[x1,y2],[x1,y1]].map(toLngLat)];
 }
 
-// [id, nom, couleur légende, x1,y1,x2,y2] — grille m, origine SW, x→est-plot, y→nord-plot
+// [id, name, legend colour, x1,y1,x2,y2] — grid metres, SW origin, x→plant-east, y→plant-north
 const CWA = [
     ['CWA-0100','Off-plot infrastructure (AGI compound, access road, car park, laydown)','#c8c8c8', 137, 34, 175,621],
     ['CWA-0200','CCU road infrastructure, drainage, underground piping','#8f8f8f',                 175,533, 575,560],
@@ -68,9 +69,10 @@ const features = CWA.map(([id, name, color, x1, y1, x2, y2]) => ({
 
 fs.writeFileSync(require('path').join(__dirname, '..', 'data', 'cwa.geojson'),
     JSON.stringify({ type: 'FeatureCollection', features }));
-console.log('cwa.geojson:', features.length, 'zones CWA générées');
+console.log('cwa.geojson:', features.length, 'CWA zones generated');
 
-// Centroïdes pour la table PIN de permitSeed.js
+// Centroids for the PIN table in permitSeed.js — paste this block there
+// whenever the CORNERS or the CWA rectangles change.
 const cent = {};
 CWA.forEach(([id,,,x1,y1,x2,y2]) => { cent[id] = toLngLat([(x1+x2)/2, (y1+y2)/2]); });
 console.log(Object.entries(cent).map(([k,v]) => `    "${k}": [${v[0]}, ${v[1]}],`).join('\n'));

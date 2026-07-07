@@ -15,7 +15,7 @@
 import { TOUR_STEPS } from './tourSteps.js';
 
 const AUDIO_BASE = '/v3/assets/tour/';
-const AUDIO_VERSION = 'v=4';   // bump after regenerating narration (gen-tour-audio.mjs)
+const AUDIO_VERSION = 'v=5';   // bump after regenerating narration (gen-tour-audio.mjs)
 const SEEN_KEY = 'v3_tour_seen';
 const MUTE_KEY = 'v3_tour_muted';
 const AUTOPLAY_FALLBACK_MS = 9000;   // no/failed audio → advance after this in auto-play

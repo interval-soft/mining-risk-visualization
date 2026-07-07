@@ -11,6 +11,9 @@
  * is still in approval — surfaced for the §6.4 daily look-ahead meeting.
  */
 
+// Equirectangular metres-per-degree at the site latitude (53.15°N). A flat
+// local approximation — accurate to centimetres over the ~500 m CWA extent,
+// which is all the distance checks below need.
 const M_LAT = 111320, M_LNG = 111320 * Math.cos(53.15 * Math.PI / 180);
 
 function distanceM(a, b) {
@@ -30,7 +33,12 @@ const GROUND = ['excavation', 'piling'];
 
 const atts = p => typeof p.attachments === 'string' ? JSON.parse(p.attachments) : (p.attachments || {});
 
-/** Pairwise incompatibility rules. */
+/**
+ * Pairwise incompatibility rules. Each `radiusM` is the interaction distance
+ * that trips the rule when two permits are not already in the same CWA — the
+ * radii are calibrated to the georeferenced CWA spacing (see CLAUDE.md SIMOPS
+ * note); re-check them if the CWA placement is re-anchored.
+ */
 const PAIR_RULES = [
     {
         kind: 'hot-work-vs-confined-space',

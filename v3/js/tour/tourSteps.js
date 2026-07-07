@@ -143,13 +143,13 @@ export const TOUR_STEPS = [
         chapter: 'Lifecycle',
         target: '#persona-select',
         title: 'Roles, not logins',
-        html: `The procedure defines distinct roles — <b>WA</b> (Work Applicant),
+        html: `The procedure defines distinct roles — <b>WA</b> (Work Authority),
                <b>AA</b> (Area Authority), <b>PI</b> (Permit Issuer), <b>PA</b> (Performing
                Authority) and <b>SAP</b> (Senior Authorised Person). In production these are
                separate signed-in users, with delegation and escalation. For this demo you
                switch roles here with one click, and the whole console re-evaluates what YOU
                are allowed to do.`,
-        narration: `The procedure defines distinct roles: work applicant, area authority, permit issuer, performing authority, and senior authorised person. … In production these are separate signed in users, with delegation and escalation. For this demonstration you switch roles with this selector, [slightly emphatic] and the whole console re evaluates what you are allowed to do.`
+        narration: `The procedure defines distinct roles: work authority, area authority, permit issuer, performing authority, and senior authorised person. … In production these are separate signed in users, with delegation and escalation. For this demonstration you switch roles with this selector, [slightly emphatic] and the whole console re evaluates what you are allowed to do.`
     },
     {
         id: 'approvals',
@@ -246,6 +246,11 @@ export const TOUR_STEPS = [
     },
 
     // ---------------- Chapter 6 — Isolations ----------------
+    // NOTE (demo simplification): the narration maps tag colours to isolation
+    // TYPE (red process / green electrical / blue instrument) for a clean demo
+    // line. §8.9 actually assigns colours by isolation STATE (e.g. red = closed
+    // valve / spade in, green = de-energised), which is what the seed tag_color
+    // values follow. Keep this in mind if a client SME asks.
     {
         id: 'icc',
         chapter: 'Isolations',

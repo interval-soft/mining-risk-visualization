@@ -124,6 +124,10 @@ export function applyTransition(permit, actionId, { role, name, reason, now = Da
         throw new Error('A reason is required (§6.2.4)');
     }
 
+    // Demo signatory identities used when an action stamps signatures without a
+    // caller-supplied name. A real deployment resolves these from the signed-in
+    // user. NOTE: the same map is duplicated in permitSeed.js (seeded events) —
+    // keep the two in sync.
     const NAMES = { WA: 'P. Sinclair', AA: 'G. Latham', PI: 'B. Kavanagh' };
     const signatures = { ...(typeof permit.signatures === 'string'
         ? JSON.parse(permit.signatures) : permit.signatures || {}) };

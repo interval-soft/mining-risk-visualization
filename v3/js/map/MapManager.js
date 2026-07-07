@@ -1,9 +1,17 @@
 /**
- * MapManager v3 — Padeswood basemap + Construction Work Areas.
+ * MapManager v3 — the Padeswood control-room map. Pure MapLibre GL (no
+ * deck.gl); every overlay is a native MapLibre layer over an Esri satellite
+ * raster:
+ *   buildings           existing plant footprints (context)
+ *   cwa-fill/outline/labels   the Construction Work Areas (the client's zoning)
+ *   permit-pins/labels        one pin per live/upcoming permit, coloured by type
+ *   conflict-links/markers/glyphs   SIMOPS interactions drawn on the ground
+ *   isolations                ICC isolation points, coloured by §8.9 tag
  *
- * CWA polygons are schematic (traced from Appendix H of the Worley PTW
- * procedure, plant north 341°) — to be replaced by client GIS data.
- * Permit pins/zones arrive in milestone 2 (deck.gl overlay).
+ * CWA polygon SHAPES are schematic (traced from Appendix H of the Worley PTW
+ * procedure); their PLACEMENT is georeferenced (plant north 019° true — see
+ * v3/tools/gen-cwa.cjs) and stays registered with the permit/isolation pins.
+ * Replace the CWA geometry with the client GIS when available.
  */
 
 import { SITE, TILES, DATA_URLS } from '../config.js';
