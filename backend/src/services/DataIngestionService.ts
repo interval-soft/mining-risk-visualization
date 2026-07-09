@@ -159,6 +159,7 @@ export class DataIngestionService {
       severity: row.severity as 'low' | 'medium' | 'high' | 'critical',
       metadata: typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata,
       created_at: new Date(row.created_at as string),
+      structure_id: (row.structure_id as string) ?? null,
     };
   }
 
@@ -170,6 +171,7 @@ export class DataIngestionService {
       sensor_type: row.sensor_type as string,
       value: parseFloat(row.value as string),
       unit: row.unit as string,
+      structure_id: (row.structure_id as string) ?? null,
     };
   }
 }

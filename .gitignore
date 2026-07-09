@@ -28,3 +28,6 @@ backend/dist/
 .vercel
 .gstack/
 Digitaltwin/.obsidian/
+
+# Hookify local rules (personal, not shared)
+.claude/*.local.md
