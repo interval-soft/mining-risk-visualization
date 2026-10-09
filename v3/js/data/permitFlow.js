@@ -50,6 +50,15 @@ export const ACTIONS = {
         stamp: 'revalidated_at',
         event: 'daily revalidation (§6.2.2)'
     },
+    shift_signoff: {
+        from: ['issued'], to: 'issued',
+        roles: ['PA'],
+        label: 'Shift sign-off — site safe & secure',
+        icon: 'ph-shield-check',
+        sign: [],
+        stamp: 'signed_off_at',
+        event: 'shift sign-off — work site left safe & secure (§5.8)'
+    },
     suspend: {
         from: ['issued'], to: 'suspended',
         roles: ['PI', 'AA'],
@@ -144,7 +153,7 @@ export function applyTransition(permit, actionId, { role, name, reason, now = Da
         signatures,
         updated_at: new Date(now).toISOString()
     };
-    if (action.stamp === 'revalidated_at') next.revalidated_at = new Date(now).toISOString();
+    if (action.stamp) next[action.stamp] = new Date(now).toISOString();
     if (reason) next.description = reason;
 
     const event = {

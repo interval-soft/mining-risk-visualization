@@ -15,8 +15,8 @@
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 
-    <link rel="stylesheet" href="/v3/css/main.css?v=20260707a">
-    <link rel="stylesheet" href="/v3/css/tour.css?v=20260707a">
+    <link rel="stylesheet" href="/v3/css/main.css?v=20260830a">
+    <link rel="stylesheet" href="/v3/css/tour.css?v=20260830a">
 </head>
 <body>
     <div id="app">
@@ -52,7 +52,7 @@
         <!-- Permit board -->
         <nav id="asset-rail">
             <div class="rail-title rail-title-row">Permit board
-                <button id="btn-new-permit" class="mini-btn"><i class="ph-duotone ph-plus-circle"></i> New permit</button>
+                <button id="btn-new-permit" class="mini-btn" title="Demo only — in a live deployment permits are raised in your ePTW; this simulates that event"><i class="ph-duotone ph-plus-circle"></i> Simulate ePTW request</button>
             </div>
             <div id="permit-board"></div>
             <div class="rail-title">Permit types · validity (§4.1)</div>
@@ -91,7 +91,7 @@
                     <i class="ph-duotone ph-clipboard-text"></i>
                     <div>
                         <div class="detail-id">HMCCP PERMIT REQUEST</div>
-                        <div class="detail-name">Appendix I — digital form</div>
+                        <div class="detail-name">Appendix I — as raised in the ePTW (simulated)</div>
                     </div>
                     <button class="detail-close" id="form-close" aria-label="Close">×</button>
                 </div>
@@ -180,6 +180,6 @@
         </footer>
     </div>
 
-    <script type="module" src="/v3/js/main.js?v=20260707a"></script>
+    <script type="module" src="/v3/js/main.js?v=20260830a"></script>
 </body>
 </html>

@@ -47,9 +47,9 @@ export default async function handler(req, res) {
         const p = result.permit;
         await query(
             `UPDATE v3_permits SET status=$2, signatures=$3, description=$4,
-                    revalidated_at=$5, updated_at=now() WHERE permit_no=$1`,
+                    revalidated_at=$5, signed_off_at=$6, updated_at=now() WHERE permit_no=$1`,
             [permit_no, p.status, JSON.stringify(p.signatures), p.description,
-             p.revalidated_at]);
+             p.revalidated_at, p.signed_off_at ?? null]);
         await query(
             `INSERT INTO v3_permit_events (permit_id, actor_role, actor_name, action)
              VALUES ((SELECT id FROM v3_permits WHERE permit_no=$1), $2, $3, $4)`,

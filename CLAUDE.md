@@ -121,6 +121,12 @@ spec (digest note in the Digitaltwin/ Obsidian vault).
   isolationFlow) are imported by BOTH the browser and api/v3/* functions —
   single source of truth, no twin files to sync. Demo seed anchors to
   today's 07:00 UK so countdowns are always alive.
+- FRAMING (2026-08-30): the console is pitched as a TWIN over the client's
+  ePTW (system of record). Demo actions are labelled "Simulated ePTW event",
+  the request button "Simulate ePTW request", the source badge "Twin view ·
+  simulated ePTW feed" — keep that wording; the twin must never read as its
+  own system of record. `shift_signoff` (PA, §5.8) stamps `signed_off_at`
+  (column added to v3_permits) and keeps the permit issued.
 - api/v3/* read the Supabase project "digitaltwin" (mpytqivbpzbsurykvmlr,
   us-east-1) when DATABASE_URL is set; otherwise they serve/validate
   against the deterministic seed. POST /api/v3/seed re-anchors demo data.

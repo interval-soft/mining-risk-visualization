@@ -145,7 +145,8 @@ class ControlOfWorkConsole {
         document.getElementById('kpi-conflicts').classList.toggle('kpi-alert-active', (k.conflicts ?? 0) > 0);
         document.querySelectorAll('.kpi').forEach(el => el.classList.remove('kpi-placeholder'));
         document.getElementById('data-source').textContent =
-            source === 'db' ? 'Demo data · live' : 'Demo data · sample';
+            source === 'db' ? 'Twin view · simulated ePTW feed (demo database)'
+                            : 'Twin view · simulated ePTW feed (sample data)';
     }
 
     renderBoard(permits) {
@@ -290,6 +291,7 @@ class ControlOfWorkConsole {
             <div class="detail-row"><span>Validity</span><span>${fmt(p.valid_from)} → ${fmt(p.valid_to)}
                 <span class="permit-countdown" data-valid-to="${esc(p.valid_to)}" data-status="${esc(p.status)}"></span></span></div>
             ${p.revalidated_at ? `<div class="detail-row"><span>Revalidated</span><span>${fmt(p.revalidated_at)} (§6.2.2)</span></div>` : ''}
+            ${p.signed_off_at ? `<div class="detail-row"><span>Shift sign-off</span><span>${fmt(p.signed_off_at)} · site safe &amp; secure (§5.8)</span></div>` : ''}
             ${p.icc_no ? `<div class="detail-row"><span>Isolation</span><span>${esc(p.icc_no)}</span></div>` : ''}
             <div class="detail-row"><span>Approval chain</span><span class="sig-chain">${chain}</span></div>
             <div class="detail-atts">${attRows}</div>
@@ -300,6 +302,10 @@ class ControlOfWorkConsole {
         const actions = actionsFor(p.status, this.persona);
         if (!actions.length) {
             actionsBox.innerHTML = `<span class="detail-muted">No ${esc(this.persona)} action for status "${esc(p.status)}"</span>`;
+        } else {
+            // Framing: the twin mirrors the system of record — in the demo these
+            // buttons stand in for events that a live deployment receives from the ePTW.
+            actionsBox.innerHTML = '<span class="detail-muted actions-caption">Simulated ePTW event (demo)</span>';
         }
         for (const a of actions) {
             const btn = document.createElement('button');
@@ -529,8 +535,9 @@ class ControlOfWorkConsole {
                     linked.length
                         ? linked.map(p => `<button class="sig conflict-chip" data-permit="${esc(p.permit_no)}">${esc(p.permit_no.replace('PTW-2026-', 'PTW '))}</button>`).join(' ')
                         : '<span class="detail-muted">no open linked permits</span>'}</div>
-                <div class="detail-actions iso-actions">${actions ||
-                    `<span class="detail-muted">No ${esc(this.persona)} action — isolations are SAP-controlled (§8.1.1)</span>`}</div>
+                <div class="detail-actions iso-actions">${actions
+                    ? `<span class="detail-muted actions-caption">Simulated ePTW event (demo)</span>${actions}`
+                    : `<span class="detail-muted">No ${esc(this.persona)} action — isolations are SAP-controlled (§8.1.1)</span>`}</div>
             </div>`;
         }).join('');
 

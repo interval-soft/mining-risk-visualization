@@ -152,7 +152,8 @@ export function permitCertificate(permit, { isolations = [] } = {}) {
             ['Performing Authority', permit.performing_authority],
             ['Valid from', fmtDateTime(permit.valid_from)],
             ['Valid to', fmtDateTime(permit.valid_to)],
-            ...(permit.revalidated_at ? [['Last revalidated (§6.2.2)', fmtDateTime(permit.revalidated_at)]] : [])
+            ...(permit.revalidated_at ? [['Last revalidated (§6.2.2)', fmtDateTime(permit.revalidated_at)]] : []),
+            ...(permit.signed_off_at ? [['Last shift sign-off (§5.8)', `${fmtDateTime(permit.signed_off_at)} — site safe & secure`]] : [])
         ]),
         sectionTitle('Approval chain (§6.2.1)'),
         { table: { headerRows: 1, widths: [40, '*', '*', 120], body: sigBody }, layout: tableLayout() },
